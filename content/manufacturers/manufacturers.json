@@ -1,0 +1,14 @@
+[
+  {
+    "id": "northgate-demo",
+    "name": "Northgate (Demo)",
+    "country": "AU",
+    "isDemo": true
+  },
+  {
+    "id": "kestrel-demo",
+    "name": "Kestrel Systems (Demo)",
+    "country": "AU",
+    "isDemo": true
+  }
+]

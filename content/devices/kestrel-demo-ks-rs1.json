@@ -1,0 +1,17 @@
+{
+  "id": "kestrel-demo-ks-rs1",
+  "manufacturerId": "kestrel-demo",
+  "model": "KS-RS1",
+  "name": "KS-RS1 Surface Reed Switch",
+  "category": "reed-switch",
+  "summary": "Demonstration surface-mount magnetic door contact.",
+  "aliases": ["RS1", "door contact", "reed"],
+  "modelRevisions": [{ "revision": "v1" }],
+  "terminals": [
+    { "label": "C / NC", "function": "Reed contact", "sourceRefs": [{ "sourceId": "demo-ks-rs1-datasheet" }] },
+    { "label": "T / T", "function": "Tamper loop", "sourceRefs": [{ "sourceId": "demo-ks-rs1-datasheet" }] }
+  ],
+  "documentation": [{ "sourceId": "demo-ks-rs1-datasheet" }],
+  "verification": { "status": "example", "notes": "Fictional demonstration device. Terminal and power details are illustrative only and do not describe any real product." },
+  "updatedAt": "2026-10-26"
+}

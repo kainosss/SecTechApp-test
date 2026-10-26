@@ -1,0 +1,29 @@
+{
+  "id": "northgate-demo-ap-8",
+  "manufacturerId": "northgate-demo",
+  "model": "AP-8",
+  "name": "AP-8 8-Zone Alarm Panel",
+  "category": "alarm-panel",
+  "summary": "Demonstration 8-zone intruder alarm panel used to show how panel records are structured.",
+  "aliases": ["AP8", "8 zone panel"],
+  "modelRevisions": [
+    { "revision": "Rev A", "appliesTo": "Firmware 1.x (demo)" }
+  ],
+  "terminals": [
+    { "label": "AUX+", "function": "Auxiliary power output, positive", "sourceRefs": [{ "sourceId": "demo-ng-ap8-install", "locator": "Section 3 (demo)" }] },
+    { "label": "AUX-", "function": "Auxiliary power output, negative", "sourceRefs": [{ "sourceId": "demo-ng-ap8-install", "locator": "Section 3 (demo)" }] },
+    { "label": "Z1–Z8", "function": "Zone inputs", "notes": "EOL options are shown in the EOL Wiring Assistant once verified.", "sourceRefs": [{ "sourceId": "demo-ng-ap8-install" }] },
+    { "label": "COM", "function": "Zone common", "sourceRefs": [{ "sourceId": "demo-ng-ap8-install" }] },
+    { "label": "BELL+ / BELL-", "function": "Siren output", "sourceRefs": [{ "sourceId": "demo-ng-ap8-install" }] }
+  ],
+  "power": {
+    "supplyVoltage": { "min": 16, "max": 18, "nominal": 16.5, "type": "AC" },
+    "notes": "Illustrative values only.",
+    "sourceRefs": [{ "sourceId": "demo-ng-ap8-install" }]
+  },
+  "documentation": [{ "sourceId": "demo-ng-ap8-install" }],
+  "relatedEolConfigIds": [],
+  "relatedFaultGuideIds": [],
+  "verification": { "status": "example", "notes": "Fictional demonstration device. Terminal and power details are illustrative only and do not describe any real product." },
+  "updatedAt": "2026-10-26"
+}

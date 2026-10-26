@@ -1,0 +1,42 @@
+[
+  {
+    "id": "demo-ng-ap8-install",
+    "title": "AP-8 Alarm Panel Installation Guide (fictional)",
+    "publisher": "Northgate (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "Rev A (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ng-kp2-install",
+    "title": "KP-2 LCD Keypad Installation Sheet (fictional)",
+    "publisher": "Northgate (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "Rev A (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ks-pir-datasheet",
+    "title": "KS-PIR12 Detector Datasheet (fictional)",
+    "publisher": "Kestrel Systems (Demo)",
+    "documentType": "datasheet",
+    "documentRevision": "v1.0 (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ks-rs1-datasheet",
+    "title": "KS-RS1 Surface Reed Switch Datasheet (fictional)",
+    "publisher": "Kestrel Systems (Demo)",
+    "documentType": "datasheet",
+    "documentRevision": "v1.0 (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ks-sr20-install",
+    "title": "KS-SR20 External Siren Installation Guide (fictional)",
+    "publisher": "Kestrel Systems (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "Rev B (demo)",
+    "isDemo": true
+  }
+]

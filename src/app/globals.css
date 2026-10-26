@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-ink-950: #060b16;
+  --color-ink-900: #0a1222;
+  --color-ink-850: #0d172b;
+  --color-ink-800: #121e36;
+  --color-ink-700: #1a2945;
+  --color-line: #1d2c4a;
+  --color-line-strong: #2a3d63;
+
+  --color-fg: #e7edf7;
+  --color-fg-muted: #9aa9c3;
+  --color-fg-subtle: #6b7c9b;
+
+  --color-signal-300: #7eecdc;
+  --color-signal-400: #3fd9c2;
+  --color-signal-500: #17b8a3;
+  --color-signal-600: #0e8f80;
+
+  --color-verified: #4ade80;
+  --color-unverified: #fb923c;
+  --color-example: #f5c451;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-ink-950 text-fg font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-signal-500/30;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-signal-400;
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(42 61 99 / 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(42 61 99 / 0.18) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

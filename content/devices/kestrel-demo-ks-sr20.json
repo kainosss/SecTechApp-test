@@ -1,0 +1,23 @@
+{
+  "id": "kestrel-demo-ks-sr20",
+  "manufacturerId": "kestrel-demo",
+  "model": "KS-SR20",
+  "name": "KS-SR20 External Siren & Strobe",
+  "category": "siren",
+  "summary": "Demonstration self-powered external siren with strobe.",
+  "aliases": ["SR20", "external siren", "bell box"],
+  "modelRevisions": [{ "revision": "Rev B" }],
+  "terminals": [
+    { "label": "+12V / 0V", "function": "Charging supply", "sourceRefs": [{ "sourceId": "demo-ks-sr20-install" }] },
+    { "label": "TRG", "function": "Siren trigger input", "sourceRefs": [{ "sourceId": "demo-ks-sr20-install" }] },
+    { "label": "STB", "function": "Strobe trigger input", "sourceRefs": [{ "sourceId": "demo-ks-sr20-install" }] },
+    { "label": "TMP", "function": "Tamper output", "sourceRefs": [{ "sourceId": "demo-ks-sr20-install" }] }
+  ],
+  "power": {
+    "supplyVoltage": { "min": 12, "max": 14.4, "nominal": 13.8, "type": "DC" },
+    "sourceRefs": [{ "sourceId": "demo-ks-sr20-install" }]
+  },
+  "documentation": [{ "sourceId": "demo-ks-sr20-install" }],
+  "verification": { "status": "example", "notes": "Fictional demonstration device. Terminal and power details are illustrative only and do not describe any real product." },
+  "updatedAt": "2026-10-26"
+}
