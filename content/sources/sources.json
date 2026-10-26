@@ -38,5 +38,45 @@
     "documentType": "installation-manual",
     "documentRevision": "Rev B (demo)",
     "isDemo": true
+  },
+  {
+    "id": "demo-ar-ac2-install",
+    "title": "AC-2D Door Controller Installation Manual (fictional)",
+    "publisher": "Arclight Access (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "Rev 2 (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ar-rd10-datasheet",
+    "title": "RD-10 Proximity Reader Datasheet (fictional)",
+    "publisher": "Arclight Access (Demo)",
+    "documentType": "datasheet",
+    "documentRevision": "v1.2 (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-ar-ls12-install",
+    "title": "LS-12 Electric Strike Installation Sheet (fictional)",
+    "publisher": "Arclight Access (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "Rev A (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-hv-hc4d-guide",
+    "title": "HC-4D Dome Camera Quick Start Guide (fictional)",
+    "publisher": "Halden Vision (Demo)",
+    "documentType": "installation-manual",
+    "documentRevision": "v3 (demo)",
+    "isDemo": true
+  },
+  {
+    "id": "demo-hv-nv8-manual",
+    "title": "NV-8 Network Video Recorder User Manual (fictional)",
+    "publisher": "Halden Vision (Demo)",
+    "documentType": "programming-manual",
+    "documentRevision": "v2.1 (demo)",
+    "isDemo": true
   }
 ]

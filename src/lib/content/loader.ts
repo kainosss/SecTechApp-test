@@ -71,6 +71,8 @@ export function loadContent(raw: { manufacturers: unknown[]; sources: unknown[];
       ...d.documentation,
       ...d.terminals.flatMap((t) => t.sourceRefs),
       ...(d.power?.sourceRefs ?? []),
+      ...d.specifications.flatMap((x) => x.sourceRefs),
+      ...d.installationNotes.flatMap((x) => x.sourceRefs),
     ];
     for (const ref of refs) {
       const source = sourcesById.get(ref.sourceId);

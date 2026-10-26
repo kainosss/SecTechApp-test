@@ -1,0 +1,103 @@
+{
+  "id": "halden-demo-nv-8",
+  "manufacturerId": "halden-demo",
+  "model": "NV-8",
+  "name": "NV-8 8-Channel NVR",
+  "category": "network-video-recorder",
+  "summary": "Demonstration 8-channel network video recorder with built-in PoE ports.",
+  "aliases": [
+    "NV8",
+    "nvr",
+    "recorder"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "v2.1"
+    }
+  ],
+  "terminals": [
+    {
+      "label": "PoE 1–8",
+      "function": "Camera ports with PoE",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    },
+    {
+      "label": "LAN",
+      "function": "Uplink to site network",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    },
+    {
+      "label": "HDMI / VGA",
+      "function": "Monitor outputs",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    }
+  ],
+  "power": {
+    "supplyVoltage": {
+      "min": 48,
+      "max": 52,
+      "nominal": 48,
+      "type": "DC"
+    },
+    "notes": "External adaptor (demo).",
+    "sourceRefs": [
+      {
+        "sourceId": "demo-hv-nv8-manual"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "PoE budget",
+      "value": "80 W total (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Channels",
+      "value": "8 (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Check the total PoE budget when adding cameras with heaters or IR (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-hv-nv8-manual"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
+  "updatedAt": "2026-10-26"
+}

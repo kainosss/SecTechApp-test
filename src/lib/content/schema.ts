@@ -92,6 +92,11 @@ export const deviceCategorySchema = z.enum([
   "siren",
   "power-supply",
   "access-controller",
+  "card-reader",
+  "electric-lock",
+  "ip-camera",
+  "network-video-recorder",
+  "network-switch",
   "other",
 ]);
 export type DeviceCategory = z.infer<typeof deviceCategorySchema>;
@@ -123,6 +128,26 @@ export const powerSchema = z.object({
   sourceRefs: z.array(sourceRefSchema).default([]),
 });
 
+/**
+ * Generic electrical / technical specification row. New kinds of spec
+ * (relay rating, IP rating, PoE class...) are added as data, not UI code.
+ */
+export const specificationSchema = z.object({
+  group: z.enum(["electrical", "physical", "environmental", "communications", "other"]).default("electrical"),
+  label: z.string().min(1),
+  value: z.string().min(1),
+  sourceRefs: z.array(sourceRefSchema).default([]),
+});
+export type Specification = z.infer<typeof specificationSchema>;
+
+export const installationNoteSchema = z.object({
+  text: z.string().min(1),
+  /** "caution" notes are rendered prominently. */
+  severity: z.enum(["info", "caution"]).default("info"),
+  sourceRefs: z.array(sourceRefSchema).default([]),
+});
+export type InstallationNote = z.infer<typeof installationNoteSchema>;
+
 export const modelRevisionSchema = z.object({
   revision: z.string().min(1),
   /** Firmware or hardware revision the content applies to. */
@@ -142,9 +167,12 @@ export const deviceSchema = z
     modelRevisions: z.array(modelRevisionSchema).min(1),
     terminals: z.array(terminalSchema).default([]),
     power: powerSchema.optional(),
+    specifications: z.array(specificationSchema).default([]),
+    installationNotes: z.array(installationNoteSchema).default([]),
     documentation: z.array(sourceRefSchema).default([]),
-    relatedEolConfigIds: z.array(slug).default([]),
-    relatedFaultGuideIds: z.array(slug).default([]),
+    // Relationships to EOL configurations and fault workflows are declared on
+    // those records (they list the devices they apply to) and resolved in the
+    // repository, so links are maintained in exactly one place.
     verification: verificationSchema,
     updatedAt: isoDate,
   })
@@ -168,5 +196,10 @@ export const CATEGORY_LABELS: Record<DeviceCategory, string> = {
   siren: "Siren / strobe",
   "power-supply": "Power supply",
   "access-controller": "Access controller",
+  "card-reader": "Card reader",
+  "electric-lock": "Electric lock",
+  "ip-camera": "IP camera",
+  "network-video-recorder": "NVR",
+  "network-switch": "Network switch",
   other: "Other",
 };

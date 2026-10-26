@@ -62,6 +62,19 @@ describe("content safeguards", () => {
     expect(() => loadContent(withDevice(device))).toThrow(/unknown manufacturerId[\s\S]*unknown source/);
   });
 
+  it("rejects specifications and installation notes citing unknown sources", () => {
+    const device = {
+      ...baseDevice,
+      specifications: [{ label: "Rating", value: "1 A", sourceRefs: [{ sourceId: "ghost-spec" }] }],
+      installationNotes: [{ text: "Note", sourceRefs: [{ sourceId: "ghost-note" }] }],
+    };
+    expect(() => loadContent(withDevice(device))).toThrow(/ghost-spec[\s\S]*ghost-note/);
+  });
+
+  it("rejects unknown device categories", () => {
+    expect(() => loadContent(withDevice({ ...baseDevice, category: "toaster" }))).toThrow(ContentValidationError);
+  });
+
   it("rejects duplicate ids", () => {
     expect(() => loadContent(withDevice({ ...baseDevice, id: "kestrel-demo-ks-rs1" }))).toThrow(/duplicate id/);
   });

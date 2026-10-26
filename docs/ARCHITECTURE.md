@@ -19,7 +19,7 @@
 
 ```
 content/                      Technical content (reviewed like documentation)
-  index.ts                    Manifest: the only file that imports content JSON
+  index.ts                    AUTO-GENERATED manifest (scripts/generate-content-manifest.mjs)
   manufacturers/*.json
   sources/*.json              Source documents (manuals, datasheets) with revisions
   devices/<id>.json           One file per device: small diffs, easy review
@@ -38,11 +38,29 @@ src/
     content/schema.ts         Zod schemas + verification rules
     content/loader.ts         Validation + cross-reference checks
     content/repository.ts     Read API used by pages
+    devices/filter.ts         Device Library filtering, category counts, URL state
     search/                   Pure search scoring + index builder
     storage/                  Recently viewed / favourites (localStorage today)
     navigation.ts             Nav items + tool registry
 tests/                        Vitest: content rules, search, storage, components
 ```
+
+## Device records
+
+A device page is rendered entirely from its JSON record. Optional sections (terminals, specifications,
+installation notes) only appear when the record has data, so adding a device never needs UI code.
+
+| Field | Purpose |
+|-------|---------|
+| `terminals[]` | Label, function, notes, `sourceRefs` |
+| `power` | Supply voltage range, current draw, `sourceRefs` |
+| `specifications[]` | Generic `{group, label, value, sourceRefs}` rows: electrical, communications, physical, environmental |
+| `installationNotes[]` | `{text, severity: info \| caution, sourceRefs}` |
+| `documentation[]` | Source documents (manuals, datasheets) with revision and URL |
+| `modelRevisions[]` | Hardware/firmware revisions the record applies to |
+
+**Relationships:** EOL configurations and fault workflows will declare which devices they apply to.
+The device page resolves them through `getRelatedForDevice()`, so each link is stored once.
 
 ## Scaling notes
 
@@ -61,7 +79,7 @@ tests/                        Vitest: content rules, search, storage, components
 | Phase | Scope |
 |-------|-------|
 | 1 ✅ | Architecture, content schema, demo data, dashboard, navigation, search, recent/favourites |
-| 2 | Full Device Library: filters by manufacturer, device pages, document links, revision handling |
+| 2 (v0.2) | ✅ Device Library foundation · EOL Wiring Assistant · Guided Fault Finder |
 | 3 | EOL Wiring Assistant: EOL config schema, panel/input/contact selection, SVG references from verified data only |
 | 4 | Guided Fault Finder: decision-tree schema, interactive runner, test procedures |
 | 5 | Supabase: auth, content tables, content admin/review workflow, synced favourites |

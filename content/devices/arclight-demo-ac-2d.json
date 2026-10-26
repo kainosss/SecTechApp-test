@@ -1,0 +1,160 @@
+{
+  "id": "arclight-demo-ac-2d",
+  "manufacturerId": "arclight-demo",
+  "model": "AC-2D",
+  "name": "AC-2D Two-Door Access Controller",
+  "category": "access-controller",
+  "summary": "Demonstration two-door access controller with reader, lock relay and door monitoring inputs.",
+  "aliases": [
+    "AC2D",
+    "door controller",
+    "2 door controller"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "Rev 2",
+      "appliesTo": "Firmware 4.x (demo)"
+    }
+  ],
+  "terminals": [
+    {
+      "label": "+12V / 0V",
+      "function": "Controller power input",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "R1 D0 / D1",
+      "function": "Reader 1 Wiegand data",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "R1 LED / BZ",
+      "function": "Reader 1 LED and buzzer control",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "LK1 NO / C / NC",
+      "function": "Door 1 lock relay",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "DS1",
+      "function": "Door 1 position input",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "RTE1",
+      "function": "Door 1 request-to-exit input",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "label": "ETH",
+      "function": "Ethernet (RJ45) to host software",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    }
+  ],
+  "power": {
+    "supplyVoltage": {
+      "min": 12,
+      "max": 14,
+      "nominal": 13.8,
+      "type": "DC"
+    },
+    "currentDrawMa": {
+      "standby": 180
+    },
+    "sourceRefs": [
+      {
+        "sourceId": "demo-ar-ac2-install"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "label": "Lock relay rating",
+      "value": "2 A @ 30 V DC (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Host link",
+      "value": "10/100 Ethernet (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Reader interface",
+      "value": "Wiegand 26/34-bit (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Fit a suppression diode across DC lock coils (demonstration note — confirm against the lock and controller manuals).",
+      "severity": "caution",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    },
+    {
+      "text": "Power locks from a separate supply where the controller supply cannot carry the combined load (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-ar-ac2-install"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
+  "updatedAt": "2026-10-26"
+}

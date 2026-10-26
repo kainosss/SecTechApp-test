@@ -5,7 +5,8 @@
  */
 import { rawContent } from "@content/index";
 import { loadContent, type ContentStore } from "./loader";
-import type { Device, DeviceCategory, Manufacturer, Source } from "./schema";
+import type { DeviceListItem } from "@/lib/devices/filter";
+import { CATEGORY_LABELS, type Device, type DeviceCategory, type Manufacturer, type Source, type VerificationStatus } from "./schema";
 
 let store: ContentStore | null = null;
 
@@ -60,6 +61,34 @@ export function toDeviceSummary(d: Device): DeviceSummary {
 
 export function getDeviceSummaries(): DeviceSummary[] {
   return getDevices().map(toDeviceSummary);
+}
+
+export function toDeviceListItem(d: Device): DeviceListItem {
+  return {
+    ...toDeviceSummary(d),
+    manufacturerId: d.manufacturerId,
+    keywords: [...d.aliases, CATEGORY_LABELS[d.category]],
+  };
+}
+
+export function getDeviceListItems(): DeviceListItem[] {
+  return getDevices().map(toDeviceListItem);
+}
+
+/** A link from a device to a related EOL configuration or fault workflow. */
+export interface RelatedRecord {
+  id: string;
+  title: string;
+  href: string;
+  status: VerificationStatus;
+}
+
+/**
+ * Records that declare they apply to this device. EOL configurations and
+ * fault workflows are added in the next v0.2 steps; until then these are empty.
+ */
+export function getRelatedForDevice(_deviceId: string): { eolConfigurations: RelatedRecord[]; faultWorkflows: RelatedRecord[] } {
+  return { eolConfigurations: [], faultWorkflows: [] };
 }
 
 export function getContentStats() {

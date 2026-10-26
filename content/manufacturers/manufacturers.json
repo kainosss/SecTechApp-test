@@ -10,5 +10,17 @@
     "name": "Kestrel Systems (Demo)",
     "country": "AU",
     "isDemo": true
+  },
+  {
+    "id": "arclight-demo",
+    "name": "Arclight Access (Demo)",
+    "country": "AU",
+    "isDemo": true
+  },
+  {
+    "id": "halden-demo",
+    "name": "Halden Vision (Demo)",
+    "country": "AU",
+    "isDemo": true
   }
 ]

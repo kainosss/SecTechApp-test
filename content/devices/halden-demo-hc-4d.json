@@ -1,0 +1,106 @@
+{
+  "id": "halden-demo-hc-4d",
+  "manufacturerId": "halden-demo",
+  "model": "HC-4D",
+  "name": "HC-4D 4MP Dome Camera",
+  "category": "ip-camera",
+  "summary": "Demonstration PoE dome camera.",
+  "aliases": [
+    "HC4D",
+    "dome camera",
+    "4mp dome"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "v3",
+      "appliesTo": "Firmware 3.x (demo)"
+    }
+  ],
+  "terminals": [
+    {
+      "label": "RJ45",
+      "function": "Ethernet / PoE",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    },
+    {
+      "label": "12V DC",
+      "function": "Optional DC input",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    }
+  ],
+  "power": {
+    "supplyVoltage": {
+      "min": 11,
+      "max": 13,
+      "nominal": 12,
+      "type": "DC"
+    },
+    "notes": "Or PoE 802.3af (demo).",
+    "sourceRefs": [
+      {
+        "sourceId": "demo-hv-hc4d-guide"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "Power over Ethernet",
+      "value": "802.3af, Class 3 (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Default IP",
+      "value": "DHCP (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Ingress rating",
+      "value": "IP66 (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Do not apply PoE and DC power at the same time (demonstration note).",
+      "severity": "caution",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-hv-hc4d-guide"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
+  "updatedAt": "2026-10-26"
+}

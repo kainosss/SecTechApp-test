@@ -5,22 +5,116 @@
   "name": "KS-PIR12 Passive Infrared Detector",
   "category": "motion-detector",
   "summary": "Demonstration wired PIR detector with alarm and tamper contacts.",
-  "aliases": ["PIR12", "KSPIR12", "motion sensor"],
+  "aliases": [
+    "PIR12",
+    "KSPIR12",
+    "motion sensor"
+  ],
   "modelRevisions": [
-    { "revision": "v1", "notes": "Original release (demo)" },
-    { "revision": "v2", "notes": "Revised lens (demo)" }
+    {
+      "revision": "v1",
+      "notes": "Original release (demo)"
+    },
+    {
+      "revision": "v2",
+      "notes": "Revised lens (demo)"
+    }
   ],
   "terminals": [
-    { "label": "+ / -", "function": "Power in", "sourceRefs": [{ "sourceId": "demo-ks-pir-datasheet" }] },
-    { "label": "ALM", "function": "Alarm relay contacts", "sourceRefs": [{ "sourceId": "demo-ks-pir-datasheet" }] },
-    { "label": "TMP", "function": "Tamper switch contacts", "sourceRefs": [{ "sourceId": "demo-ks-pir-datasheet" }] }
+    {
+      "label": "+ / -",
+      "function": "Power in",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "ALM",
+      "function": "Alarm relay contacts",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "TMP",
+      "function": "Tamper switch contacts",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    }
   ],
   "power": {
-    "supplyVoltage": { "min": 9, "max": 15, "nominal": 12, "type": "DC" },
-    "currentDrawMa": { "standby": 12, "alarm": 15 },
-    "sourceRefs": [{ "sourceId": "demo-ks-pir-datasheet" }]
+    "supplyVoltage": {
+      "min": 9,
+      "max": 15,
+      "nominal": 12,
+      "type": "DC"
+    },
+    "currentDrawMa": {
+      "standby": 12,
+      "alarm": 15
+    },
+    "sourceRefs": [
+      {
+        "sourceId": "demo-ks-pir-datasheet"
+      }
+    ]
   },
-  "documentation": [{ "sourceId": "demo-ks-pir-datasheet" }],
-  "verification": { "status": "example", "notes": "Fictional demonstration device. Terminal and power details are illustrative only and do not describe any real product." },
+  "specifications": [
+    {
+      "label": "Alarm relay",
+      "value": "NC, 100 mA @ 24 V DC (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    },
+    {
+      "group": "physical",
+      "label": "Coverage",
+      "value": "12 m × 12 m (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating temperature",
+      "value": "−10 to +50 °C (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Mount at the height specified in the datasheet and avoid pointing at heat sources (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-ks-pir-datasheet"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
   "updatedAt": "2026-10-26"
 }

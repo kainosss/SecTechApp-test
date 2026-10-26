@@ -5,19 +5,91 @@
   "name": "KP-2 LCD Keypad",
   "category": "keypad",
   "summary": "Demonstration data-bus keypad for the AP-8 panel.",
-  "aliases": ["KP2", "LCD keypad"],
-  "modelRevisions": [{ "revision": "Rev A" }],
+  "aliases": [
+    "KP2",
+    "LCD keypad"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "Rev A"
+    }
+  ],
   "terminals": [
-    { "label": "+12V", "function": "Power in, positive", "sourceRefs": [{ "sourceId": "demo-ng-kp2-install" }] },
-    { "label": "0V", "function": "Power in, negative", "sourceRefs": [{ "sourceId": "demo-ng-kp2-install" }] },
-    { "label": "DATA / CLK", "function": "Panel data bus", "sourceRefs": [{ "sourceId": "demo-ng-kp2-install" }] }
+    {
+      "label": "+12V",
+      "function": "Power in, positive",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
+    },
+    {
+      "label": "0V",
+      "function": "Power in, negative",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
+    },
+    {
+      "label": "DATA / CLK",
+      "function": "Panel data bus",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
+    }
   ],
   "power": {
-    "supplyVoltage": { "min": 11, "max": 14, "nominal": 12, "type": "DC" },
-    "currentDrawMa": { "standby": 40, "alarm": 80 },
-    "sourceRefs": [{ "sourceId": "demo-ng-kp2-install" }]
+    "supplyVoltage": {
+      "min": 11,
+      "max": 14,
+      "nominal": 12,
+      "type": "DC"
+    },
+    "currentDrawMa": {
+      "standby": 40,
+      "alarm": 80
+    },
+    "sourceRefs": [
+      {
+        "sourceId": "demo-ng-kp2-install"
+      }
+    ]
   },
-  "documentation": [{ "sourceId": "demo-ng-kp2-install" }],
-  "verification": { "status": "example", "notes": "Fictional demonstration device. Terminal and power details are illustrative only and do not describe any real product." },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "Bus",
+      "value": "4-wire data bus (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Set a unique keypad address before powering the bus (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-ng-kp2-install"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
   "updatedAt": "2026-10-26"
 }

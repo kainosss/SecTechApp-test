@@ -27,10 +27,10 @@ export const TOOLS: ToolDefinition[] = [
   {
     id: "device-library",
     title: "Device Library",
-    description: "Terminals, power requirements and manufacturer documents.",
+    description: "Terminals, specifications, install notes and manufacturer manuals.",
     href: "/devices",
     icon: "library",
-    status: "preview",
+    status: "available",
     keywords: ["devices", "terminals", "datasheet", "manual", "voltage"],
   },
   {

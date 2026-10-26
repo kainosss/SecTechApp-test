@@ -2,7 +2,7 @@
 
 Mobile-first technical reference and troubleshooting for electronic security technicians.
 
-> **Status: Phase 1 preview.** All manufacturers and devices are **fictional demonstration data**,
+> **Status: v0.2 in progress (Device Library done).** All manufacturers and devices are **fictional demonstration data**,
 > labelled "Example data" in the UI. Nothing in this build describes real equipment.
 
 ## Run locally
@@ -41,5 +41,5 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the structure and the phase
 
 1. Add or reference a source document in `content/sources/sources.json`.
 2. Create `content/devices/<manufacturer>-<model>.json` (copy an existing file).
-3. Register it in `content/index.ts`.
-4. Run `npm test`. Invalid or unsourced "verified" content fails the tests.
+3. Run `npm test` (or `npm run dev`). The content manifest regenerates automatically, and invalid or
+   unsourced "verified" content fails the tests.

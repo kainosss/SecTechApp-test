@@ -1,0 +1,105 @@
+{
+  "id": "arclight-demo-ls-12",
+  "manufacturerId": "arclight-demo",
+  "model": "LS-12",
+  "name": "LS-12 Electric Strike",
+  "category": "electric-lock",
+  "summary": "Demonstration 12 V DC electric strike, field-selectable fail-safe or fail-secure.",
+  "aliases": [
+    "LS12",
+    "strike",
+    "door strike"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "Rev A"
+    }
+  ],
+  "terminals": [
+    {
+      "label": "+ / -",
+      "function": "Lock coil supply",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    },
+    {
+      "label": "DS",
+      "function": "Door status switch (if fitted)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    }
+  ],
+  "power": {
+    "supplyVoltage": {
+      "min": 11,
+      "max": 13,
+      "nominal": 12,
+      "type": "DC"
+    },
+    "currentDrawMa": {
+      "standby": 0,
+      "alarm": 250
+    },
+    "sourceRefs": [
+      {
+        "sourceId": "demo-ar-ls12-install"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "label": "Mode",
+      "value": "Fail-secure (default) / fail-safe (jumper) (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    },
+    {
+      "group": "physical",
+      "label": "Holding force",
+      "value": "500 kg (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Check mode jumper position before installation — fail-safe vs fail-secure must match the site's egress requirements (demonstration note).",
+      "severity": "caution",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    },
+    {
+      "text": "Door pre-load on the keeper can prevent release; check alignment if the strike buzzes but does not open (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-ar-ls12-install"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
+  "updatedAt": "2026-10-26"
+}

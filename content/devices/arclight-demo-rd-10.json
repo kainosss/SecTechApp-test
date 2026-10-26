@@ -1,0 +1,133 @@
+{
+  "id": "arclight-demo-rd-10",
+  "manufacturerId": "arclight-demo",
+  "model": "RD-10",
+  "name": "RD-10 Proximity Card Reader",
+  "category": "card-reader",
+  "summary": "Demonstration Wiegand proximity reader for use with the AC-2D controller.",
+  "aliases": [
+    "RD10",
+    "prox reader",
+    "card reader"
+  ],
+  "modelRevisions": [
+    {
+      "revision": "v1.2"
+    }
+  ],
+  "terminals": [
+    {
+      "label": "RED",
+      "function": "Power +12 V",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "BLACK",
+      "function": "0 V",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "GREEN",
+      "function": "Wiegand D0",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "WHITE",
+      "function": "Wiegand D1",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "BROWN",
+      "function": "LED control",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "label": "YELLOW",
+      "function": "Buzzer control",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    }
+  ],
+  "power": {
+    "supplyVoltage": {
+      "min": 10,
+      "max": 14,
+      "nominal": 12,
+      "type": "DC"
+    },
+    "currentDrawMa": {
+      "standby": 60,
+      "alarm": 100
+    },
+    "sourceRefs": [
+      {
+        "sourceId": "demo-ar-rd10-datasheet"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "Output",
+      "value": "Wiegand 26-bit (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    },
+    {
+      "group": "physical",
+      "label": "Read range",
+      "value": "Up to 60 mm (demo)",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    }
+  ],
+  "installationNotes": [
+    {
+      "text": "Use shielded cable and terminate the shield at the controller end only (demonstration note).",
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "demo-ar-rd10-datasheet"
+    }
+  ],
+  "verification": {
+    "status": "example",
+    "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
+  },
+  "updatedAt": "2026-10-26"
+}
