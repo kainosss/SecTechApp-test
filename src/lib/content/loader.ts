@@ -4,6 +4,8 @@ import {
   manufacturerSchema,
   sourceSchema,
   troubleshootingWorkflowSchema,
+  eolPresetSchema,
+  type EolPreset,
   wiringConfigurationSchema,
   type Device,
   type Manufacturer,
@@ -22,6 +24,7 @@ export interface RawContent {
   devices: unknown[];
   wiring?: unknown[];
   workflows?: unknown[];
+  presets?: unknown[];
 }
 
 export interface ContentStore {
@@ -30,6 +33,7 @@ export interface ContentStore {
   devices: Device[];
   wiring: WiringConfiguration[];
   workflows: TroubleshootingWorkflow[];
+  presets: EolPreset[];
 }
 
 export class ContentValidationError extends Error {
@@ -89,12 +93,14 @@ export function loadContent(raw: RawContent): ContentStore {
   const devices = parseAll(deviceSchema, raw.devices, "device", problems);
   const wiring = parseAll(wiringConfigurationSchema, raw.wiring ?? [], "wiring", problems);
   const workflows = parseAll(troubleshootingWorkflowSchema, raw.workflows ?? [], "workflow", problems);
+  const presets = parseAll(eolPresetSchema, raw.presets ?? [], "preset", problems);
 
   checkUniqueIds(manufacturers, "manufacturer", problems);
   checkUniqueIds(sources, "source", problems);
   checkUniqueIds(devices, "device", problems);
   checkUniqueIds(wiring, "wiring", problems);
   checkUniqueIds(workflows, "workflow", problems);
+  checkUniqueIds(presets, "preset", problems);
 
   const manufacturersById = new Map(manufacturers.map((m) => [m.id, m]));
   const sourcesById = new Map(sources.map((s) => [s.id, s]));
@@ -222,5 +228,10 @@ export function loadContent(raw: RawContent): ContentStore {
   workflows.forEach((w) => checkLinkedRecord("workflow", w));
 
   if (problems.length > 0) throw new ContentValidationError(problems);
-  return { manufacturers, sources, devices, wiring, workflows };
+  for (const p of presets) {
+    if (p.manufacturerId && !manufacturersById.has(p.manufacturerId)) problems.push(`preset ${p.id}: unknown manufacturerId "${p.manufacturerId}"`);
+  }
+  if (presets.length > 0 && presets.filter((p) => p.isDefault).length !== 1) problems.push("presets: exactly one preset must be the default");
+
+  return { manufacturers, sources, devices, wiring, workflows, presets };
 }

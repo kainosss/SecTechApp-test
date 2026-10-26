@@ -1,13 +1,15 @@
 {
   "id": "demo-generic-deol-alarm-tamper",
   "title": "Dual EOL: alarm resistor across the alarm contact, tamper in series",
-  "summary": "The most common teaching example of dual end-of-line. The alarm contact shorts out its alarm resistor while sealed; opening it adds that resistor to the loop. The tamper contact is in series, so opening it breaks the loop.",
+  "summary": "Generic dual end-of-line circuit. The alarm contact shorts out the alarm resistor while sealed (2.2 kΩ); when it opens, both resistors are in series (2.2 kΩ + 2.2 kΩ = 4.4 kΩ). The tamper contact is in series, so opening it breaks the loop.",
   "inputType": "double-eol",
   "arrangement": {
     "key": "nc-alarm-nc-tamper",
     "label": "NC alarm + NC tamper"
   },
-  "configurationLabel": "4k7 EOL / 2k2 alarm",
+  "configurationLabel": "2k2 / 4k4 generic DEOL example",
+  "shortLabel": "DEOL",
+  "explorerOrder": 0,
   "circuit": {
     "terminals": {
       "a": {
@@ -43,7 +45,7 @@
         {
           "kind": "resistor",
           "id": "R1",
-          "ohms": 4700,
+          "ohms": 2200,
           "role": "end-of-line",
           "purpose": "End-of-line (seal) resistor. Always in the loop, so a healthy sealed circuit reads a known value instead of a dead short — which lets the panel tell a cut or shorted cable apart from a sealed zone."
         },

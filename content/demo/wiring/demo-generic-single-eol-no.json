@@ -8,6 +8,8 @@
     "label": "NO alarm contact"
   },
   "configurationLabel": "4k7 EOL (parallel)",
+  "shortLabel": "Single EOL · NO",
+  "explorerOrder": 4,
   "circuit": {
     "terminals": {
       "a": {

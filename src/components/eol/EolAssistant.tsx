@@ -75,9 +75,8 @@ export function EolAssistant({
   configs: WiringSummary[];
   details: Record<string, WiringDetail>;
 }) {
-  const { selection, update } = useUrlSelection();
+  const { selection, update, exitToExplorer } = useUrlSelection();
   const { panel, arrangement, config } = resolveSelection(selection, panels, configs);
-  const genericAvailable = configs.some((c) => c.generic);
 
   const realPanel = panels.find((p) => p.id === panel);
   const forPanel = configsForPanel(configs, panel);
@@ -156,15 +155,12 @@ export function EolAssistant({
                 </li>
               ))}
             </ul>
-            {genericAvailable && (
-              <div className="border-t-2 border-dashed border-example/40 bg-example/[0.04]">
-                <p className="px-4 pt-3 font-mono text-[11px] font-semibold tracking-[0.12em] text-example uppercase">Demonstration — not field references</p>
-                <OptionButton label="Generic input (demonstration)" onClick={() => update({ panel: GENERIC_PANEL }, "push")}>
-                  <span className="block text-[15px] text-fg">Generic input (demonstration)</span>
-                  <span className="mt-0.5 block text-xs text-fg-muted">Learn how DEOL and other EOL circuits behave. Not tied to any panel.</span>
-                </OptionButton>
-              </div>
-            )}
+            <div className="border-t border-line px-4 py-3 text-sm text-fg-muted">
+              Not looking for a specific panel?{" "}
+              <button type="button" onClick={exitToExplorer} className="font-medium text-signal-400 hover:text-signal-300">
+                Explore generic circuits
+              </button>
+            </div>
           </>
         )}
       </Step>
@@ -193,15 +189,9 @@ export function EolAssistant({
                     <Icon name="chevron-right" className="size-4" />
                   </Link>
                 )}
-                {genericAvailable && (
-                  <button
-                    type="button"
-                    onClick={() => update({ panel: GENERIC_PANEL }, "push")}
-                    className="inline-flex h-11 items-center justify-center rounded-lg px-4 font-medium text-signal-400 hover:text-signal-300"
-                  >
-                    Try a demonstration circuit
-                  </button>
-                )}
+                <button type="button" onClick={exitToExplorer} className="inline-flex h-11 items-center justify-center rounded-lg px-4 font-medium text-signal-400 hover:text-signal-300">
+                  Explore generic circuits
+                </button>
               </div>
             </div>
           ) : (

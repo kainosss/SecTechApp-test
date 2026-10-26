@@ -99,6 +99,33 @@ export function conductingComponents(node: CircuitNode, positions: ContactPositi
   return ids;
 }
 
+/**
+ * Node paths ("0", "0.1", "0.1.0", …) that carry measurement current between
+ * the panel terminals for the given contact positions. Same rules as
+ * conductingComponents(), but for every group as well as every component, so
+ * wires can be highlighted consistently with the calculation.
+ */
+export function conductingPaths(node: CircuitNode, positions: ContactPositions, path = "0"): Set<string> {
+  const paths = new Set<string>();
+  const visit = (n: CircuitNode, p: string) => {
+    const r = networkResistance(n, positions);
+    if (r === OPEN_CIRCUIT) return;
+    paths.add(p);
+    if (n.kind === "resistor" || n.kind === "contact") return;
+    if (n.kind === "series") {
+      n.children.forEach((c, i) => visit(c, `${p}.${i}`));
+      return;
+    }
+    const zero = n.children.map((c) => networkResistance(c, positions) === SHORT_CIRCUIT);
+    const anyZero = zero.some(Boolean);
+    n.children.forEach((c, i) => {
+      if (!anyZero || zero[i]) visit(c, `${p}.${i}`);
+    });
+  };
+  visit(node, path);
+  return paths;
+}
+
 export function sameReading(a: number, b: number): boolean {
   if (a === b) return true;
   if (!Number.isFinite(a) || !Number.isFinite(b)) return false;

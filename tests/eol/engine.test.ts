@@ -159,3 +159,13 @@ describe("Circuit Lab readiness", () => {
     expect(networkResistance(network, { ALM: "open" })).toBe(6900);
   });
 });
+
+describe("conducting paths (for wire highlighting)", () => {
+  it("marks groups and components that carry current, using node paths", async () => {
+    const { conductingPaths } = await import("@/lib/eol/engine");
+    const net = deolNetwork(2200, 2200); // series(parallel(ALM, RA), RE, TMP)
+    expect([...conductingPaths(net, { ALM: "closed", TMP: "closed" })].sort()).toEqual(["0", "0.0", "0.0.0", "0.1", "0.2"]);
+    expect([...conductingPaths(net, { ALM: "open", TMP: "closed" })].sort()).toEqual(["0", "0.0", "0.0.1", "0.1", "0.2"]);
+    expect(conductingPaths(net, { ALM: "closed", TMP: "open" }).size).toBe(0);
+  });
+});

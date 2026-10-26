@@ -8,6 +8,8 @@
     "label": "NC alarm contact"
   },
   "configurationLabel": "4k7 EOL",
+  "shortLabel": "Single EOL · NC",
+  "explorerOrder": 3,
   "circuit": {
     "terminals": {
       "a": {

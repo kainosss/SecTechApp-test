@@ -69,7 +69,12 @@ panel's installation/programming manual (with revision):
 Then enter it in `content/wiring/` and run `npm test`: the loader lists anything still missing.
 Blocked sources: Inner Range manuals are on `*.filesusr.com`; Tecom documentation on `aritech.com.au`.
 
-All 7 existing wiring records (5 generic, 2 linked to the fictional AP-8 panel) are demonstration only.
+Example presets: "Integriti example" (2.2 kΩ seal / 4.4 kΩ alarm) and "Tecom example" (10 kΩ / 20 kΩ)
+are provisional user-supplied values. They are not linked to any Device Library panel and must not be
+treated as manufacturer specifications until confirmed from each panel's documentation — including which
+resistor arrangement the panel requires (both DEOL arrangements can produce the same readings).
+
+All 8 existing wiring records (5 generic, 2 linked to the fictional AP-8 panel) are demonstration only.
 
 ## Troubleshooting workflows
 

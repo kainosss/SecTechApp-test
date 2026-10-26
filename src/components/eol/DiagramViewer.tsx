@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Circuit, CircuitState } from "@/lib/eol/model";
-import type { VerificationStatus } from "@/lib/content/schema";
 import { Icon } from "@/components/ui/Icon";
-import { CircuitDiagram } from "./CircuitDiagram";
+import { CircuitDiagram, type CircuitDiagramProps } from "./CircuitDiagram";
 
 const ZOOMS = [1, 1.5, 2, 3];
 
 /** Inline diagram with an "Expand" control that opens a full-screen, zoomable view. */
-export function DiagramViewer(props: { circuit: Circuit; state: CircuitState; status: VerificationStatus; panelLabel?: string; title: string }) {
+export function DiagramViewer(props: CircuitDiagramProps & { stateLabel: string }) {
   const [expanded, setExpanded] = useState(false);
   const [zoom, setZoom] = useState(1);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -29,19 +27,21 @@ export function DiagramViewer(props: { circuit: Circuit; state: CircuitState; st
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-xl border border-line bg-ink-950 p-2">
+      <div className="rounded-xl border border-line bg-ink-950 p-2">
         <CircuitDiagram {...props} />
-        <button
-          type="button"
-          onClick={() => {
-            setZoom(1);
-            setExpanded(true);
-          }}
-          className="absolute right-2 bottom-2 inline-flex h-9 items-center gap-1.5 rounded-lg border border-line-strong bg-ink-900/90 px-3 text-xs font-medium text-fg backdrop-blur hover:bg-ink-800"
-        >
-          <Icon name="search" className="size-4" />
-          Expand
-        </button>
+        <div className="mt-1 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              setZoom(1);
+              setExpanded(true);
+            }}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line-strong bg-ink-900 px-3 text-xs font-medium text-fg hover:bg-ink-800"
+          >
+            <Icon name="search" className="size-4" />
+            Expand
+          </button>
+        </div>
       </div>
 
       {expanded && (
@@ -86,7 +86,7 @@ export function DiagramViewer(props: { circuit: Circuit; state: CircuitState; st
               <CircuitDiagram {...props} />
             </div>
           </div>
-          <p className="shrink-0 border-t border-line px-4 py-2 text-xs text-fg-subtle">State shown: {props.state.label ?? props.state.kind}</p>
+          <p className="shrink-0 border-t border-line px-4 py-2 text-xs text-fg-subtle">Showing: {props.stateLabel}</p>
         </div>
       )}
     </>

@@ -57,7 +57,7 @@ describe("tool index pages", () => {
 
   it("offer only real panels in production, never fictional demo panels", async () => {
     vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
-    window.history.replaceState(null, "", "/eol");
+    window.history.replaceState(null, "", "/eol?panel=");
     render(await EolPage());
     const step1 = screen.getByRole("region", { name: /Step 1/ });
     expect(within(step1).getByRole("button", { name: "Inner Range Integriti Security Controller (ISC)" })).toBeInTheDocument();

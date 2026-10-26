@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { getWiringConfiguration, listEolPanels, listWiringConfigurations, type WiringDetail } from "@/lib/content/repository";
-import { EolAssistant } from "@/components/eol/EolAssistant";
+import { getWiringConfiguration, listEolPanels, listEolPresets, listGenericCircuits, listWiringConfigurations, type WiringDetail } from "@/lib/content/repository";
+import { EolHome } from "@/components/eol/EolHome";
 import { Icon } from "@/components/ui/Icon";
-import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = { title: "EOL Wiring Assistant" };
 
@@ -10,11 +9,12 @@ const SAFEGUARDS = [
   "Panel configurations appear only when backed by the manufacturer's documentation, and show Verified only after a named reviewer has checked them.",
   "Diagrams are drawn from structured circuit data — never improvised — and calculations are checked against documented readings.",
   "Resistor values and thresholds are never assumed to carry over between panels or firmware versions.",
-  "Demonstration circuits are labelled inside the diagram itself and are not installation instructions.",
+  "Generic circuits are electrically validated (structure and every reading calculated), which is not the same as manufacturer confirmation for a panel.",
+  "Example presets (e.g. Integriti or Tecom examples) are provisional values, not manufacturer specifications.",
 ];
 
 export default async function EolPage() {
-  const [panels, configs] = await Promise.all([listEolPanels(), listWiringConfigurations()]);
+  const [panels, configs, templates, presets] = await Promise.all([listEolPanels(), listWiringConfigurations(), listGenericCircuits(), listEolPresets()]);
   const details: Record<string, WiringDetail> = {};
   for (const c of configs) {
     const d = await getWiringConfiguration(c.id);
@@ -23,12 +23,13 @@ export default async function EolPage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="EOL Wiring Assistant"
-        title="EOL Wiring Assistant"
-        description="Panel → contact arrangement → EOL configuration. See the circuit and the reading to expect in each state."
-      />
-      <EolAssistant panels={panels} configs={configs} details={details} />
+      {/* Compact on phones so the circuit is visible without scrolling. */}
+      <header className="mb-3 sm:mb-6">
+        <p className="mb-1 hidden font-mono text-xs tracking-[0.18em] text-signal-400 uppercase sm:block">EOL Wiring Assistant</p>
+        <h1 className="text-xl font-semibold tracking-tight text-fg sm:text-3xl">EOL Wiring Assistant</h1>
+        <p className="mt-1 hidden text-[15px] text-fg-muted sm:block">Tap a contact to see how the resistance changes.</p>
+      </header>
+      <EolHome templates={templates} presets={presets} panels={panels} configs={configs} details={details} />
       <details className="mt-6 rounded-2xl border border-line bg-ink-900 px-4 py-3 text-sm">
         <summary className="flex cursor-pointer items-center gap-2 font-medium text-fg">
           <Icon name="shield" className="size-4 text-verified" />

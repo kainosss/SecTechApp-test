@@ -8,6 +8,8 @@
     "label": "NC alarm + NC tamper"
   },
   "configurationLabel": "4k7 EOL ∥ 4k7 alarm",
+  "shortLabel": "DEOL · alternative",
+  "explorerOrder": 1,
   "circuit": {
     "terminals": {
       "a": {

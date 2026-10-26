@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getWiringConfiguration, listWiringConfigurations } from "@/lib/content/repository";
-import { selectionToSearch, GENERIC_PANEL } from "@/lib/eol/assistant";
+import { selectionToSearch } from "@/lib/eol/assistant";
 import { ConfigurationPermalink } from "@/components/eol/ConfigurationPermalink";
 import { Icon } from "@/components/ui/Icon";
 
@@ -20,7 +20,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function WiringPage({ params }: Props) {
   const detail = await getWiringConfiguration((await params).id);
   if (!detail) notFound();
-  const assistantHref = `/eol${selectionToSearch({ panel: detail.panel?.id ?? GENERIC_PANEL, arrangement: detail.arrangement.key, config: detail.id })}`;
+  const assistantHref = detail.generic
+    ? `/eol?t=${detail.id}`
+    : `/eol${selectionToSearch({ panel: detail.panel?.id ?? "", arrangement: detail.arrangement.key, config: detail.id })}`;
 
   return (
     <article className="flex flex-col gap-3">

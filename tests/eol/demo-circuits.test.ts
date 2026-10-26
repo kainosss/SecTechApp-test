@@ -6,13 +6,17 @@ const reading = async (id: string) => Object.fromEntries((await getWiringConfigu
 describe("generic demonstration circuits", () => {
   it("are listed, DEOL first, all demonstration and not tied to any device", async () => {
     const generic = (await listWiringConfigurations()).filter((c) => c.generic);
-    expect(generic).toHaveLength(5);
+    expect(generic).toHaveLength(6);
     expect(generic[0]!.inputType).toBe("double-eol");
     expect(generic.every((c) => c.status === "demonstration" && !c.panel && c.devices.length === 0)).toBe(true);
   });
 
-  it("DEOL with series tamper: 4k7 sealed, 6k9 alarm, open on tamper", async () => {
-    expect(await reading("demo-generic-deol-alarm-tamper")).toEqual({ normal: 4700, alarm: 6900, tamper: Infinity, "cable-open": Infinity, "cable-short": 0 });
+  it("default DEOL (two 2k2 resistors): 2k2 sealed, 4k4 alarm, open on tamper", async () => {
+    expect(await reading("demo-generic-deol-alarm-tamper")).toEqual({ normal: 2200, alarm: 4400, tamper: Infinity, "cable-open": Infinity, "cable-short": 0 });
+  });
+
+  it("triple EOL gives every state a different reading", async () => {
+    expect(await reading("demo-generic-triple-eol")).toEqual({ normal: 2200, alarm: 4400, tamper: 6600, "cable-open": Infinity, "cable-short": 0 });
   });
 
   it("alternative DEOL topology gives different readings for the same contacts", async () => {
@@ -31,7 +35,7 @@ describe("generic demonstration circuits", () => {
     for (const c of (await listWiringConfigurations()).filter((x) => x.generic)) {
       const d = (await getWiringConfiguration(c.id))!;
       expect(d.diagnostics.some((x) => x.severity === "error"), c.id).toBe(false);
-      expect(d.diagnostics.some((x) => x.code === "state-overlap"), c.id).toBe(true);
+      expect(d.diagnostics.some((x) => x.code === "state-overlap"), c.id).toBe(c.inputType !== "triple-eol");
     }
   });
 });

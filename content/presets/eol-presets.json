@@ -1,0 +1,32 @@
+[
+  {
+    "id": "generic-2k2-4k4",
+    "label": "2k2 / 4k4 generic DEOL example",
+    "shortLabel": "2k2 / 4k4 generic",
+    "kind": "generic-example",
+    "targets": { "normal": 2200, "alarm": 4400 },
+    "note": "Generic example: 2.2 kΩ sealed, 4.4 kΩ in alarm. Not tied to any panel.",
+    "isDefault": true,
+    "order": 0
+  },
+  {
+    "id": "integriti-example",
+    "label": "Integriti example — 2.2 kΩ seal / 4.4 kΩ alarm",
+    "shortLabel": "Integriti example",
+    "kind": "manufacturer-example",
+    "manufacturerId": "inner-range",
+    "targets": { "normal": 2200, "alarm": 4400 },
+    "note": "Provisional example values provided by a Fieldwise user. Not a manufacturer specification and not confirmed for any particular Integriti panel, input or firmware — check the panel's installation manual.",
+    "order": 1
+  },
+  {
+    "id": "tecom-example",
+    "label": "Tecom example — 10 kΩ seal / 20 kΩ alarm",
+    "shortLabel": "Tecom example",
+    "kind": "manufacturer-example",
+    "manufacturerId": "tecom",
+    "targets": { "normal": 10000, "alarm": 20000 },
+    "note": "Provisional example values provided by a Fieldwise user. Not a manufacturer specification and not confirmed for any particular Tecom panel, input or firmware — check the panel's installation manual.",
+    "order": 2
+  }
+]

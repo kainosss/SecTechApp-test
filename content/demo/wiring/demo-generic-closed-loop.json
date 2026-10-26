@@ -8,6 +8,8 @@
     "label": "NC alarm + NC tamper"
   },
   "configurationLabel": "No EOL",
+  "shortLabel": "No EOL",
+  "explorerOrder": 5,
   "circuit": {
     "terminals": {
       "a": {

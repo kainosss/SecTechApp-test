@@ -14,7 +14,7 @@ const out = path.join(root, "index.ts");
  * an array of records. Demonstration content lives under content/demo/ in the
  * same folder layout, so it is physically separate from real content.
  */
-const COLLECTIONS = ["manufacturers", "sources", "devices", "wiring", "workflows"];
+const COLLECTIONS = ["manufacturers", "sources", "devices", "wiring", "workflows", "presets"];
 const ROOTS = ["", "demo"];
 
 function filesIn(collection) {

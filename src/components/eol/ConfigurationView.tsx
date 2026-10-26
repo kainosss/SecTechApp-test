@@ -12,7 +12,12 @@ import { RECORD_STATUS_EXPLANATION } from "@/components/records/explanations";
 import { Icon } from "@/components/ui/Icon";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { VerificationBadge } from "@/components/ui/VerificationBadge";
-import { DiagramViewer } from "./DiagramViewer";
+import { useState } from "react";
+import { bannerFor } from "@/lib/eol/classification";
+import type { ContactPositions } from "@/lib/eol/engine";
+import { interpretAgainstExample } from "@/lib/eol/explain";
+import { CircuitWorkbench } from "./CircuitWorkbench";
+import { ClassificationBadge } from "./ClassificationBadge";
 
 const AGREEMENT_LABEL: Record<StateEvaluation["agreement"], string> = {
   agrees: "Matches documentation",
@@ -62,19 +67,30 @@ export function ConfigurationView({
 }) {
   const evaluations = detail.states;
   const current = evaluations.find((s) => s.id === stateId) ?? evaluations.find((s) => s.kind === "normal") ?? evaluations[0]!;
-  // Cable faults leave the detector undisturbed, so draw its contacts in their normal (sealed) positions.
+  // Cable faults leave the detector undisturbed, so its contacts are drawn in their sealed positions.
   const normalContacts = evaluations.find((s) => s.kind === "normal")?.contacts ?? {};
-  const circuitState: CircuitState = {
-    id: current.id,
-    kind: current.kind,
-    label: current.label,
-    line: current.line,
-    contacts: current.line === "intact" ? current.contacts : normalContacts,
+  // Contacts tapped on the diagram override the selected state until another state is chosen.
+  const [manual, setManual] = useState<{ forState: string; positions: ContactPositions; line: CircuitState["line"] } | null>(null);
+  const active =
+    manual && manual.forState === current.id
+      ? manual
+      : { positions: current.line === "intact" ? current.contacts : normalContacts, line: current.line };
+  const matched = evaluations.find((s) =>
+    active.line === "intact"
+      ? s.line === "intact" && Object.keys(normalContacts).every((id) => s.contacts[id] === active.positions[id])
+      : s.line === active.line,
+  );
+  const interpretation = (ohms: number) => {
+    const reports = matched?.documented?.panelReports;
+    if (detail.classification === "manufacturer-confirmed" && reports && matched?.ohms === ohms) return `Documented: the panel reports this as “${reports}”.`;
+    if (detail.classification === "manufacturer-confirmed") return "This combination is not a documented state for this panel; check its manual.";
+    return interpretAgainstExample(ohms);
   };
   const resistors = circuitComponents(detail.circuit.network).filter((c) => c.kind === "resistor");
   const { a, b } = detail.circuit.terminals;
-  const demo = detail.status === "demonstration";
-  const problems = detail.diagnostics.filter((d) => d.severity !== "info");
+  const demo = detail.classification === "demonstration";
+  // Generic circuits: overlaps are explained, not warned about; errors are always shown.
+  const problems = detail.diagnostics.filter((d) => d.severity === "error" || (d.severity === "warning" && !detail.generic));
   const header = (
     <header>
       <div className="flex flex-wrap items-center gap-2">
@@ -103,61 +119,47 @@ export function ConfigurationView({
 
       {!compact && header}
 
-      {/* State switcher + live reading: the core on-site interaction, kept above the fold. */}
-      <div className="rounded-2xl border border-line bg-ink-900 p-3">
-        <div role="radiogroup" aria-label="Circuit state" className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-          {evaluations.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              role="radio"
-              aria-checked={s.id === current.id}
-              onClick={() => onStateChange(s.id)}
-              className={`h-10 shrink-0 rounded-lg px-3.5 text-sm font-medium whitespace-nowrap transition-colors ${
-                s.id === current.id ? "bg-signal-500 text-ink-950" : "border border-line-strong text-fg-muted hover:text-fg"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-          <div>
-            <p className="text-xs text-fg-muted">
-              Expected across {a.label} – {b.label} · {current.label}
-            </p>
-            <p className="font-mono text-3xl font-medium text-fg" aria-live="polite" data-testid="reading">
-              {current.ohms === null ? "—" : formatOhms(current.ohms)}
-            </p>
-          </div>
-          <p
-            className={`text-xs font-medium ${
-              current.agreement === "agrees" ? "text-verified" : current.agreement === "disagrees" || current.agreement === "not-calculated" ? "text-fault" : "text-fg-subtle"
-            }`}
-          >
-            {AGREEMENT_LABEL[current.agreement]}
-          </p>
-        </div>
-        <p className="mt-1 text-xs text-fg-subtle">Calculated from the circuit below with ideal contacts and nominal resistor values.</p>
-      </div>
-
-      <DiagramViewer
+      <CircuitWorkbench
         circuit={detail.circuit}
-        state={circuitState}
-        status={detail.status}
+        evaluations={evaluations}
+        positions={active.positions}
+        normalPositions={normalContacts}
+        line={active.line}
+        matchedStateId={matched?.id ?? null}
+        banner={bannerFor(detail.classification)}
         panelLabel={detail.panel?.model ?? "Panel input"}
         title={`${detail.configurationLabel} wiring diagram`}
+        onSelectState={(id) => {
+          setManual(null);
+          onStateChange(id);
+        }}
+        onToggleContact={(id) =>
+          setManual({ forState: current.id, line: "intact", positions: { ...active.positions, [id]: active.positions[id] === "open" ? "closed" : "open" } })
+        }
+        onSetLine={(line) => setManual({ forState: current.id, line, positions: active.positions })}
+        allowCurrentAnimation={detail.generic}
+        interpretation={interpretation}
       />
+      {matched && matched.agreement !== "undocumented" && (
+        <p className={`-mt-1 text-xs font-medium ${matched.agreement === "agrees" ? "text-verified" : "text-fault"}`}>{AGREEMENT_LABEL[matched.agreement]}</p>
+      )}
 
       {compact && header}
 
-      <StatusPanel
-        status={detail.status}
-        explanation={RECORD_STATUS_EXPLANATION[detail.status]}
-        updatedAt={detail.updatedAt}
-        review={detail.review}
-        notes={detail.statusNotes}
-      />
+      {detail.generic ? (
+        <div className="flex flex-col gap-1.5 rounded-xl border border-line bg-ink-900 px-4 py-3 text-sm">
+          <ClassificationBadge value={detail.classification} full />
+          <p className="text-fg-muted">Not tied to any panel. Electrical validation does not confirm that a panel supports this arrangement or these values.</p>
+        </div>
+      ) : (
+        <StatusPanel
+          status={detail.status}
+          explanation={RECORD_STATUS_EXPLANATION[detail.status]}
+          updatedAt={detail.updatedAt}
+          review={detail.review}
+          notes={detail.statusNotes}
+        />
+      )}
       {detail.status === "needs-verification" && detail.statusReasons.length > 0 && (
         <details className="rounded-xl border border-line bg-ink-900 px-4 py-3 text-sm">
           <summary className="cursor-pointer font-medium text-fg">Why this is not verified ({detail.statusReasons.length})</summary>

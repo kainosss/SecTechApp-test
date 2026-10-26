@@ -78,7 +78,13 @@ src/lib/eol/
   engine.ts      Pure calculations: series/parallel, open/short, per-state readings, live path
   validate.ts    Diagnostics + wiringVerificationGaps() (what blocks Verified)
   layout.ts      Circuit tree → diagram geometry (connectivity-faithful)
-  assistant.ts   Step rules: DEOL-first ordering, safe auto-selection, URL state
+  assistant.ts   Panel-configuration step rules: DEOL-first ordering, safe auto-selection
+  classification.ts  Electrically validated vs manufacturer confirmed vs custom (separate axes)
+  solve.ts       Sizes resistors for target readings using the engine itself; standard-part builds
+  standard-values.ts  E12/E24 values, exact two-part combinations, Ω/k input parsing
+  explorer.ts    Generic circuit explorer state + URL format
+  explain.ts     Generated explanations (changes, live path, equation, individual vs total)
+  live.ts        Which drawn wires carry measurement current (from engine paths)
 src/components/eol/  CircuitDiagram (SVG), DiagramViewer (expand/zoom), ConfigurationView,
                      EolAssistant, ConfigurationPermalink
 content/wiring/          Real configurations (none yet)
@@ -91,6 +97,17 @@ documented terminal labels, every resistor value and every contact's behaviour c
 reading for every state that the calculation matches (documented tolerance, else 1%), the documented
 state interpretation, and no unresolved diagnostics. Identical readings across two states are a
 warning that is resolved only when the documentation says the panel reports both the same way.
+
+**Two separate questions (v0.3.1).** *Electrically validated* = valid structure, every value present, every
+contact position defined, every reading calculated by the engine; needs no documentation. *Manufacturer
+confirmed* = the unchanged Verified rules above. Generic and edited/custom circuits are never manufacturer
+confirmed. Example presets (`content/presets/`) are provisional values, not manufacturer specifications.
+
+**Explorer (default /eol view).** Generic DEOL with the 2k2 / 4k4 example opens immediately. Presets and
+custom targets are solved with the engine for the selected arrangement and re-checked; non-standard values
+are built from exact pairs of standard parts (e.g. 4k4 = 2k2 + 2k2), so the diagram shows real components.
+Contacts are tappable; highlighted wires are the engine's conducting paths. The optional current animation
+is labelled as an illustrative multimeter-style test current with uniform dash speed.
 
 **Visibility:** generic demonstration circuits (no panel, no devices) are shown in normal mode inside a
 separated "Demonstration" area and are branded inside the diagram. Demo records linked to fictional

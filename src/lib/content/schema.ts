@@ -325,6 +325,9 @@ export const wiringConfigurationSchema = z.object({
   arrangement: z.object({ key: slug, label: z.string().min(1) }),
   /** Short name for the resistor choice, e.g. "4k7 EOL / 2k2 alarm". */
   configurationLabel: z.string().min(1).optional(),
+  /** Generic circuits: name and order in the explorer's arrangement picker (DEOL first). */
+  shortLabel: z.string().min(1).optional(),
+  explorerOrder: z.number().int().optional(),
   circuit: circuitSchema,
   states: z.array(circuitStateSchema).min(1),
   /** How the panel distinguishes the states, as documented. */
@@ -371,3 +374,29 @@ export const troubleshootingWorkflowSchema = z.object({
   updatedAt: isoDate,
 });
 export type TroubleshootingWorkflow = z.infer<typeof troubleshootingWorkflowSchema>;
+
+/* ------------------------------------------------------------- EOL presets */
+
+/**
+ * Named resistance targets for the EOL circuit explorer. These are example
+ * values, not manufacturer specifications: they never mark a circuit as
+ * manufacturer confirmed, and are not tied to any Device Library panel.
+ */
+export const eolPresetSchema = z.object({
+  id: slug,
+  label: z.string().min(1),
+  /** Short chip label, e.g. "Integriti example". */
+  shortLabel: z.string().min(1),
+  kind: z.enum(["generic-example", "manufacturer-example"]),
+  manufacturerId: slug.optional(),
+  targets: z.object({
+    normal: z.number().positive(),
+    alarm: z.number().positive().optional(),
+    tamper: z.number().positive().optional(),
+  }),
+  /** Shown with the preset, e.g. where the values came from and what to check. */
+  note: z.string().min(1),
+  isDefault: z.boolean().default(false),
+  order: z.number().int().default(0),
+});
+export type EolPreset = z.infer<typeof eolPresetSchema>;

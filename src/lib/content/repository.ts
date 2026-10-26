@@ -18,6 +18,7 @@ import {
   type Device,
   type DeviceCategory,
   type DeviceNote,
+  type EolPreset,
   type Lifecycle,
   type Manufacturer,
   type Power,
@@ -35,6 +36,7 @@ import { resolveStatus, weakestStatus, type ClaimEvidence } from "./verification
 import { circuitComponents, resistorCode } from "@/lib/eol/engine";
 import type { Circuit } from "@/lib/eol/model";
 import { analyseCircuit, wiringVerificationGaps, type Diagnostic, type StateEvaluation } from "@/lib/eol/validate";
+import { classifyCircuit, isElectricallyValid, type CircuitClassification } from "@/lib/eol/classification";
 
 let store: ContentStore | null = null;
 
@@ -163,10 +165,15 @@ export interface WiringSummary {
   arrangement: WiringConfiguration["arrangement"];
   /** e.g. "4k7 EOL / 2k2 alarm". */
   configurationLabel: string;
+  /** Short name in the explorer's arrangement picker, e.g. "DEOL". */
+  shortLabel: string;
   devices: LinkedRecordDetail["devices"];
 }
 
 export interface WiringDetail extends WiringSummary {
+  /** Electrical validity and manufacturer confirmation, kept separate. */
+  classification: CircuitClassification;
+  electricallyValid: boolean;
   statusNotes?: string;
   statusReasons: string[];
   review?: Review;
@@ -353,6 +360,7 @@ function toWiringSummary(w: WiringConfiguration, status = wiringStatus(w).status
     inputType: w.inputType,
     arrangement: w.arrangement,
     configurationLabel: w.configurationLabel ?? defaultConfigurationLabel(w),
+    shortLabel: w.shortLabel ?? w.configurationLabel ?? defaultConfigurationLabel(w),
     devices: linkedDevices(w.appliesToDeviceIds),
   };
 }
@@ -495,6 +503,8 @@ export async function getWiringConfiguration(id: string): Promise<WiringDetail |
   const sources = cite(refs.map((r) => ({ sourceId: r.sourceId }))).filter((src) => !seen.has(src.id) && seen.add(src.id));
   return {
     ...toWiringSummary(w, status),
+    classification: classifyCircuit({ analysis, manufacturerStatus: status, generic: isGenericDemo(w) }),
+    electricallyValid: isElectricallyValid(analysis),
     statusNotes: w.verification.notes,
     statusReasons: reasons,
     review: status === "verified" ? w.verification.review : undefined,
@@ -514,6 +524,22 @@ export async function getWiringConfiguration(id: string): Promise<WiringDetail |
     }),
     sources,
   };
+}
+
+/** Generic circuits for the explorer, in display order (DEOL first). */
+export async function listGenericCircuits(): Promise<WiringDetail[]> {
+  const ordered = visibleWiring()
+    .filter(isGenericDemo)
+    .sort((a, b) => (a.explorerOrder ?? 99) - (b.explorerOrder ?? 99) || a.title.localeCompare(b.title));
+  const out: WiringDetail[] = [];
+  for (const w of ordered) out.push((await getWiringConfiguration(w.id))!);
+  return out;
+}
+
+export type { EolPreset };
+
+export async function listEolPresets(): Promise<EolPreset[]> {
+  return [...getStore().presets].sort((a, b) => a.order - b.order);
 }
 
 /** Panels offered in the assistant: every visible alarm panel, with how many configurations each has. */

@@ -17,6 +17,7 @@ const summary = (over: Partial<WiringSummary>): WiringSummary => ({
   inputType: "single-eol",
   arrangement: { key: "nc-alarm", label: "NC alarm" },
   configurationLabel: "4k7 EOL",
+  shortLabel: "Single EOL",
   devices: [],
   ...over,
 });
@@ -63,7 +64,7 @@ describe("assistant rules", () => {
 
 describe("EolAssistant", () => {
   async function setup(search = "") {
-    window.history.replaceState(null, "", `/eol${search}`);
+    window.history.replaceState(null, "", `/eol${search || "?panel="}`);
     const [panels, configs] = await Promise.all([listEolPanels(), listWiringConfigurations()]);
     const details: Record<string, WiringDetail> = {};
     for (const c of configs) details[c.id] = (await getWiringConfiguration(c.id))!;
@@ -81,7 +82,7 @@ describe("EolAssistant", () => {
     expect(window.location.search).toBe("?panel=northgate-demo-ap-8&arrangement=nc-alarm-nc-tamper&config=demo-ap8-dual-eol-pir");
     expect(screen.getByTestId("reading")).toHaveTextContent("4.7 kΩ");
 
-    await user.click(screen.getByRole("radio", { name: "Alarm" }));
+    await user.click(screen.getByRole("radio", { name: /^Alarm/ }));
     expect(screen.getByTestId("reading")).toHaveTextContent("6.9 kΩ");
     expect(window.location.search).toContain("state=alarm");
 

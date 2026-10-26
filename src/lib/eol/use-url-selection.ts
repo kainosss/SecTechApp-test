@@ -15,20 +15,33 @@ function subscribe(cb: () => void) {
 }
 
 /**
- * Assistant selection stored in the URL. Step changes push a history entry
- * (so the phone's Back button steps back); state changes replace it.
+ * The current query string, plus a setter. "push" adds a history entry (so the
+ * phone's Back button undoes it); "replace" updates the current entry.
  */
-export function useUrlSelection() {
+export function useUrlSearch() {
   const search = useSyncExternalStore(subscribe, () => window.location.search, () => "");
-  const selection = parseSelection(search);
-
-  const update = useCallback((next: AssistantSelection, mode: "push" | "replace") => {
-    const url = `${window.location.pathname}${selectionToSearch(next)}`;
+  const setSearch = useCallback((next: string, mode: "push" | "replace") => {
+    const url = `${window.location.pathname}${next}`;
     if (url === `${window.location.pathname}${window.location.search}`) return;
     if (mode === "push") window.history.pushState(window.history.state, "", url);
     else window.history.replaceState(window.history.state, "", url);
     window.dispatchEvent(new Event(EVENT));
   }, []);
+  return { search, setSearch };
+}
 
-  return { selection, update };
+/**
+ * Panel-configuration selection stored in the URL. The "panel" key is always
+ * kept (possibly empty) so the page stays in panel-configuration mode;
+ * exitToExplorer() returns to the generic circuit explorer.
+ */
+export function useUrlSelection() {
+  const { search, setSearch } = useUrlSearch();
+  const selection = parseSelection(search);
+  const update = useCallback(
+    (next: AssistantSelection, mode: "push" | "replace") => setSearch(next.panel ? selectionToSearch(next) : "?panel=", mode),
+    [setSearch],
+  );
+  const exitToExplorer = useCallback(() => setSearch("", "push"), [setSearch]);
+  return { selection, update, exitToExplorer };
 }
