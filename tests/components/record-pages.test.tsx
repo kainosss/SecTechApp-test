@@ -14,16 +14,22 @@ import FaultFinderPage from "@/app/fault-finder/page";
 
 afterEach(() => vi.unstubAllEnvs());
 
-describe("wiring configuration summary", () => {
-  it("shows the configuration, its status, linked devices and sources", async () => {
+describe("wiring configuration permanent page", () => {
+  it("shows the configuration, reading, status, linked devices and sources", async () => {
+    window.history.replaceState(null, "", "/eol/demo-ap8-dual-eol-pir");
     render(await WiringPage({ params: Promise.resolve({ id: "demo-ap8-dual-eol-pir" }) }));
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("AP-8 zone: dual EOL with KS-PIR12");
+    expect(screen.getByText("4k7 EOL / 2k2 alarm")).toBeInTheDocument();
     expect(screen.getByRole("note", { name: "Verification status: Demonstration only" })).toBeInTheDocument();
-    expect(screen.getByText("Dual EOL")).toBeInTheDocument();
-    expect(screen.getByText("4.7 kΩ")).toBeInTheDocument();
-    const applies = screen.getByRole("region", { name: "Applies to" });
-    expect(within(applies).getByRole("link", { name: /AP-8/ })).toHaveAttribute("href", "/devices/northgate-demo-ap-8");
-    expect(within(screen.getByRole("region", { name: "Sources" })).getByText(/AP-8 Alarm Panel Installation Guide/)).toBeInTheDocument();
+    expect(screen.getAllByText("Dual EOL").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("reading")).toHaveTextContent("4.7 kΩ");
+    const related = screen.getByRole("region", { name: "Related devices" });
+    expect(within(related).getByRole("link", { name: /AP-8/ })).toHaveAttribute("href", "/devices/northgate-demo-ap-8");
+    expect(within(related).getByRole("link", { name: /KS-PIR12/ })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "Manufacturer documentation" })).getByText(/AP-8 Alarm Panel Installation Guide/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open in assistant" })).toHaveAttribute(
+      "href",
+      "/eol?panel=northgate-demo-ap-8&arrangement=nc-alarm-nc-tamper&config=demo-ap8-dual-eol-pir",
+    );
   });
 
   it("is not found outside demo mode", async () => {
@@ -49,9 +55,13 @@ describe("tool index pages", () => {
     expect(within(screen.getByRole("region", { name: "Troubleshooting workflows" })).getAllByRole("link")).toHaveLength(5);
   });
 
-  it("show an honest empty state in production", async () => {
+  it("offer only real panels in production, never fictional demo panels", async () => {
     vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
+    window.history.replaceState(null, "", "/eol");
     render(await EolPage());
-    expect(screen.getByText(/No wiring configurations have been published yet/)).toBeInTheDocument();
+    const step1 = screen.getByRole("region", { name: /Step 1/ });
+    expect(within(step1).getByRole("button", { name: "Inner Range Integriti Security Controller (ISC)" })).toBeInTheDocument();
+    expect(within(step1).getByRole("button", { name: "Tecom ChallengerPlus" })).toBeInTheDocument();
+    expect(within(step1).queryByRole("button", { name: /Northgate/ })).not.toBeInTheDocument();
   });
 });

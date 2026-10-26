@@ -1,42 +1,48 @@
 import type { Metadata } from "next";
-import { listWiringConfigurations } from "@/lib/content/repository";
-import { RecordList } from "@/components/records/RecordList";
-import { PlannedTool } from "@/components/ui/PlannedTool";
+import { getWiringConfiguration, listEolPanels, listWiringConfigurations, type WiringDetail } from "@/lib/content/repository";
+import { EolAssistant } from "@/components/eol/EolAssistant";
+import { Icon } from "@/components/ui/Icon";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = { title: "EOL Wiring Assistant" };
 
+const SAFEGUARDS = [
+  "Panel configurations appear only when backed by the manufacturer's documentation, and show Verified only after a named reviewer has checked them.",
+  "Diagrams are drawn from structured circuit data — never improvised — and calculations are checked against documented readings.",
+  "Resistor values and thresholds are never assumed to carry over between panels or firmware versions.",
+  "Demonstration circuits are labelled inside the diagram itself and are not installation instructions.",
+];
+
 export default async function EolPage() {
-  const records = await listWiringConfigurations();
+  const [panels, configs] = await Promise.all([listEolPanels(), listWiringConfigurations()]);
+  const details: Record<string, WiringDetail> = {};
+  for (const c of configs) {
+    const d = await getWiringConfiguration(c.id);
+    if (d) details[c.id] = d;
+  }
+
   return (
-    <PlannedTool
-      icon="eol"
-      title="EOL Wiring Assistant"
-      phase="Wiring configurations · Preview"
-      description="End-of-line resistor references for a specific panel, input type and device contact arrangement."
-      steps={[
-        "Select the alarm panel and zone input configuration.",
-        "Select the detector or contact arrangement (NC alarm, tamper, etc.).",
-        "Choose from the resistor values the panel documentation supports.",
-        "See a wiring reference and the expected resistance in each zone state.",
-      ]}
-      safeguards={[
-        "Only configurations backed by a cited manufacturer document are shown as verified.",
-        "Each configuration records the source, document revision and panel revision it applies to.",
-        "Diagrams are never generated from assumptions or interpolated between models.",
-        "Unverified and demonstration configurations are clearly labelled.",
-      ]}
-    >
-      <RecordList
-        title="Wiring configurations"
-        items={records.map((r) => ({
-          id: r.id,
-          href: `/eol/${r.id}`,
-          title: r.title,
-          status: r.status,
-          meta: r.devices.map((d) => d.model).join(" · ") || "No linked devices",
-        }))}
-        empty="No wiring configurations have been published yet. Configurations are added only once they are backed by manufacturer documentation. The interactive assistant is coming in a later release."
+    <>
+      <PageHeader
+        eyebrow="EOL Wiring Assistant"
+        title="EOL Wiring Assistant"
+        description="Panel → contact arrangement → EOL configuration. See the circuit and the reading to expect in each state."
       />
-    </PlannedTool>
+      <EolAssistant panels={panels} configs={configs} details={details} />
+      <details className="mt-6 rounded-2xl border border-line bg-ink-900 px-4 py-3 text-sm">
+        <summary className="flex cursor-pointer items-center gap-2 font-medium text-fg">
+          <Icon name="shield" className="size-4 text-verified" />
+          How Fieldwise keeps wiring references accurate
+        </summary>
+        <ul className="mt-3 space-y-2 text-fg-muted">
+          {SAFEGUARDS.map((s) => (
+            <li key={s} className="flex gap-3">
+              <span className="mt-2 size-1 shrink-0 rounded-full bg-verified" aria-hidden="true" />
+              {s}
+            </li>
+          ))}
+        </ul>
+      </details>
+    </>
   );
 }

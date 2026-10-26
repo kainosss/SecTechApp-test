@@ -13,6 +13,8 @@ import {
   type WiringConfiguration,
 } from "./schema";
 import { resolveStatus, type ClaimEvidence } from "./verification";
+import { circuitComponents } from "@/lib/eol/engine";
+import { analyseCircuit, wiringVerificationGaps } from "@/lib/eol/validate";
 
 export interface RawContent {
   manufacturers: unknown[];
@@ -181,7 +183,42 @@ export function loadContent(raw: RawContent): ContentStore {
       if (resolved.status !== "verified") problems.push(`${owner}: declared verified but ${resolved.reasons.join("; ")}`);
     }
   };
-  wiring.forEach((w) => checkLinkedRecord("wiring", w));
+  wiring.forEach((w) => {
+    checkLinkedRecord("wiring", w);
+    const owner = `wiring ${w.id}`;
+    if (w.panelDeviceId) {
+      const panel = devicesById.get(w.panelDeviceId);
+      if (!panel) problems.push(`${owner}: unknown panelDeviceId "${w.panelDeviceId}"`);
+      else {
+        if (!["alarm-panel", "alarm-expander", "access-controller"].includes(panel.category)) {
+          problems.push(`${owner}: panelDeviceId "${panel.id}" is not a panel, expander or controller`);
+        }
+        if (w.isDemo !== isDemoDevice(panel)) {
+          problems.push(`${owner}: ${w.isDemo ? "demonstration" : "real"} records cannot use ${w.isDemo ? "real" : "demonstration"} panel "${panel.id}"`);
+        }
+      }
+    } else if (!w.isDemo) {
+      problems.push(`${owner}: real wiring configurations must name their panel (panelDeviceId)`);
+    }
+    for (const v of w.appliesToVariants) {
+      const device = devicesById.get(v.deviceId);
+      if (!device) problems.push(`${owner}: unknown device "${v.deviceId}" in appliesToVariants`);
+      else if (!device.variants.some((x) => x.id === v.variantId)) problems.push(`${owner}: unknown variant "${v.variantId}" of "${v.deviceId}"`);
+    }
+    // Every citation inside the circuit must resolve, and respect demo separation.
+    const refs = [
+      ...w.circuit.terminals.a.sourceRefs,
+      ...w.circuit.terminals.b.sourceRefs,
+      ...circuitComponents(w.circuit.network).flatMap((c) => c.sourceRefs),
+      ...w.states.flatMap((st) => st.documented?.sourceRefs ?? []),
+      ...(w.interpretation?.sourceRefs ?? []),
+    ];
+    checkRefs(owner, refs, w.isDemo);
+    if (w.verification.status === "verified") {
+      const gaps = wiringVerificationGaps(w, analyseCircuit(w), getSource);
+      if (gaps.length > 0) problems.push(`${owner}: declared verified but ${gaps.join("; ")}`);
+    }
+  });
   workflows.forEach((w) => checkLinkedRecord("workflow", w));
 
   if (problems.length > 0) throw new ContentValidationError(problems);

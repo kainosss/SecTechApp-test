@@ -1,21 +1,141 @@
 {
   "id": "demo-ap8-dual-eol-pir",
   "title": "AP-8 zone: dual EOL with KS-PIR12",
-  "summary": "Shows how a dual-EOL zone record links a panel input to a detector's alarm and tamper contacts.",
+  "summary": "Shows how a panel-specific dual-EOL record links a fictional panel input to a fictional detector's alarm and tamper contacts.",
+  "panelDeviceId": "northgate-demo-ap-8",
+  "panelHardwareRevisions": [
+    "Rev A"
+  ],
+  "panelFirmwareRevisions": [
+    "1.x (demo)"
+  ],
   "inputType": "double-eol",
-  "contactArrangement": "NC alarm contact and NC tamper contact in one zone",
-  "resistors": [
+  "arrangement": {
+    "key": "nc-alarm-nc-tamper",
+    "label": "NC alarm + NC tamper"
+  },
+  "configurationLabel": "4k7 EOL / 2k2 alarm",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z1",
+        "sourceRefs": [
+          {
+            "sourceId": "demo-ng-ap8-install",
+            "locator": "Zone wiring (demo)"
+          }
+        ]
+      },
+      "b": {
+        "label": "COM",
+        "sourceRefs": [
+          {
+            "sourceId": "demo-ng-ap8-install",
+            "locator": "Zone wiring (demo)"
+          }
+        ]
+      }
+    },
+    "network": {
+      "kind": "series",
+      "children": [
+        {
+          "kind": "parallel",
+          "children": [
+            {
+              "kind": "contact",
+              "id": "ALM",
+              "function": "alarm",
+              "type": "NC",
+              "label": "Alarm",
+              "sourceRefs": [
+                {
+                  "sourceId": "demo-ng-ap8-install",
+                  "locator": "Zone wiring (demo)"
+                }
+              ]
+            },
+            {
+              "kind": "resistor",
+              "id": "R2",
+              "ohms": 2200,
+              "role": "alarm",
+              "purpose": "Bypassed while the alarm contact is closed; added to the loop when it opens.",
+              "sourceRefs": [
+                {
+                  "sourceId": "demo-ng-ap8-install",
+                  "locator": "Zone wiring (demo)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "resistor",
+          "id": "R1",
+          "ohms": 4700,
+          "role": "end-of-line",
+          "purpose": "Always in the loop so the panel sees a known seal value.",
+          "sourceRefs": [
+            {
+              "sourceId": "demo-ng-ap8-install",
+              "locator": "Zone wiring (demo)"
+            }
+          ]
+        },
+        {
+          "kind": "contact",
+          "id": "TMP",
+          "function": "tamper",
+          "type": "NC",
+          "label": "Tamper",
+          "sourceRefs": [
+            {
+              "sourceId": "demo-ng-ap8-install",
+              "locator": "Zone wiring (demo)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "states": [
     {
-      "role": "alarm",
-      "ohms": 2200
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "closed"
+      }
     },
     {
-      "role": "end-of-line",
-      "ohms": 4700
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "open",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "tamper",
+      "kind": "tamper",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "open"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
     }
   ],
   "appliesToDeviceIds": [
-    "northgate-demo-ap-8",
     "kestrel-demo-ks-pir12"
   ],
   "isDemo": true,

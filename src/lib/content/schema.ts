@@ -12,6 +12,7 @@
  * is computed by ./verification.ts, which fails safe to "needs-verification".
  */
 import { z } from "zod";
+import { circuitSchema, circuitStateSchema, interpretationSchema } from "@/lib/eol/model";
 
 export const slug = z
   .string()
@@ -314,14 +315,24 @@ export const wiringConfigurationSchema = z.object({
   id: slug,
   title: z.string().min(1),
   summary: z.string().min(1),
+  /** The panel (or expander) this applies to. Omitted for generic demonstration inputs. */
+  panelDeviceId: slug.optional(),
+  /** Panel hardware and firmware revisions the configuration was documented for. */
+  panelHardwareRevisions: z.array(z.string().min(1)).default([]),
+  panelFirmwareRevisions: z.array(z.string().min(1)).default([]),
   inputType: wiringInputTypeSchema,
-  /** e.g. "NC alarm contact with separate NC tamper". */
-  contactArrangement: z.string().min(1),
-  resistors: z
-    .array(z.object({ role: z.enum(["end-of-line", "alarm", "tamper", "other"]), ohms: z.number().positive() }))
-    .default([]),
-  /** Panels and devices this configuration applies to. */
+  /** Groups configurations in the assistant's "contact arrangement" step. */
+  arrangement: z.object({ key: slug, label: z.string().min(1) }),
+  /** Short name for the resistor choice, e.g. "4k7 EOL / 2k2 alarm". */
+  configurationLabel: z.string().min(1).optional(),
+  circuit: circuitSchema,
+  states: z.array(circuitStateSchema).min(1),
+  /** How the panel distinguishes the states, as documented. */
+  interpretation: interpretationSchema.optional(),
+  /** Detectors/contacts this configuration applies to (the panel is linked via panelDeviceId). */
   appliesToDeviceIds: z.array(slug).default([]),
+  /** Specific device variants, when the documentation limits it to them. */
+  appliesToVariants: z.array(z.object({ deviceId: slug, variantId: slug })).default([]),
   notes: z.string().optional(),
   isDemo: z.boolean().default(false),
   verification: verificationSchema,

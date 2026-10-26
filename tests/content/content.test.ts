@@ -109,7 +109,12 @@ describe("demo separation", () => {
       title: "Bad",
       summary: "Bad",
       inputType: "single-eol",
-      contactArrangement: "NC",
+      arrangement: { key: "nc-alarm", label: "NC alarm" },
+      circuit: {
+        terminals: { a: { label: "Z" }, b: { label: "COM" } },
+        network: { kind: "series", children: [{ kind: "contact", id: "ALM", function: "alarm", type: "NC" }, { kind: "resistor", id: "R1", ohms: 2200, role: "end-of-line" }] },
+      },
+      states: [{ id: "normal", kind: "normal", contacts: { ALM: "closed" } }],
       appliesToDeviceIds: ["real-device"],
       isDemo: true,
       verification: { status: "demonstration" },
@@ -128,6 +133,33 @@ describe("structural validation", () => {
       terminals: [{ label: "A", function: "B", appliesToVariantIds: ["ghost"] }],
     };
     expect(() => loadContent(withExtra({ devices: [device] }))).toThrow(/unknown manufacturerId[\s\S]*unknown source[\s\S]*unknown variant/);
+  });
+
+  it("rejects real wiring declared verified when the circuit evidence is incomplete", () => {
+    const wiring = {
+      id: "real-wiring",
+      title: "Real",
+      summary: "Real",
+      panelDeviceId: "real-panel",
+      inputType: "single-eol",
+      arrangement: { key: "nc-alarm", label: "NC alarm" },
+      circuit: {
+        terminals: { a: { label: "Z" }, b: { label: "COM" } },
+        network: { kind: "series", children: [{ kind: "contact", id: "ALM", function: "alarm", type: "NC" }, { kind: "resistor", id: "R1", ohms: 2200, role: "end-of-line" }] },
+      },
+      states: [
+        { id: "normal", kind: "normal", contacts: { ALM: "closed" } },
+        { id: "alarm", kind: "alarm", contacts: { ALM: "open" } },
+      ],
+      verification: { status: "verified", review },
+      sourceRefs: [{ sourceId: "real-manual" }],
+      appliesToRevisions: ["Rev B"],
+      updatedAt: "2026-01-01",
+    };
+    const panel = { ...realDevice, id: "real-panel", category: "alarm-panel" };
+    expect(() => loadContent(withExtra({ devices: [panel], wiring: [wiring] }))).toThrow(
+      /wiring real-wiring: declared verified but[\s\S]*panel terminal assignments not documented/,
+    );
   });
 
   it("rejects unknown categories and duplicate ids", () => {

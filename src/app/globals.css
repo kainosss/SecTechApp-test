@@ -24,6 +24,7 @@
   --color-verified: #4ade80;
   --color-unverified: #fb923c;
   --color-example: #f5c451;
+  --color-fault: #f87171;
 }
 
 @layer base {

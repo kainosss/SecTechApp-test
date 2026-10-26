@@ -32,6 +32,9 @@ import {
   type WiringConfiguration,
 } from "./schema";
 import { resolveStatus, weakestStatus, type ClaimEvidence } from "./verification";
+import { circuitComponents, resistorCode } from "@/lib/eol/engine";
+import type { Circuit } from "@/lib/eol/model";
+import { analyseCircuit, wiringVerificationGaps, type Diagnostic, type StateEvaluation } from "@/lib/eol/validate";
 
 let store: ContentStore | null = null;
 
@@ -137,8 +140,55 @@ export interface LinkedRecordDetail {
   devices: { id: string; model: string; manufacturerName: string; status: VerificationStatus }[];
 }
 
-export type WiringDetail = LinkedRecordDetail &
-  Pick<WiringConfiguration, "inputType" | "contactArrangement" | "resistors" | "notes">;
+export interface PanelSummary {
+  id: string;
+  model: string;
+  name: string;
+  manufacturerName: string;
+  status: VerificationStatus;
+  isDemo: boolean;
+}
+
+/** A wiring configuration as listed in the assistant and on device pages. */
+export interface WiringSummary {
+  id: string;
+  title: string;
+  summary: string;
+  status: VerificationStatus;
+  isDemo: boolean;
+  /** Generic demonstration input: not tied to any panel or device. */
+  generic: boolean;
+  panel: PanelSummary | null;
+  inputType: WiringConfiguration["inputType"];
+  arrangement: WiringConfiguration["arrangement"];
+  /** e.g. "4k7 EOL / 2k2 alarm". */
+  configurationLabel: string;
+  devices: LinkedRecordDetail["devices"];
+}
+
+export interface WiringDetail extends WiringSummary {
+  statusNotes?: string;
+  statusReasons: string[];
+  review?: Review;
+  updatedAt: string;
+  notes?: string;
+  circuit: Circuit;
+  states: StateEvaluation[];
+  diagnostics: Diagnostic[];
+  interpretation?: { text: string; sources: CitedSource[] };
+  panelHardwareRevisions: string[];
+  panelFirmwareRevisions: string[];
+  appliesToRevisions: string[];
+  appliesToVariants: { deviceId: string; model: string; variant: string }[];
+  /** Every document cited anywhere in the configuration, de-duplicated. */
+  sources: CitedSource[];
+}
+
+/** A panel as offered in the assistant's first step. */
+export interface EolPanelOption extends PanelSummary {
+  configurationCount: number;
+  verifiedCount: number;
+}
 
 export type WorkflowDetail = LinkedRecordDetail &
   Pick<TroubleshootingWorkflow, "faultArea" | "symptoms" | "outline"> & { categories: DeviceCategory[] };
@@ -260,6 +310,60 @@ function linkedDevices(ids: string[]) {
   });
 }
 
+/** Generic demonstration circuits are not tied to any device, so they never mislead about a real product. */
+function isGenericDemo(w: WiringConfiguration) {
+  return w.isDemo && !w.panelDeviceId && w.appliesToDeviceIds.length === 0;
+}
+
+function visibleWiring(): WiringConfiguration[] {
+  return getStore().wiring.filter((w) => !w.isDemo || isDemoModeEnabled() || isGenericDemo(w));
+}
+
+/** Effective status: generic evidence rules AND the wiring-specific gaps must both pass. */
+function wiringStatus(w: WiringConfiguration) {
+  const analysis = analyseCircuit(w);
+  const resolved = recordStatus(w);
+  if (resolved.status !== "verified") return { status: resolved.status, reasons: resolved.reasons, analysis };
+  const gaps = wiringVerificationGaps(w, analysis, sourceById);
+  return gaps.length > 0 ? { status: "needs-verification" as const, reasons: gaps, analysis } : { status: resolved.status, reasons: [], analysis };
+}
+
+function panelSummary(d: Device): PanelSummary {
+  const item = toListItem(d);
+  return { id: d.id, model: d.model, name: d.name, manufacturerName: item.manufacturerName, status: item.status, isDemo: deviceIsDemo(d) };
+}
+
+function defaultConfigurationLabel(w: WiringConfiguration): string {
+  const resistors = circuitComponents(w.circuit.network).filter((c) => c.kind === "resistor");
+  if (resistors.length === 0) return "No EOL resistor";
+  const role = { "end-of-line": "EOL", alarm: "alarm", tamper: "tamper", other: "" } as const;
+  return resistors.map((r) => [r.ohms === null ? "?" : resistorCode(r.ohms), role[r.role]].filter(Boolean).join(" ")).join(" / ");
+}
+
+function toWiringSummary(w: WiringConfiguration, status = wiringStatus(w).status): WiringSummary {
+  const panel = w.panelDeviceId ? visibleDevices().find((d) => d.id === w.panelDeviceId) : undefined;
+  return {
+    id: w.id,
+    title: w.title,
+    summary: w.summary,
+    status,
+    isDemo: w.isDemo,
+    generic: isGenericDemo(w),
+    panel: panel ? panelSummary(panel) : null,
+    inputType: w.inputType,
+    arrangement: w.arrangement,
+    configurationLabel: w.configurationLabel ?? defaultConfigurationLabel(w),
+    devices: linkedDevices(w.appliesToDeviceIds),
+  };
+}
+
+/** Verified first, then needs verification, then demonstration; DEOL before other input types. */
+function wiringOrder(a: WiringSummary, b: WiringSummary) {
+  const rank = { verified: 0, "needs-verification": 1, demonstration: 2 } as const;
+  const deol = (w: WiringSummary) => (w.inputType === "double-eol" ? 0 : 1);
+  return rank[a.status] - rank[b.status] || deol(a) - deol(b) || a.title.localeCompare(b.title);
+}
+
 function toLinkedDetail(r: WiringConfiguration | TroubleshootingWorkflow): LinkedRecordDetail {
   const resolved = recordStatus(r);
   return {
@@ -348,9 +452,17 @@ export async function getDevice(id: string): Promise<DeviceDetail | null> {
 export async function getRelatedForDevice(deviceId: string): Promise<{ wiring: RelatedRecord[]; workflows: RelatedRecord[] }> {
   const d = visibleDevices().find((x) => x.id === deviceId);
   if (!d) return { wiring: [], workflows: [] };
-  const wiring = visible(getStore().wiring)
-    .filter((w) => w.appliesToDeviceIds.includes(d.id))
-    .map((w) => ({ id: w.id, title: w.title, href: `/eol/${w.id}`, status: recordStatus(w).status, reason: "Linked to this device" }));
+  const wiring = visibleWiring()
+    .filter((w) => w.panelDeviceId === d.id || w.appliesToDeviceIds.includes(d.id))
+    .map((w) => toWiringSummary(w))
+    .sort(wiringOrder)
+    .map((w) => ({
+      id: w.id,
+      title: w.title,
+      href: `/eol/${w.id}`,
+      status: w.status,
+      reason: w.panel?.id === d.id ? `${w.configurationLabel} · panel input` : `${w.configurationLabel} · ${w.panel?.model ?? "linked device"}`,
+    }));
   const workflows = visible(getStore().workflows)
     .filter((w) => w.appliesToDeviceIds.includes(d.id) || w.appliesToCategories.includes(d.category))
     .map((w) => ({
@@ -363,20 +475,57 @@ export async function getRelatedForDevice(deviceId: string): Promise<{ wiring: R
   return { wiring, workflows };
 }
 
-export async function listWiringConfigurations(): Promise<LinkedRecordDetail[]> {
-  return visible(getStore().wiring).map(toLinkedDetail);
+export async function listWiringConfigurations(): Promise<WiringSummary[]> {
+  return visibleWiring().map((w) => toWiringSummary(w)).sort(wiringOrder);
 }
 
 export async function getWiringConfiguration(id: string): Promise<WiringDetail | null> {
-  const w = visible(getStore().wiring).find((x) => x.id === id);
+  const w = visibleWiring().find((x) => x.id === id);
   if (!w) return null;
+  const { status, reasons, analysis } = wiringStatus(w);
+  const refs = [
+    ...w.sourceRefs,
+    ...w.circuit.terminals.a.sourceRefs,
+    ...w.circuit.terminals.b.sourceRefs,
+    ...circuitComponents(w.circuit.network).flatMap((c) => c.sourceRefs),
+    ...w.states.flatMap((st) => st.documented?.sourceRefs ?? []),
+    ...(w.interpretation?.sourceRefs ?? []),
+  ];
+  const seen = new Set<string>();
+  const sources = cite(refs.map((r) => ({ sourceId: r.sourceId }))).filter((src) => !seen.has(src.id) && seen.add(src.id));
   return {
-    ...toLinkedDetail(w),
-    inputType: w.inputType,
-    contactArrangement: w.contactArrangement,
-    resistors: w.resistors,
+    ...toWiringSummary(w, status),
+    statusNotes: w.verification.notes,
+    statusReasons: reasons,
+    review: status === "verified" ? w.verification.review : undefined,
+    updatedAt: w.updatedAt,
     notes: w.notes,
+    circuit: w.circuit,
+    states: analysis.states,
+    diagnostics: analysis.diagnostics,
+    interpretation: w.interpretation && { text: w.interpretation.text, sources: cite(w.interpretation.sourceRefs) },
+    panelHardwareRevisions: w.panelHardwareRevisions,
+    panelFirmwareRevisions: w.panelFirmwareRevisions,
+    appliesToRevisions: w.appliesToRevisions,
+    appliesToVariants: w.appliesToVariants.flatMap((v) => {
+      const d = visibleDevices().find((x) => x.id === v.deviceId);
+      const variant = d?.variants.find((x) => x.id === v.variantId);
+      return d && variant ? [{ deviceId: d.id, model: d.model, variant: variant.partNumber ?? variant.name }] : [];
+    }),
+    sources,
   };
+}
+
+/** Panels offered in the assistant: every visible alarm panel, with how many configurations each has. */
+export async function listEolPanels(): Promise<EolPanelOption[]> {
+  const configs = await listWiringConfigurations();
+  return visibleDevices()
+    .filter((d) => d.category === "alarm-panel")
+    .map((d) => {
+      const own = configs.filter((c) => c.panel?.id === d.id);
+      return { ...panelSummary(d), configurationCount: own.length, verifiedCount: own.filter((c) => c.status === "verified").length };
+    })
+    .sort((a, b) => b.verifiedCount - a.verifiedCount || a.manufacturerName.localeCompare(b.manufacturerName) || a.model.localeCompare(b.model));
 }
 
 export async function listWorkflows(): Promise<(LinkedRecordDetail & Pick<TroubleshootingWorkflow, "faultArea">)[]> {

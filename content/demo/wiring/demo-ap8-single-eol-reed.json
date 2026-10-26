@@ -1,17 +1,97 @@
 {
   "id": "demo-ap8-single-eol-reed",
   "title": "AP-8 zone: single EOL with KS-RS1",
-  "summary": "Shows how a single-EOL zone record links a panel input to a reed switch.",
+  "summary": "Shows how a panel-specific single-EOL record links a fictional panel input to a fictional reed switch.",
+  "panelDeviceId": "northgate-demo-ap-8",
+  "panelHardwareRevisions": [
+    "Rev A"
+  ],
   "inputType": "single-eol",
-  "contactArrangement": "NC reed contact",
-  "resistors": [
+  "arrangement": {
+    "key": "nc-alarm",
+    "label": "NC alarm contact"
+  },
+  "configurationLabel": "2k2 EOL",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z2",
+        "sourceRefs": [
+          {
+            "sourceId": "demo-ng-ap8-install",
+            "locator": "Zone wiring (demo)"
+          }
+        ]
+      },
+      "b": {
+        "label": "COM",
+        "sourceRefs": [
+          {
+            "sourceId": "demo-ng-ap8-install",
+            "locator": "Zone wiring (demo)"
+          }
+        ]
+      }
+    },
+    "network": {
+      "kind": "series",
+      "children": [
+        {
+          "kind": "contact",
+          "id": "ALM",
+          "function": "alarm",
+          "type": "NC",
+          "label": "Reed",
+          "sourceRefs": [
+            {
+              "sourceId": "demo-ng-ap8-install",
+              "locator": "Zone wiring (demo)"
+            }
+          ]
+        },
+        {
+          "kind": "resistor",
+          "id": "R1",
+          "ohms": 2200,
+          "role": "end-of-line",
+          "purpose": "Seal value seen by the panel while the reed is closed.",
+          "sourceRefs": [
+            {
+              "sourceId": "demo-ng-ap8-install",
+              "locator": "Zone wiring (demo)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "states": [
     {
-      "role": "end-of-line",
-      "ohms": 2200
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "closed"
+      }
+    },
+    {
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "open"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
     }
   ],
   "appliesToDeviceIds": [
-    "northgate-demo-ap-8",
     "kestrel-demo-ks-rs1"
   ],
   "isDemo": true,
@@ -21,7 +101,8 @@
   },
   "sourceRefs": [
     {
-      "sourceId": "demo-ng-ap8-install"
+      "sourceId": "demo-ng-ap8-install",
+      "locator": "Zone wiring (demo)"
     }
   ],
   "updatedAt": "2026-10-26"
