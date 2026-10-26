@@ -5,11 +5,447 @@
   "name": "AXIS A1601 Network Door Controller",
   "category": "access-controller",
   "aliases": [
-    "A1601"
+    "A1601",
+    "01507-001",
+    "door controller"
+  ],
+  "documentation": [
+    {
+      "sourceId": "axis-a1601-install"
+    },
+    {
+      "sourceId": "axis-a1601-datasheet"
+    },
+    {
+      "sourceId": "axis-pds-a1601"
+    },
+    {
+      "sourceId": "axis-a1601-support"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Values are transcribed from the cited Axis documents (accessed 2026-10-26) with page references, but have not yet been reviewed by a person. Confirm against the document before relying on them."
   },
-  "updatedAt": "2026-10-26"
+  "updatedAt": "2026-10-26",
+  "variants": [
+    {
+      "id": "standard",
+      "name": "AXIS A1601 Network Door Controller",
+      "partNumber": "01507-001",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-pds-a1601",
+          "locator": "Product table"
+        }
+      ]
+    }
+  ],
+  "lifecycle": {
+    "state": "discontinued",
+    "discontinuedOn": "2023-12-31",
+    "replacedBy": [
+      "AXIS A1610 Network Door Controller"
+    ],
+    "supportUntil": "2029-12-31",
+    "notes": "Hardware/RMA service and firmware maintenance until 31 Dec 2029.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-pds-a1601"
+      }
+    ]
+  },
+  "power": {
+    "supplyVoltage": {
+      "min": 10.5,
+      "max": 28,
+      "type": "DC"
+    },
+    "powerOverEthernet": "IEEE 802.3at Type 2 Class 4 (PoE+)",
+    "notes": "DC input max 36 W. 12 V battery as backup. Total budget for locks, readers and other peripherals: 2100 mA at 12 V on DC, 1300 mA at 12 V on PoE Class 4.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-a1601-datasheet",
+        "locator": "p. 2, Power"
+      }
+    ]
+  },
+  "terminals": [
+    {
+      "label": "Network (RJ45)",
+      "function": "Ethernet with PoE+",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 20"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pin 1",
+      "function": "DC ground (0 V DC)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 20"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pin 2",
+      "function": "+12 V DC output to reader",
+      "notes": "Max 486 mA combined for both readers.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 20"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pins 3–4 (RS485)",
+      "function": "RX/TX — full duplex: RX; half duplex: RX/TX",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 20"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pins 5–6 (RS485)",
+      "function": "TX (full duplex)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 21"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pins 3 / 4 (Wiegand)",
+      "function": "D0 / D1",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 21"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pins 5–6 (Wiegand)",
+      "function": "Digital output, open drain",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 21"
+        }
+      ]
+    },
+    {
+      "label": "Reader 1/2 · pins 7–8",
+      "function": "Configurable input or output",
+      "notes": "Input 0 to max 30 V DC; output 0 to max 30 V DC, open drain, 100 mA.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 21"
+        }
+      ]
+    },
+    {
+      "label": "Door 1/2 · pins 1, 3",
+      "function": "DC ground (0 V DC)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 23"
+        }
+      ]
+    },
+    {
+      "label": "Door 1/2 · pins 2, 4",
+      "function": "Door monitor input (digital or supervised)",
+      "notes": "0 to max 30 V DC.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 23"
+        }
+      ]
+    },
+    {
+      "label": "Relay 1/2 · pin 1",
+      "function": "DC ground (0 V DC)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "label": "Relay 1/2 · pin 2 (NO)",
+      "function": "Normally open",
+      "notes": "Max 2 A per relay, max 30 V DC. The guide connects a fail-secure lock between NO and DC ground (see relay power jumper).",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "label": "Relay 1/2 · pin 3 (COM)",
+      "function": "Common",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "label": "Relay 1/2 · pin 4 (NC)",
+      "function": "Normally closed",
+      "notes": "The guide connects a fail-safe lock between NC and DC ground (see relay power jumper).",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "label": "Auxiliary · pin 1",
+      "function": "DC ground (0 V DC)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 25"
+        }
+      ]
+    },
+    {
+      "label": "Auxiliary · pin 2",
+      "function": "12 V DC output (power out only)",
+      "notes": "Max load 50 mA for each I/O.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 25"
+        }
+      ]
+    },
+    {
+      "label": "Auxiliary · pins 3–6",
+      "function": "Configurable input or output",
+      "notes": "Input 0 to max 30 V DC; output open drain, 100 mA.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 25"
+        }
+      ]
+    },
+    {
+      "label": "External · pins 1, 3",
+      "function": "DC ground (0 V DC)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 26"
+        }
+      ]
+    },
+    {
+      "label": "External · pins 2, 4",
+      "function": "Configurable input or output",
+      "notes": "Input 0 to max 30 V DC; output open drain, 100 mA.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 26"
+        }
+      ]
+    },
+    {
+      "label": "Power · pin 1",
+      "function": "0 V DC (−)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 27"
+        }
+      ]
+    },
+    {
+      "label": "Power · pin 2",
+      "function": "DC input",
+      "notes": "10.5–28 V DC, max 36 W. Only used when not powered by PoE.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 27"
+        }
+      ]
+    },
+    {
+      "label": "Backup battery input",
+      "function": "12 V DC input for a battery with built-in charger",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 27"
+        }
+      ]
+    }
+  ],
+  "specifications": [
+    {
+      "group": "electrical",
+      "label": "Relays",
+      "value": "2× relay NO/NC, max 2 A DC",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Power"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "Lock power out",
+      "value": "2× 12/24 V DC, max 24 W",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Power"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "Relay power jumper budget",
+      "value": "DC IN: 1600 mA @ 12 V / 800 mA @ 24 V. PoE: 800 mA @ 12 V / 400 mA @ 24 V. Shared between both relays and AUX 12 V",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Readers",
+      "value": "Up to 2 readers, RS485 (OSDP) / Wiegand; OSDP Secure Channel supported",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Door controller"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Doors",
+      "value": "1–2 wired doors, or 1 wired door with a single wireless lock gateway",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Door controller"
+        }
+      ]
+    },
+    {
+      "group": "physical",
+      "label": "Reader cable (RS485 data)",
+      "value": "1 twisted pair with shield, AWG 24, up to 1000 m",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Cable requirements"
+        }
+      ]
+    },
+    {
+      "group": "physical",
+      "label": "Reader cable (Wiegand data)",
+      "value": "AWG 22, up to 150 m",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Cable requirements"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating conditions",
+      "value": "-40 °C to 55 °C, humidity 20–85% RH (non-condensing)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-datasheet",
+          "locator": "p. 2, Operating conditions"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "kind": "installation",
+      "text": "If the lock is non-polarized, Axis recommends adding an external flyback diode.",
+      "severity": "caution",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 24"
+        }
+      ]
+    },
+    {
+      "kind": "installation",
+      "text": "When the backup battery input is used, an external 3 A slow-blow fuse must be connected in series.",
+      "severity": "caution",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 27"
+        }
+      ]
+    },
+    {
+      "kind": "installation",
+      "text": "Supervised inputs (door monitor and REX) use end-of-line resistors. The guide lists 1 kΩ, 2.2 kΩ, 4.7 kΩ and 10 kΩ as verified values and shows parallel (default) and serial connection diagrams — wire from those diagrams.",
+      "severity": "info",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 22"
+        }
+      ]
+    },
+    {
+      "kind": "installation",
+      "text": "Inductive loads on configurable outputs (e.g. a relay) need a diode in parallel with the load to protect against voltage transients.",
+      "severity": "info",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 21"
+        }
+      ]
+    },
+    {
+      "kind": "installation",
+      "text": "DC power must come from a SELV-compliant limited power source (≤100 W or ≤5 A).",
+      "severity": "info",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a1601-install",
+          "locator": "p. 27"
+        }
+      ]
+    }
+  ]
 }

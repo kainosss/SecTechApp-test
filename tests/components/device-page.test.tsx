@@ -44,8 +44,8 @@ describe("device detail page", () => {
 
   it("shows real identification-only records as needing verification, with honest empty states", async () => {
     vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
-    await renderDevice("axis-p3265-lve");
-    expect(screen.getByRole("heading", { level: 1, name: "AXIS P3265-LVE" })).toBeInTheDocument();
+    await renderDevice("takex-pa-6810");
+    expect(screen.getByRole("heading", { level: 1, name: "PA-6810" })).toBeInTheDocument();
     expect(screen.getByRole("note", { name: "Verification status: Needs verification" })).toHaveTextContent(/Don't treat anything here as installation instructions/);
     expect(screen.getByRole("region", { name: "Not yet documented" })).toHaveTextContent(
       /power requirements, terminal assignments, technical specifications, installation and commissioning notes/,
@@ -54,6 +54,20 @@ describe("device detail page", () => {
     expect(screen.queryByRole("link", { name: /^Open / })).not.toBeInTheDocument();
     expect(screen.queryByText(/Verified/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Demonstration/)).not.toBeInTheDocument();
+  });
+
+  it("shows sourced real data with page references, lifecycle, and no Verified label without review", async () => {
+    vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
+    await renderDevice("axis-a1601");
+    expect(screen.getByRole("note", { name: "Verification status: Needs verification" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Product lifecycle" })).toHaveTextContent(/Discontinued by the manufacturer on 31 Dec 2023/);
+    expect(screen.getByRole("region", { name: "Product lifecycle" })).toHaveTextContent(/AXIS A1610 Network Door Controller/);
+    const terminals = screen.getByRole("region", { name: "Terminals" });
+    expect(within(terminals).getByText("Relay 1/2 · pin 4 (NC)")).toBeInTheDocument();
+    expect(within(terminals).getAllByText("Source: p. 24").length).toBeGreaterThan(0);
+    expect(within(terminals).getAllByText(/installation guide, Ver\. M12\.5 \(September 2023\)$/)).toHaveLength(1);
+    expect(screen.getByRole("link", { name: /Open installation manual/ })).toHaveAttribute("href", expect.stringContaining("axis.com/dam/public/"));
+    expect(screen.queryByText("Verified")).not.toBeInTheDocument();
   });
 
   it("records the view in recently viewed", async () => {

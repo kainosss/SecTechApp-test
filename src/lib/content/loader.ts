@@ -65,6 +65,7 @@ function checkUniqueIds(items: { id: string }[], kind: string, problems: string[
 export function deviceClaims(d: Device): { label: string; claim: ClaimEvidence & { appliesToVariantIds?: string[] } }[] {
   return [
     ...d.variants.map((v) => ({ label: `variant ${v.id}`, claim: v })),
+    ...(d.lifecycle ? [{ label: "lifecycle", claim: d.lifecycle }] : []),
     ...d.terminals.map((t) => ({ label: `terminal ${t.label}`, claim: t })),
     ...(d.power ? [{ label: "power", claim: d.power }] : []),
     ...d.specifications.map((s) => ({ label: `specification ${s.label}`, claim: s })),

@@ -14,6 +14,11 @@ export function DeviceRow({ device }: { device: DeviceSummary }) {
         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="font-mono text-[15px] font-medium text-fg">{device.model}</span>
           <VerificationBadge status={device.status} />
+          {device.discontinued && (
+            <span className="rounded-full border border-line-strong px-2 py-0.5 font-mono text-[11px] tracking-wide text-fg-muted uppercase">
+              Discontinued
+            </span>
+          )}
         </span>
         <span className="mt-0.5 block truncate text-[13px] text-fg-muted">
           {device.manufacturerName} · {CATEGORY_LABELS[device.category]}

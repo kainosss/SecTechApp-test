@@ -18,7 +18,14 @@
   {
     "id": "axis",
     "name": "Axis Communications",
-    "country": "SE"
+    "country": "SE",
+    "website": "https://www.axis.com",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-pds-a1601",
+        "locator": "Footer: Axis Communications AB, Lund, Sweden"
+      }
+    ]
   },
   {
     "id": "takex",

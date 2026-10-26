@@ -6,11 +6,146 @@
   "category": "ip-camera",
   "aliases": [
     "P3265-LVE",
-    "P3265"
+    "P3265",
+    "02328-001",
+    "02333-001"
+  ],
+  "documentation": [
+    {
+      "sourceId": "axis-p3265-lve-datasheet"
+    },
+    {
+      "sourceId": "axis-p3265-lve-9mm-install"
+    },
+    {
+      "sourceId": "axis-pds-p326x"
+    },
+    {
+      "sourceId": "axis-p3265-lve-support"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Values are transcribed from the cited Axis documents (accessed 2026-10-26) with page references, but have not yet been reviewed by a person. Confirm against the document before relying on them."
   },
-  "updatedAt": "2026-10-26"
+  "updatedAt": "2026-10-26",
+  "variants": [
+    {
+      "id": "standard",
+      "name": "AXIS P3265-LVE",
+      "partNumber": "02328-001/113",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-pds-p326x",
+          "locator": "Product table"
+        }
+      ]
+    },
+    {
+      "id": "lens-22mm",
+      "name": "AXIS P3265-LVE 22 mm",
+      "partNumber": "02333-001/113",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-pds-p326x",
+          "locator": "Product table"
+        }
+      ]
+    }
+  ],
+  "lifecycle": {
+    "state": "discontinued",
+    "discontinuedOn": "2025-12-31",
+    "replacedBy": [
+      "AXIS P3275-LVE 10 mm",
+      "AXIS P3285-LVE 10 mm",
+      "AXIS P3275-LVE 29 mm (for 22 mm)",
+      "AXIS P3285-LVE 29 mm (for 22 mm)"
+    ],
+    "supportUntil": "2031-12-31",
+    "notes": "Hardware/RMA service and software support until 31 Dec 2031.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-pds-p326x"
+      }
+    ]
+  },
+  "power": {
+    "powerOverEthernet": "IEEE 802.3af/802.3at Type 1 Class 3",
+    "notes": "Typical 4.8 W, max 10.7 W.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-p3265-lve-datasheet",
+        "locator": "p. 5, Power"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "Network",
+      "value": "RJ45 10BASE-T/100BASE-TX PoE",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "I/O",
+      "value": "4-pin 2.5 mm terminal block: 1 supervised digital input and 1 digital output (12 V DC output, max. load 25 mA)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Audio",
+      "value": "9 mm: 4-pin 2.5 mm terminal block for audio in and out. 22 mm: 3.5 mm mic/line in",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating temperature",
+      "value": "-40 °C to 50 °C",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Operating conditions"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Start-up temperature",
+      "value": "-30 °C to 50 °C",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Operating conditions"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Humidity",
+      "value": "10–100% RH (condensing)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-p3265-lve-datasheet",
+          "locator": "p. 5, Operating conditions"
+        }
+      ]
+    }
+  ]
 }

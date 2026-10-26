@@ -1,0 +1,165 @@
+[
+  {
+    "id": "axis-p3265-lve-support",
+    "manufacturerId": "axis",
+    "title": "AXIS P3265-LVE Dome Camera — product support",
+    "publisher": "Axis Communications",
+    "documentType": "product-page",
+    "url": "https://www.axis.com/products/axis-p3265-lve/support",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-p3265-lve-datasheet",
+    "manufacturerId": "axis",
+    "title": "AXIS P3265-LVE Dome Camera datasheet",
+    "publisher": "Axis Communications",
+    "documentType": "datasheet",
+    "documentNumber": "T10170893",
+    "documentRevision": "M27.2 (2025-11)",
+    "url": "https://www.axis.com/dam/public/a6/e6/1b/datasheet-axis-p3265-lve-dome-camera-en-US-506683.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-p3265-lve-9mm-install",
+    "manufacturerId": "axis",
+    "title": "AXIS P3265-LVE Dome Camera 9 mm installation guide",
+    "publisher": "Axis Communications",
+    "documentType": "installation-manual",
+    "documentNumber": "3140962",
+    "documentRevision": "M5.2 (2025-06)",
+    "url": "https://www.axis.com/dam/public/e0/5b/17/installation-guide-axis-p3265-lve-dome-camera-9-mm-en-US-486876.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-pds-p326x",
+    "manufacturerId": "axis",
+    "title": "Product Discontinuation Statement for AXIS P326x",
+    "publisher": "Axis Communications",
+    "documentType": "technical-bulletin",
+    "publishedDate": "2025-09-11",
+    "url": "https://www.axis.com/dam/public/permalink/246569/product-discontinuation-statement-p326xpdf-en-US_246569.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-q6135-le-support",
+    "manufacturerId": "axis",
+    "title": "AXIS Q6135-LE PTZ Network Camera — product support",
+    "publisher": "Axis Communications",
+    "documentType": "product-page",
+    "url": "https://www.axis.com/products/axis-q6135-le/support",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-q6135-le-datasheet",
+    "manufacturerId": "axis",
+    "title": "AXIS Q6135-LE PTZ Network Camera datasheet",
+    "publisher": "Axis Communications",
+    "documentType": "datasheet",
+    "documentNumber": "T10144009",
+    "documentRevision": "M38.2 (2026-09)",
+    "url": "https://www.axis.com/dam/public/d2/3a/f8/datasheet-axis-q6135-le-ptz-network-camera-en-US-555528.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-q6135-le-install",
+    "manufacturerId": "axis",
+    "title": "AXIS Q6135-LE PTZ Network Camera installation guide",
+    "publisher": "Axis Communications",
+    "documentType": "installation-manual",
+    "documentNumber": "3123258",
+    "documentRevision": "Ver. M2.3 (August 2024)",
+    "url": "https://www.axis.com/dam/public/93/98/93/axis-q6135-le--installation-guide-en-US-447930.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-pds-q6135-le",
+    "manufacturerId": "axis",
+    "title": "Product Discontinuation Statement — AXIS Q6135-LE",
+    "publisher": "Axis Communications",
+    "documentType": "technical-bulletin",
+    "publishedDate": "2026-02-03",
+    "url": "https://www.axis.com/dam/public/permalink/257991/product-discontinuation-statement-axis-q6135-lepdf-en-US_257991.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-a1601-support",
+    "manufacturerId": "axis",
+    "title": "AXIS A1601 Network Door Controller — product support",
+    "publisher": "Axis Communications",
+    "documentType": "product-page",
+    "url": "https://www.axis.com/products/axis-a1601/support",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-a1601-datasheet",
+    "manufacturerId": "axis",
+    "title": "AXIS A1601 Network Door Controller datasheet",
+    "publisher": "Axis Communications",
+    "documentType": "datasheet",
+    "documentNumber": "T10125109",
+    "documentRevision": "M15.2 (2022-07)",
+    "url": "https://www.axis.com/dam/public/33/cb/20/datasheet-axis-a1601-network-door-controller-en-US-374271.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-a1601-install",
+    "manufacturerId": "axis",
+    "title": "AXIS A1601 Network Door Controller installation guide",
+    "publisher": "Axis Communications",
+    "documentType": "installation-manual",
+    "documentNumber": "2122935",
+    "documentRevision": "Ver. M12.5 (September 2023)",
+    "url": "https://www.axis.com/dam/public/e6/77/10/installation-guide-axis-a1601-network-door-controller-en-US-411719.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-pds-a1601",
+    "manufacturerId": "axis",
+    "title": "Product Discontinuation Statement — AXIS A1601 Network Door Controller",
+    "publisher": "Axis Communications",
+    "documentType": "technical-bulletin",
+    "publishedDate": "2023-07-07",
+    "url": "https://www.axis.com/dam/public/e5/d5/9c/product-discontinuation-statement-axis-a1601-network-door-controller-en-US-409420.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-i8016-lve-page",
+    "manufacturerId": "axis",
+    "title": "AXIS I8016-LVE Network Video Intercom — product page",
+    "publisher": "Axis Communications",
+    "documentType": "product-page",
+    "url": "https://www.axis.com/products/axis-i8016-lve",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-i8016-lve-datasheet",
+    "manufacturerId": "axis",
+    "title": "AXIS I8016-LVE Network Video Intercom datasheet",
+    "publisher": "Axis Communications",
+    "documentType": "datasheet",
+    "documentNumber": "T10160894",
+    "documentRevision": "M40.2 (2026-09)",
+    "url": "https://www.axis.com/dam/public/e5/57/c5/datasheet-axis-i8016-lve-network-video-intercom-en-US-555409.pdf",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-a8207-ve-mk-ii-page",
+    "manufacturerId": "axis",
+    "title": "AXIS A8207-VE Mk II Network Video Door Station — product page",
+    "publisher": "Axis Communications",
+    "documentType": "product-page",
+    "url": "https://www.axis.com/products/axis-a8207-ve-mk-ii",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "axis-a8207-ve-mk-ii-datasheet",
+    "manufacturerId": "axis",
+    "title": "AXIS A8207-VE Mk II Network Video Door Station datasheet",
+    "publisher": "Axis Communications",
+    "documentType": "datasheet",
+    "documentNumber": "T10147068",
+    "documentRevision": "M34.2 (2026-02)",
+    "url": "https://www.axis.com/dam/public/7c/b9/e0/datasheet-axis-a8207-ve-mk-ii-network-video-door-station-en-US-522552.pdf",
+    "accessedDate": "2026-10-26"
+  }
+]

@@ -20,3 +20,10 @@ export function sharedSources(items: { sources: CitedSource[] }[]): CitedSource[
   if (!first || first.sources.length === 0) return null;
   return items.every((i) => key(i.sources) === key(first.sources)) ? first.sources : null;
 }
+
+/** If every item cites exactly one source and it is the same document (pages may differ), returns it without a locator. */
+export function sharedDocument(items: { sources: CitedSource[] }[]): CitedSource | null {
+  const first = items[0]?.sources[0];
+  if (!first || !items.every((i) => i.sources.length === 1 && i.sources[0]!.id === first.id)) return null;
+  return { ...first, locator: undefined };
+}

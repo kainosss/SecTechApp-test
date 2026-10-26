@@ -19,20 +19,29 @@ export function ClaimMeta({
   claim,
   showStatus,
   showSources,
+  locatorOnly = false,
 }: {
   claim: AnyClaim;
   showStatus: boolean;
   showSources: boolean;
+  /** The section names the document once; show only this claim's page/section. */
+  locatorOnly?: boolean;
 }) {
   const applies = [
     claim.appliesToVariants.length > 0 && `Variants: ${claim.appliesToVariants.join(", ")}`,
     claim.appliesToRevisions.length > 0 && `Revisions: ${claim.appliesToRevisions.join(", ")}`,
   ].filter(Boolean);
-  if (!showStatus && !showSources && applies.length === 0 && !claim.review) return null;
+  const hasSource = showSources && (!locatorOnly || Boolean(claim.sources[0]?.locator));
+  if (!showStatus && !hasSource && applies.length === 0 && !claim.review) return null;
   return (
     <span className="mt-1.5 flex flex-col gap-1">
       {showStatus && <VerificationBadge status={claim.status} className="self-start" />}
-      {showSources && <Citation sources={claim.sources} />}
+      {showSources &&
+        (locatorOnly ? (
+          claim.sources[0]?.locator && <span className="block text-xs text-fg-subtle">Source: {claim.sources[0].locator}</span>
+        ) : (
+          <Citation sources={claim.sources} />
+        ))}
       {applies.length > 0 && <span className="block text-xs text-fg-subtle">{applies.join(" · ")}</span>}
       {claim.review && claim.status === "verified" && (
         <span className="block text-xs text-fg-subtle">

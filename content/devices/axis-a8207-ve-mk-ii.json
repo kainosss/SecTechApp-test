@@ -8,9 +8,100 @@
     "A8207-VE",
     "A8207"
   ],
+  "documentation": [
+    {
+      "sourceId": "axis-a8207-ve-mk-ii-datasheet"
+    },
+    {
+      "sourceId": "axis-a8207-ve-mk-ii-page"
+    }
+  ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Values are transcribed from the cited Axis documents (accessed 2026-10-26) with page references, but have not yet been reviewed by a person. Confirm against the document before relying on them."
   },
-  "updatedAt": "2026-10-26"
+  "updatedAt": "2026-10-26",
+  "power": {
+    "supplyVoltage": {
+      "min": 8,
+      "max": 28,
+      "type": "DC"
+    },
+    "powerOverEthernet": "IEEE 802.3af/802.3at Type 1 Class 3, or PoE+ IEEE 802.3at Type 2 Class 4",
+    "notes": "DC input requires min. 25 W. Power consumption typical 8 W, max 22 W.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+        "locator": "p. 4, Power"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "electrical",
+      "label": "Power out",
+      "value": "On PoE Class 3: 24 V/0.05 A or 12 V/0.1 A. On PoE+ Class 4 or 8–28 V DC: 24 V/0.3 A or 12 V/0.7 A",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 4, Power"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "Relay rating",
+      "value": "30 V, 1 A",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 4, Power"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Network",
+      "value": "RJ45 10BASE-T/100BASE-TX, PoE",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "I/O",
+      "value": "6-pin terminal block for 4 alarm inputs/outputs; DC input, 2 relays, line out, line in, microHDMI, RS485/Wiegand",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating temperature",
+      "value": "-40 °C to 55 °C",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 5, Operating conditions"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Humidity",
+      "value": "10–100% RH (condensing)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-a8207-ve-mk-ii-datasheet",
+          "locator": "p. 5, Operating conditions"
+        }
+      ]
+    }
+  ]
 }

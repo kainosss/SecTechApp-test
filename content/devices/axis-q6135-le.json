@@ -2,15 +2,127 @@
   "id": "axis-q6135-le",
   "manufacturerId": "axis",
   "model": "AXIS Q6135-LE",
-  "name": "AXIS Q6135-LE PTZ Camera",
+  "name": "AXIS Q6135-LE PTZ Network Camera",
   "category": "ip-camera",
   "aliases": [
     "Q6135-LE",
-    "Q6135"
+    "Q6135",
+    "01958",
+    "01959"
+  ],
+  "documentation": [
+    {
+      "sourceId": "axis-q6135-le-datasheet"
+    },
+    {
+      "sourceId": "axis-q6135-le-install"
+    },
+    {
+      "sourceId": "axis-pds-q6135-le"
+    },
+    {
+      "sourceId": "axis-q6135-le-support"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Values are transcribed from the cited Axis documents (accessed 2026-10-26) with page references, but have not yet been reviewed by a person. Confirm against the document before relying on them."
   },
-  "updatedAt": "2026-10-26"
+  "updatedAt": "2026-10-26",
+  "variants": [
+    {
+      "id": "hz50",
+      "name": "AXIS Q6135-LE 50Hz",
+      "partNumber": "01958-XXX",
+      "description": "Regional versions share this base number.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-pds-q6135-le",
+          "locator": "Product table"
+        }
+      ]
+    },
+    {
+      "id": "hz60",
+      "name": "AXIS Q6135-LE 60Hz",
+      "partNumber": "01959-XXX",
+      "description": "Regional versions share this base number.",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-pds-q6135-le",
+          "locator": "Product table"
+        }
+      ]
+    }
+  ],
+  "lifecycle": {
+    "state": "discontinued",
+    "discontinuedOn": "2026-03-16",
+    "replacedBy": [
+      "AXIS Q6325-LE"
+    ],
+    "supportUntil": "2033-12-31",
+    "notes": "Hardware/RMA service until 16 Mar 2032; software support until 31 Dec 2033.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-pds-q6135-le"
+      }
+    ]
+  },
+  "power": {
+    "powerOverEthernet": "Axis High PoE midspan, or IEEE 802.3at Type 2 Class 4 (PoE+)",
+    "notes": "With Axis High PoE midspan 1-port: camera typical 10.3 W (no IR), max 51 W. With Axis PoE+ midspan 1-port (IEEE 802.3at Type 2 Class 4): typical 10.3 W (no IR), max 25 W.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-q6135-le-datasheet",
+        "locator": "p. 4, Power"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "communications",
+      "label": "Network",
+      "value": "RJ45 10BASE-T/100BASE-TX PoE; RJ45 push-pull connector (IP66)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-q6135-le-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Audio and I/O",
+      "value": "Via portcast technology",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-q6135-le-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating temperature",
+      "value": "With 30 W midspan: -30 °C to 50 °C. With 60 W midspan: -50 °C to 50 °C",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-q6135-le-datasheet",
+          "locator": "p. 4, Operating conditions"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Humidity",
+      "value": "10–100% RH (condensing)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-q6135-le-datasheet",
+          "locator": "p. 4, Operating conditions"
+        }
+      ]
+    }
+  ]
 }

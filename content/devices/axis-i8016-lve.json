@@ -8,9 +8,95 @@
     "I8016-LVE",
     "I8016"
   ],
+  "documentation": [
+    {
+      "sourceId": "axis-i8016-lve-datasheet"
+    },
+    {
+      "sourceId": "axis-i8016-lve-page"
+    }
+  ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Values are transcribed from the cited Axis documents (accessed 2026-10-26) with page references, but have not yet been reviewed by a person. Confirm against the document before relying on them."
   },
-  "updatedAt": "2026-10-26"
+  "updatedAt": "2026-10-26",
+  "power": {
+    "powerOverEthernet": "IEEE 802.3af/802.3at Type 1 Class 3",
+    "notes": "Typical 4.7 W, max 12.7 W.",
+    "sourceRefs": [
+      {
+        "sourceId": "axis-i8016-lve-datasheet",
+        "locator": "p. 4, Power"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "group": "electrical",
+      "label": "Relay rating",
+      "value": "30 V, 0.7 A",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Power"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Network",
+      "value": "Shielded RJ45 10BASE-T/100BASE-TX PoE",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "electrical",
+      "label": "I/O",
+      "value": "6-pin terminal block: 2 inputs/outputs, +12 V 400 mA supply, and 1 relay",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "communications",
+      "label": "Audio",
+      "value": "4-pin terminal block for audio input and output",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Connectors"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Operating temperature",
+      "value": "-40 °C to 60 °C",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Operating conditions"
+        }
+      ]
+    },
+    {
+      "group": "environmental",
+      "label": "Humidity",
+      "value": "10–100% RH (condensing)",
+      "sourceRefs": [
+        {
+          "sourceId": "axis-i8016-lve-datasheet",
+          "locator": "p. 4, Operating conditions"
+        }
+      ]
+    }
+  ]
 }

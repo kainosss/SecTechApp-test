@@ -11,6 +11,7 @@ const item = (over: Partial<DeviceListItem>): DeviceListItem => ({
   manufacturerId: "m1",
   manufacturerName: "Maker One",
   status: "demonstration",
+  discontinued: false,
   keywords: [],
   ...over,
 });

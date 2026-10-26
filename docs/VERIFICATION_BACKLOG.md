@@ -10,18 +10,21 @@ documents in hand.
   URLs were confirmed on 2026-10-26. Datasheet PDFs are served from a separate host
   (`*.filesusr.com`) that the network policy blocks, so no technical values could be read. Some product
   pages (996300 Inception, 996035PCB&K IAC) returned a bot check and were not used.
-- **Axis, Takex, Tecom:** `axis.com`, `takex-eng.co.jp` and `aritech.com.au` are still blocked, and web
-  search returned only third-party reseller pages. Nothing was recorded from unconfirmed sources.
+- **Axis:** `www.axis.com` became reachable on 2026-10-26. Datasheets, installation guides and product
+  discontinuation statements were downloaded and transcribed with document numbers, revisions and page
+  references. Nothing has been reviewed by a person yet.
+- **Takex, Tecom:** `www.takex-eng.co.jp` is still blocked; `www.aritech.com.au` redirects to
+  `aritech.com.au`, which is blocked. Nothing was recorded from unconfirmed sources.
 
 Product pages have no document revision, so claims citing them cannot be Verified even after review.
 Verification needs the datasheet or installation manual with its revision.
 
-## Real device records (17)
+## Real device records (16)
 
-For every device below, these are still empty and need sourcing from a revisioned manufacturer
-document: hardware/firmware revisions, power requirements, terminal assignments, specifications,
-installation and commissioning notes. For Axis, Takex and Tecom the model name, part numbers and
-document links are also unconfirmed.
+No claim anywhere has a reviewer yet. Device hardware/firmware revisions (`appliesToRevisions`) are not
+recorded for any claim, and must be added at review time. For Takex and Tecom the model name, part numbers
+and document links are also unconfirmed. The AXIS T8508 record was removed: its official product page
+returns 404.
 
 | Manufacturer | Device | Record id | Extra notes |
 |---|---|---|---|
@@ -34,12 +37,11 @@ document links are also unconfirmed.
 | Inner Range | PrismaX Colour LCD Keypad — 996400 | `inner-range-prismax-keypad` | Name + part number confirmed. Needs datasheet |
 | Tecom | ChallengerPlus | `tecom-challengerplus` | Confirm part number (reported as TS-CHPLUS by a third party) and current brand owner |
 | Tecom | Challenger10 | `tecom-challenger10` | Confirm part number (reported as TS1016 by a third party) and support status |
-| Axis | AXIS P3265-LVE | `axis-p3265-lve` | Datasheet and installation guide |
-| Axis | AXIS Q6135-LE | `axis-q6135-le` | Datasheet and installation guide |
-| Axis | AXIS A1601 | `axis-a1601` | Datasheet and installation guide |
-| Axis | AXIS I8016-LVE | `axis-i8016-lve` | Datasheet and installation guide |
-| Axis | AXIS A8207-VE Mk II | `axis-a8207-ve-mk-ii` | Datasheet and installation guide |
-| Axis | AXIS T8508 | `axis-t8508` | Datasheet and installation guide |
+| Axis | AXIS P3265-LVE (discontinued 31 Dec 2025) | `axis-p3265-lve` | Power, connectors, environment from datasheet T10170893 M27.2; variants and lifecycle from discontinuation statement. Needs review; I/O pin assignments not recorded (guide is pictorial) |
+| Axis | AXIS Q6135-LE (discontinued 16 Mar 2026) | `axis-q6135-le` | Power, connectors, environment from datasheet T10144009 M38.2; variants and lifecycle from discontinuation statement. Needs review |
+| Axis | AXIS A1601 (discontinued 31 Dec 2023) | `axis-a1601` | Full terminal tables from installation guide Ver. M12.5 (pp. 20–27), power and specs from datasheet T10125109 M15.2, install notes. Needs review. EOL wiring for supervised inputs not recorded (diagram-only in guide) |
+| Axis | AXIS I8016-LVE | `axis-i8016-lve` | Power, connectors, environment from datasheet T10160894 M40.2. Needs review; installation guide not yet sourced |
+| Axis | AXIS A8207-VE Mk II | `axis-a8207-ve-mk-ii` | Power, connectors, environment from datasheet T10147068 M34.2. Needs review; installation guide not yet sourced |
 | Takex | PA-6810 | `takex-pa-6810` | Confirm full model suffix used in Australia |
 | Takex | PB-100TE | `takex-pb-100te` | Confirm current model/series name |
 
@@ -49,7 +51,7 @@ document links are also unconfirmed.
 |---|---|
 | Inner Range | Confirmed 2026-10-26: website and head office (Mount Waverley, Victoria) from the About Us page |
 | Tecom | Country, current brand owner (Aritech / parent company), website |
-| Axis Communications | Official website, head office (recorded as SE), parent company |
+| Axis Communications | Website confirmed; head office Lund, Sweden (discontinuation statement footer). Parent company not recorded |
 | Takex | Official website, head office (recorded as JP) |
 
 ## Wiring configurations and troubleshooting workflows

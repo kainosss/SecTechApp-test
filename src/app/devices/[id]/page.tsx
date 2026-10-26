@@ -5,7 +5,7 @@ import { getDevice, listDeviceIds, type CitedSource, type DeviceDetail, type Rel
 import type { Specification } from "@/lib/content/schema";
 import { BackToLibrary } from "@/components/devices/BackToLibrary";
 import { ClaimMeta, SectionEvidence, sharedStatus } from "@/components/devices/ClaimMeta";
-import { sharedSources } from "@/components/devices/Citation";
+import { sharedDocument, sharedSources } from "@/components/devices/Citation";
 import { DeviceSection, SectionNav, type SectionLink } from "@/components/devices/DeviceSection";
 import { DOC_TYPE_LABELS, DocumentList } from "@/components/devices/DocumentList";
 import { FavouriteButton } from "@/components/devices/FavouriteButton";
@@ -48,6 +48,10 @@ const STATUS_EXPLANATION: Record<DeviceDetail["status"], string> = {
     "Not yet verified against manufacturer documentation. Don't treat anything here as installation instructions — confirm with the manufacturer's manual.",
   demonstration: "Fictional demonstration record for development. Never use on site.",
 };
+
+function formatDate(iso: string) {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
 
 function SubHeading({ children, first = false }: { children: React.ReactNode; first?: boolean }) {
   return (
@@ -93,13 +97,15 @@ export default async function DevicePage({ params }: Props) {
   const device = await getDevice((await params).id);
   if (!device) notFound();
 
-  const { power, terminals, specifications, installationNotes, commissioningNotes, variants, documents, related } = device;
+  const { power, terminals, specifications, installationNotes, commissioningNotes, variants, lifecycle, documents, related } = device;
   const notes = [...installationNotes, ...commissioningNotes];
   const primaryDoc = primaryDocument(documents);
 
   // Show status/sources once per section when every item agrees, otherwise per item.
   const terminalStatus = sharedStatus(terminals);
   const terminalSources = sharedSources(terminals);
+  // Same document, different pages: name the document once, show pages per row.
+  const terminalDocument = terminalSources ? null : sharedDocument(terminals);
   const specStatus = sharedStatus(specifications);
   const specSources = sharedSources(specifications);
   const specGroups = Object.entries(Object.groupBy(specifications, (s) => s.group)) as [Specification["group"], typeof specifications][];
@@ -161,6 +167,22 @@ export default async function DevicePage({ params }: Props) {
         review={device.review}
         notes={device.statusNotes}
       />
+
+      {lifecycle?.state === "discontinued" && (
+        <section aria-label="Product lifecycle" className="rounded-xl border border-line-strong bg-ink-850 px-4 py-3 text-sm leading-relaxed">
+          <p className="font-semibold text-fg">
+            Discontinued by the manufacturer{lifecycle.discontinuedOn && ` on ${formatDate(lifecycle.discontinuedOn)}`}
+          </p>
+          {lifecycle.replacedBy.length > 0 && (
+            <p className="mt-1 text-fg-muted">
+              Replacement{lifecycle.replacedBy.length > 1 ? " options" : ""}: <span className="text-fg">{lifecycle.replacedBy.join(", ")}</span>
+            </p>
+          )}
+          {lifecycle.supportUntil && <p className="mt-1 text-fg-muted">Manufacturer support until {formatDate(lifecycle.supportUntil)}</p>}
+          {lifecycle.notes && <p className="mt-1 text-fg-muted">{lifecycle.notes}</p>}
+          <ClaimMeta claim={lifecycle} showStatus={lifecycle.status !== device.status} showSources />
+        </section>
+      )}
 
       <SectionNav links={sections} />
 
@@ -258,12 +280,12 @@ export default async function DevicePage({ params }: Props) {
                 <span>
                   <span className="block text-[15px] text-fg">{t.function}</span>
                   {t.notes && <span className="mt-0.5 block text-sm text-fg-muted">{t.notes}</span>}
-                  <ClaimMeta claim={t} showStatus={!terminalStatus} showSources={!terminalSources} />
+                  <ClaimMeta claim={t} showStatus={!terminalStatus} showSources={!terminalSources} locatorOnly={Boolean(terminalDocument)} />
                 </span>
               </li>
             ))}
           </ul>
-          <SectionEvidence sources={terminalSources} status={terminalStatus} />
+          <SectionEvidence sources={terminalSources ?? (terminalDocument && [terminalDocument])} status={terminalStatus} />
         </DeviceSection>
       )}
 

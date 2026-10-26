@@ -18,6 +18,7 @@ import {
   type Device,
   type DeviceCategory,
   type DeviceNote,
+  type Lifecycle,
   type Manufacturer,
   type Power,
   type Review,
@@ -96,6 +97,7 @@ export interface DeviceDetail {
   isDemo: boolean;
   updatedAt: string;
   variants: ResolvedClaim<Variant>[];
+  lifecycle?: ResolvedClaim<Lifecycle>;
   terminals: ResolvedClaim<Terminal>[];
   power?: ResolvedClaim<Power>;
   specifications: ResolvedClaim<Specification>[];
@@ -115,6 +117,7 @@ export interface DeviceListItem {
   manufacturerId: string;
   manufacturerName: string;
   status: VerificationStatus;
+  discontinued: boolean;
   /** Aliases, part numbers and other terms technicians search by. */
   keywords: string[];
 }
@@ -221,7 +224,7 @@ function deviceStatus(d: Device, claimStatuses: VerificationStatus[]): Verificat
 
 function toListItem(d: Device): DeviceListItem {
   const m = manufacturerFor(d);
-  const claims = [...d.variants, ...d.terminals, ...(d.power ? [d.power] : []), ...d.specifications, ...d.notes];
+  const claims = [...d.variants, ...(d.lifecycle ? [d.lifecycle] : []), ...d.terminals, ...(d.power ? [d.power] : []), ...d.specifications, ...d.notes];
   return {
     id: d.id,
     model: d.model,
@@ -231,6 +234,7 @@ function toListItem(d: Device): DeviceListItem {
     manufacturerId: d.manufacturerId,
     manufacturerName: m?.name ?? "Unknown manufacturer",
     status: deviceStatus(d, claims.map((c) => resolveClaim(c, d).status)),
+    discontinued: d.lifecycle?.state === "discontinued",
     keywords: [
       ...d.aliases,
       CATEGORY_LABELS[d.category],
@@ -299,11 +303,12 @@ export async function getDevice(id: string): Promise<DeviceDetail | null> {
   if (!d) return null;
   const m = manufacturerFor(d);
   const variants = d.variants.map((v) => resolveClaim(v, d));
+  const lifecycle = d.lifecycle ? resolveClaim(d.lifecycle, d) : undefined;
   const terminals = d.terminals.map((t) => resolveClaim(t, d));
   const power = d.power ? resolveClaim(d.power, d) : undefined;
   const specifications = d.specifications.map((s) => resolveClaim(s, d));
   const notes = d.notes.map((n) => resolveClaim(n, d));
-  const allStatuses = [...variants, ...terminals, ...(power ? [power] : []), ...specifications, ...notes].map((c) => c.status);
+  const allStatuses = [...variants, ...(lifecycle ? [lifecycle] : []), ...terminals, ...(power ? [power] : []), ...specifications, ...notes].map((c) => c.status);
   const status = deviceStatus(d, allStatuses);
 
   return {
@@ -328,6 +333,7 @@ export async function getDevice(id: string): Promise<DeviceDetail | null> {
     isDemo: deviceIsDemo(d),
     updatedAt: d.updatedAt,
     variants,
+    lifecycle,
     terminals,
     power,
     specifications,

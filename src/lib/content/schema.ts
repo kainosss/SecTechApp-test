@@ -257,6 +257,22 @@ export const deviceNoteSchema = z.object({
 });
 export type DeviceNote = z.infer<typeof deviceNoteSchema>;
 
+/**
+ * Manufacturer lifecycle. Only recorded when a manufacturer document states
+ * it (e.g. a discontinuation statement); absent means "not recorded", not "current".
+ */
+export const lifecycleSchema = z.object({
+  state: z.enum(["current", "discontinued"]),
+  discontinuedOn: isoDate.optional(),
+  /** Replacement products as the manufacturer names them. */
+  replacedBy: z.array(z.string().min(1)).default([]),
+  /** Last date of hardware / software support stated by the manufacturer. */
+  supportUntil: isoDate.optional(),
+  notes: z.string().optional(),
+  ...evidenceShape,
+});
+export type Lifecycle = z.infer<typeof lifecycleSchema>;
+
 export const deviceSchema = z.object({
   id: slug,
   manufacturerId: slug,
@@ -267,6 +283,7 @@ export const deviceSchema = z.object({
   description: z.string().optional(),
   aliases: z.array(z.string()).default([]),
   variants: z.array(variantSchema).default([]),
+  lifecycle: lifecycleSchema.optional(),
   terminals: z.array(terminalSchema).default([]),
   power: powerSchema.optional(),
   specifications: z.array(specificationSchema).default([]),
