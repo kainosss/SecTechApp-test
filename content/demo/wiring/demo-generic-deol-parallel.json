@@ -1,0 +1,106 @@
+{
+  "id": "demo-generic-deol-parallel",
+  "title": "Alternative dual EOL: alarm resistor in series with the contact, both across the EOL",
+  "summary": "A different dual-EOL topology, to show that placement changes the readings. The alarm contact and alarm resistor form a branch in parallel with the EOL resistor; opening the contact removes that branch.",
+  "inputType": "double-eol",
+  "arrangement": {
+    "key": "nc-alarm-nc-tamper",
+    "label": "NC alarm + NC tamper"
+  },
+  "configurationLabel": "4k7 EOL ∥ 4k7 alarm",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z+",
+        "description": "Zone input (generic)"
+      },
+      "b": {
+        "label": "Z−",
+        "description": "Zone common (generic)"
+      }
+    },
+    "network": {
+      "kind": "series",
+      "children": [
+        {
+          "kind": "contact",
+          "id": "TMP",
+          "function": "tamper",
+          "type": "NC"
+        },
+        {
+          "kind": "parallel",
+          "children": [
+            {
+              "kind": "resistor",
+              "id": "R1",
+              "ohms": 4700,
+              "role": "end-of-line",
+              "purpose": "End-of-line resistor. Always across the loop, so the reading can never rise above its value while the cable is intact and the tamper is closed."
+            },
+            {
+              "kind": "series",
+              "children": [
+                {
+                  "kind": "contact",
+                  "id": "ALM",
+                  "function": "alarm",
+                  "type": "NC"
+                },
+                {
+                  "kind": "resistor",
+                  "id": "R2",
+                  "ohms": 4700,
+                  "role": "alarm",
+                  "purpose": "Alarm resistor, in series with the alarm contact. While the contact is closed this branch sits in parallel with R1, lowering the reading; when the contact opens the branch drops out."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "states": [
+    {
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "open",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "tamper",
+      "kind": "tamper",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "open"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
+    }
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Generic demonstration circuit for learning and testing. It is not tied to any panel: real panels document their own resistor values, wiring and thresholds."
+  },
+  "updatedAt": "2026-10-26"
+}

@@ -36,6 +36,24 @@ export type ContactFunction = z.infer<typeof contactFunctionSchema>;
 
 export type CircuitNode = ResistorNode | ContactNode | SeriesNode | ParallelNode;
 
+/**
+ * Where a component physically sits, e.g. a detector's alarm relay terminals.
+ * Optional and only filled from documentation; lets schematics link to the
+ * physical device terminals (planned Circuit Lab) without changing circuits.
+ */
+export interface PhysicalLocation {
+  /** Device Library id of the device the component is fitted in/at, if known. */
+  deviceId?: string;
+  /** Terminal labels as printed on that device, e.g. ["ALM", "ALM"]. */
+  terminals?: string[];
+  /** e.g. "Inside detector", "At panel". */
+  description?: string;
+}
+
+const physicalLocation = z
+  .object({ deviceId: z.string().optional(), terminals: z.array(z.string().min(1)).optional(), description: z.string().optional() })
+  .optional();
+
 export interface ResistorNode {
   kind: "resistor";
   id: string;
@@ -44,6 +62,7 @@ export interface ResistorNode {
   role: ResistorRole;
   /** What this resistor does in this circuit, as documented. */
   purpose?: string;
+  location?: PhysicalLocation;
   sourceRefs: { sourceId: string; locator?: string }[];
 }
 
@@ -54,6 +73,7 @@ export interface ContactNode {
   /** Contact type: NC is closed when the device is in its normal (secure) condition. */
   type: "NC" | "NO";
   label?: string;
+  location?: PhysicalLocation;
   sourceRefs: { sourceId: string; locator?: string }[];
 }
 
@@ -73,6 +93,7 @@ const resistorNode = z.object({
   ohms: z.number().positive().nullable(),
   role: resistorRoleSchema,
   purpose: z.string().optional(),
+  location: physicalLocation,
   sourceRefs: circuitSourceRefs,
 });
 
@@ -82,6 +103,7 @@ const contactNode = z.object({
   function: contactFunctionSchema,
   type: z.enum(["NC", "NO"]),
   label: z.string().optional(),
+  location: physicalLocation,
   sourceRefs: circuitSourceRefs,
 });
 

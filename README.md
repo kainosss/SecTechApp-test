@@ -2,7 +2,7 @@
 
 Mobile-first technical reference for Australian electronic security technicians and apprentices.
 
-> **Status: v0.3 beta.** The Device Library is functional. All real device records are
+> **Status: v0.3 beta.** The Device Library and EOL Wiring Assistant are functional. All real device records are
 > identification-only and marked **Needs verification**. See
 > [docs/VERIFICATION_BACKLOG.md](docs/VERIFICATION_BACKLOG.md).
 

@@ -10,7 +10,7 @@
 import type { CircuitNode, ContactNode, ResistorNode } from "./model";
 
 export const UNIT_W = 80;
-export const ROW_H = 66;
+export const ROW_H = 74;
 const GAP = 14;
 const RAIL = 18;
 export const PANEL_W = 76;

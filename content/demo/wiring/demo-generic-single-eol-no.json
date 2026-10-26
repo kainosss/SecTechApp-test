@@ -1,0 +1,73 @@
+{
+  "id": "demo-generic-single-eol-no",
+  "title": "Single EOL: NO contact with a parallel EOL resistor",
+  "summary": "One resistor across a normally open contact. Sealed reads the EOL value; when the contact closes it shorts the resistor.",
+  "inputType": "single-eol",
+  "arrangement": {
+    "key": "no-alarm",
+    "label": "NO alarm contact"
+  },
+  "configurationLabel": "4k7 EOL (parallel)",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z+",
+        "description": "Zone input (generic)"
+      },
+      "b": {
+        "label": "Z−",
+        "description": "Zone common (generic)"
+      }
+    },
+    "network": {
+      "kind": "parallel",
+      "children": [
+        {
+          "kind": "contact",
+          "id": "ALM",
+          "function": "alarm",
+          "type": "NO"
+        },
+        {
+          "kind": "resistor",
+          "id": "R1",
+          "ohms": 4700,
+          "role": "end-of-line",
+          "purpose": "End-of-line resistor across the contact. While the NO contact is open the panel reads this value; closing the contact shorts it out."
+        }
+      ]
+    }
+  },
+  "states": [
+    {
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "open"
+      }
+    },
+    {
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "closed"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
+    }
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Generic demonstration circuit for learning and testing. It is not tied to any panel: real panels document their own resistor values, wiring and thresholds."
+  },
+  "updatedAt": "2026-10-26"
+}

@@ -9,7 +9,10 @@ describe("demo mode", () => {
     expect((await listDevices()).some((d) => d.status === "demonstration")).toBe(false);
     expect((await listManufacturers()).some((m) => m.isDemo)).toBe(false);
     expect(await getDevice("arclight-demo-ac-2d")).toBeNull();
-    expect(await listWiringConfigurations()).toEqual([]);
+    // Only generic demonstration circuits (not tied to any device) remain visible.
+    const wiring = await listWiringConfigurations();
+    expect(wiring.length).toBeGreaterThan(0);
+    expect(wiring.every((w) => w.generic && !w.panel && w.devices.length === 0)).toBe(true);
     expect(await listWorkflows()).toEqual([]);
   });
 

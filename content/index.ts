@@ -34,6 +34,11 @@ import devices_24_demo_devices_northgate_demo_ap_8 from "./demo/devices/northgat
 import devices_25_demo_devices_northgate_demo_kp_2 from "./demo/devices/northgate-demo-kp-2.json";
 import wiring_0_demo_wiring_demo_ap8_dual_eol_pir from "./demo/wiring/demo-ap8-dual-eol-pir.json";
 import wiring_1_demo_wiring_demo_ap8_single_eol_reed from "./demo/wiring/demo-ap8-single-eol-reed.json";
+import wiring_2_demo_wiring_demo_generic_closed_loop from "./demo/wiring/demo-generic-closed-loop.json";
+import wiring_3_demo_wiring_demo_generic_deol_alarm_tamper from "./demo/wiring/demo-generic-deol-alarm-tamper.json";
+import wiring_4_demo_wiring_demo_generic_deol_parallel from "./demo/wiring/demo-generic-deol-parallel.json";
+import wiring_5_demo_wiring_demo_generic_single_eol_nc from "./demo/wiring/demo-generic-single-eol-nc.json";
+import wiring_6_demo_wiring_demo_generic_single_eol_no from "./demo/wiring/demo-generic-single-eol-no.json";
 import workflows_0_demo_workflows_demo_camera_offline from "./demo/workflows/demo-camera-offline.json";
 import workflows_1_demo_workflows_demo_controller_comms_failure from "./demo/workflows/demo-controller-comms-failure.json";
 import workflows_2_demo_workflows_demo_detector_false_alarms from "./demo/workflows/demo-detector-false-alarms.json";
@@ -44,6 +49,6 @@ export const rawContent = {
   manufacturers: [manufacturers_0_manufacturers_manufacturers, manufacturers_1_demo_manufacturers_demo_manufacturers].flat() as unknown[],
   sources: [sources_0_sources_axis, sources_1_sources_inner_range, sources_2_demo_sources_demo_sources].flat() as unknown[],
   devices: [devices_0_devices_axis_a1601, devices_1_devices_axis_a8207_ve_mk_ii, devices_2_devices_axis_i8016_lve, devices_3_devices_axis_p3265_lve, devices_4_devices_axis_q6135_le, devices_5_devices_inner_range_elitex_oled_keypad, devices_6_devices_inner_range_ilam, devices_7_devices_inner_range_inception_controller, devices_8_devices_inner_range_integriti_controller, devices_9_devices_inner_range_prismax_keypad, devices_10_devices_inner_range_sifer_reader, devices_11_devices_inner_range_slam, devices_12_devices_takex_pa_6810, devices_13_devices_takex_pb_100te, devices_14_devices_tecom_challenger10, devices_15_devices_tecom_challengerplus, devices_16_demo_devices_arclight_demo_ac_2d, devices_17_demo_devices_arclight_demo_ls_12, devices_18_demo_devices_arclight_demo_rd_10, devices_19_demo_devices_halden_demo_hc_4d, devices_20_demo_devices_halden_demo_nv_8, devices_21_demo_devices_kestrel_demo_ks_pir12, devices_22_demo_devices_kestrel_demo_ks_rs1, devices_23_demo_devices_kestrel_demo_ks_sr20, devices_24_demo_devices_northgate_demo_ap_8, devices_25_demo_devices_northgate_demo_kp_2].flat() as unknown[],
-  wiring: [wiring_0_demo_wiring_demo_ap8_dual_eol_pir, wiring_1_demo_wiring_demo_ap8_single_eol_reed].flat() as unknown[],
+  wiring: [wiring_0_demo_wiring_demo_ap8_dual_eol_pir, wiring_1_demo_wiring_demo_ap8_single_eol_reed, wiring_2_demo_wiring_demo_generic_closed_loop, wiring_3_demo_wiring_demo_generic_deol_alarm_tamper, wiring_4_demo_wiring_demo_generic_deol_parallel, wiring_5_demo_wiring_demo_generic_single_eol_nc, wiring_6_demo_wiring_demo_generic_single_eol_no].flat() as unknown[],
   workflows: [workflows_0_demo_workflows_demo_camera_offline, workflows_1_demo_workflows_demo_controller_comms_failure, workflows_2_demo_workflows_demo_detector_false_alarms, workflows_3_demo_workflows_demo_reader_grants_door_locked, workflows_4_demo_workflows_demo_zone_permanently_open].flat() as unknown[],
 };

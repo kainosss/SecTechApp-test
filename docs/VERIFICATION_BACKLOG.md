@@ -54,10 +54,26 @@ returns 404.
 | Axis Communications | Website confirmed; head office Lund, Sweden (discontinuation statement footer). Parent company not recorded |
 | Takex | Official website, head office (recorded as JP) |
 
-## Wiring configurations and troubleshooting workflows
+## Wiring configurations (EOL Wiring Assistant)
 
-None exist for real devices. All 2 wiring configurations and 5 workflows are **demonstration only**
-and are visible only in demo mode.
+No real panel configuration exists. Inner Range Integriti, Inner Range Inception, Tecom ChallengerPlus and
+Tecom Challenger10 show **No verified configurations available**. To add one, the reviewer needs, from the
+panel's installation/programming manual (with revision):
+
+- panel input terminal labels and the panel HW/FW revisions the manual covers
+- EOL scheme options supported by that panel and firmware (e.g. single / dual / triple EOL)
+- resistor values and where each sits (series/parallel with which contact)
+- the reading or threshold band the panel uses for sealed, alarm, tamper, open and short
+- how the panel reports each state (so overlaps such as tamper vs cable open can be resolved)
+
+Then enter it in `content/wiring/` and run `npm test`: the loader lists anything still missing.
+Blocked sources: Inner Range manuals are on `*.filesusr.com`; Tecom documentation on `aritech.com.au`.
+
+All 7 existing wiring records (5 generic, 2 linked to the fictional AP-8 panel) are demonstration only.
+
+## Troubleshooting workflows
+
+All 5 workflows are demonstration only and visible only in demo mode.
 
 ## How to verify a claim
 

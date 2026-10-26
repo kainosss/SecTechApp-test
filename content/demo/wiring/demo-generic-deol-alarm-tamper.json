@@ -1,0 +1,101 @@
+{
+  "id": "demo-generic-deol-alarm-tamper",
+  "title": "Dual EOL: alarm resistor across the alarm contact, tamper in series",
+  "summary": "The most common teaching example of dual end-of-line. The alarm contact shorts out its alarm resistor while sealed; opening it adds that resistor to the loop. The tamper contact is in series, so opening it breaks the loop.",
+  "inputType": "double-eol",
+  "arrangement": {
+    "key": "nc-alarm-nc-tamper",
+    "label": "NC alarm + NC tamper"
+  },
+  "configurationLabel": "4k7 EOL / 2k2 alarm",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z+",
+        "description": "Zone input (generic)"
+      },
+      "b": {
+        "label": "Z−",
+        "description": "Zone common (generic)"
+      }
+    },
+    "network": {
+      "kind": "series",
+      "children": [
+        {
+          "kind": "parallel",
+          "children": [
+            {
+              "kind": "contact",
+              "id": "ALM",
+              "function": "alarm",
+              "type": "NC"
+            },
+            {
+              "kind": "resistor",
+              "id": "R2",
+              "ohms": 2200,
+              "role": "alarm",
+              "purpose": "Alarm resistor. While the alarm contact is closed it is bypassed (shorted out). When the detector activates and the contact opens, current must flow through it, so the reading rises by its value."
+            }
+          ]
+        },
+        {
+          "kind": "resistor",
+          "id": "R1",
+          "ohms": 4700,
+          "role": "end-of-line",
+          "purpose": "End-of-line (seal) resistor. Always in the loop, so a healthy sealed circuit reads a known value instead of a dead short — which lets the panel tell a cut or shorted cable apart from a sealed zone."
+        },
+        {
+          "kind": "contact",
+          "id": "TMP",
+          "function": "tamper",
+          "type": "NC"
+        }
+      ]
+    }
+  },
+  "states": [
+    {
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "open",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "tamper",
+      "kind": "tamper",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "open"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
+    }
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Generic demonstration circuit for learning and testing. It is not tied to any panel: real panels document their own resistor values, wiring and thresholds."
+  },
+  "updatedAt": "2026-10-26"
+}

@@ -29,9 +29,11 @@ describe("device detail page", () => {
     expect(screen.getAllByText(/AC-2D Door Controller Installation Manual \(fictional\)/).length).toBeGreaterThan(1);
   });
 
-  it("links related wiring and workflows", async () => {
+  it("links a panel to the EOL Assistant and keeps demonstration wiring visually separate", async () => {
     await renderDevice("northgate-demo-ap-8");
     const related = screen.getByRole("region", { name: "Wiring & troubleshooting" });
+    expect(within(related).getByRole("link", { name: "Open in EOL Wiring Assistant" })).toHaveAttribute("href", "/eol?panel=northgate-demo-ap-8");
+    expect(within(related).getByText("Demonstration — not field references")).toBeInTheDocument();
     expect(within(related).getByRole("link", { name: /AP-8 zone: dual EOL/ })).toHaveAttribute("href", "/eol/demo-ap8-dual-eol-pir");
     expect(within(related).getByRole("link", { name: /Alarm zone permanently open/ })).toHaveAttribute("href", "/fault-finder/demo-zone-permanently-open");
   });
@@ -68,6 +70,22 @@ describe("device detail page", () => {
     expect(within(terminals).getAllByText(/installation guide, Ver\. M12\.5 \(September 2023\)$/)).toHaveLength(1);
     expect(screen.getByRole("link", { name: /Open installation manual/ })).toHaveAttribute("href", expect.stringContaining("axis.com/dam/public/"));
     expect(screen.queryByText("Verified")).not.toBeInTheDocument();
+  });
+
+  it("shows real panels as having no verified configurations, with a route into the assistant", async () => {
+    vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
+    await renderDevice("tecom-challengerplus");
+    const related = screen.getByRole("region", { name: "Wiring & troubleshooting" });
+    expect(within(related).getByText(/No verified configurations available for this panel yet/)).toBeInTheDocument();
+    expect(within(related).getByRole("link", { name: "Open in EOL Wiring Assistant" })).toHaveAttribute("href", "/eol?panel=tecom-challengerplus");
+    expect(within(related).queryByText("Demonstration — not field references")).not.toBeInTheDocument();
+  });
+
+  it("links detectors to the configurations that use them", async () => {
+    await renderDevice("kestrel-demo-ks-rs1");
+    const related = screen.getByRole("region", { name: "Wiring & troubleshooting" });
+    expect(within(related).getByRole("link", { name: /AP-8 zone: single EOL/ })).toHaveTextContent("2k2 EOL · AP-8");
+    expect(within(related).queryByRole("link", { name: "Open in EOL Wiring Assistant" })).not.toBeInTheDocument();
   });
 
   it("records the view in recently viewed", async () => {

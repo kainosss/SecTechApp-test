@@ -1,0 +1,82 @@
+{
+  "id": "demo-generic-closed-loop",
+  "title": "Closed loop: NC alarm and NC tamper in series, no EOL",
+  "summary": "No resistors: the panel only sees closed (0 Ω) or open. Simple, but a shorted cable looks the same as a sealed zone.",
+  "inputType": "no-eol",
+  "arrangement": {
+    "key": "nc-alarm-nc-tamper",
+    "label": "NC alarm + NC tamper"
+  },
+  "configurationLabel": "No EOL",
+  "circuit": {
+    "terminals": {
+      "a": {
+        "label": "Z+",
+        "description": "Zone input (generic)"
+      },
+      "b": {
+        "label": "Z−",
+        "description": "Zone common (generic)"
+      }
+    },
+    "network": {
+      "kind": "series",
+      "children": [
+        {
+          "kind": "contact",
+          "id": "ALM",
+          "function": "alarm",
+          "type": "NC"
+        },
+        {
+          "kind": "contact",
+          "id": "TMP",
+          "function": "tamper",
+          "type": "NC"
+        }
+      ]
+    }
+  },
+  "states": [
+    {
+      "id": "normal",
+      "kind": "normal",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "alarm",
+      "kind": "alarm",
+      "contacts": {
+        "ALM": "open",
+        "TMP": "closed"
+      }
+    },
+    {
+      "id": "tamper",
+      "kind": "tamper",
+      "contacts": {
+        "ALM": "closed",
+        "TMP": "open"
+      }
+    },
+    {
+      "id": "cable-open",
+      "kind": "cable-open",
+      "line": "open"
+    },
+    {
+      "id": "cable-short",
+      "kind": "cable-short",
+      "line": "short"
+    }
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Generic demonstration circuit for learning and testing. It is not tied to any panel: real panels document their own resistor values, wiring and thresholds."
+  },
+  "updatedAt": "2026-10-26"
+}

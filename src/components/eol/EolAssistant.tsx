@@ -227,6 +227,13 @@ export function EolAssistant({
         </Step>
       )}
 
+      {realPanel && !arrangement && forPanel.length > 0 && (
+        <Link href={`/devices/${realPanel.id}`} className="inline-flex h-10 items-center gap-1 self-start rounded-lg px-1 text-sm font-medium text-fg-muted hover:text-fg">
+          <Icon name="chevron-right" className="size-4 rotate-180" />
+          Back to {realPanel.model}
+        </Link>
+      )}
+
       {panel && arrangement && (
         <Step
           n={3}

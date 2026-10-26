@@ -69,6 +69,38 @@ by `getRelatedForDevice()`.
 3. Run `npm test`. The manifest regenerates, and any invalid record or unsupported Verified claim fails
    with a message naming the record and the missing evidence.
 
+## EOL Wiring Assistant
+
+```
+src/lib/eol/
+  model.ts       Circuit data model: series/parallel tree of resistors and NO/NC contacts between
+                 two panel terminals; explicit contact positions per state; documented readings
+  engine.ts      Pure calculations: series/parallel, open/short, per-state readings, live path
+  validate.ts    Diagnostics + wiringVerificationGaps() (what blocks Verified)
+  layout.ts      Circuit tree → diagram geometry (connectivity-faithful)
+  assistant.ts   Step rules: DEOL-first ordering, safe auto-selection, URL state
+src/components/eol/  CircuitDiagram (SVG), DiagramViewer (expand/zoom), ConfigurationView,
+                     EolAssistant, ConfigurationPermalink
+content/wiring/          Real configurations (none yet)
+content/demo/wiring/     Generic demonstration circuits + demo-panel examples
+```
+
+**Verified wiring** requires everything the generic evidence rules need (reviewer, valid date,
+revisioned non-demo sources, applicable revisions) **plus**: a named panel and its HW/FW revisions,
+documented terminal labels, every resistor value and every contact's behaviour cited, a documented
+reading for every state that the calculation matches (documented tolerance, else 1%), the documented
+state interpretation, and no unresolved diagnostics. Identical readings across two states are a
+warning that is resolved only when the documentation says the panel reports both the same way.
+
+**Visibility:** generic demonstration circuits (no panel, no devices) are shown in normal mode inside a
+separated "Demonstration" area and are branded inside the diagram. Demo records linked to fictional
+demo devices appear only in demo mode.
+
+**Circuit Lab readiness (planned v0.4):** the engine is pure (contact positions and resistor values are
+inputs), components can carry an optional `location` (physical device terminals), and diagrams are
+prop-driven. Measuring across arbitrary points and voltage/current visualisation will need a netlist +
+nodal solver derived from the same tree; no content migration is required.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -84,5 +116,7 @@ browser.
 | v0.1 ✅ | Foundation, dashboard, navigation |
 | v0.2 ✅ | Device Library foundation |
 | v0.3 ✅ | Evidence model, fail-safe verification, real device identification, library journey, summary pages, ESLint |
-| Next | Verify a first set of real devices; interactive EOL Wiring Assistant; interactive Fault Finder |
+| v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
+| v0.4 (proposed) | Circuit Lab: Learn Mode with one interactive DEOL experience |
+| Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
 | Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |

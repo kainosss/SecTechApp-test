@@ -99,6 +99,10 @@ export default async function DevicePage({ params }: Props) {
 
   const { power, terminals, specifications, installationNotes, commissioningNotes, variants, lifecycle, documents, related } = device;
   const notes = [...installationNotes, ...commissioningNotes];
+  const isPanel = device.category === "alarm-panel";
+  // Field references (verified first, from the repository's ordering) are kept apart from demonstrations.
+  const fieldWiring = related.wiring.filter((w) => w.status !== "demonstration");
+  const demoWiring = related.wiring.filter((w) => w.status === "demonstration");
   const primaryDoc = primaryDocument(documents);
 
   // Show status/sources once per section when every item agrees, otherwise per item.
@@ -365,12 +369,35 @@ export default async function DevicePage({ params }: Props) {
 
       <DeviceSection id="related" title="Wiring & troubleshooting">
         <SubHeading first>Wiring configurations</SubHeading>
-        <RelatedList
-          items={related.wiring}
-          empty="No wiring configurations are linked to this device yet. Only configurations backed by manufacturer documentation will be added."
-          toolHref="/eol"
-          toolLabel="wiring configurations"
-        />
+        {isPanel && (
+          <div className="px-4 pt-2">
+            <Link
+              href={`/eol?panel=${device.id}`}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-signal-500/50 bg-signal-500/10 px-4 text-sm font-semibold text-signal-300 hover:bg-signal-500/15 min-[420px]:w-auto"
+            >
+              <Icon name="eol" className="size-4" />
+              Open in EOL Wiring Assistant
+            </Link>
+          </div>
+        )}
+        {fieldWiring.length > 0 || demoWiring.length === 0 ? (
+          <RelatedList
+            items={fieldWiring}
+            empty={
+              isPanel
+                ? "No verified configurations available for this panel yet. They are added only once backed by the manufacturer's documentation and reviewed."
+                : "No wiring configurations are linked to this device yet. Only configurations backed by manufacturer documentation will be added."
+            }
+            toolHref="/eol"
+            toolLabel="the EOL Wiring Assistant"
+          />
+        ) : null}
+        {demoWiring.length > 0 && (
+          <div className="mx-3 mb-3 rounded-xl border-2 border-dashed border-example/40">
+            <p className="px-3 pt-2.5 font-mono text-[11px] font-semibold tracking-[0.12em] text-example uppercase">Demonstration — not field references</p>
+            <RelatedList items={demoWiring} empty="" toolHref="/eol" toolLabel="" />
+          </div>
+        )}
         <SubHeading>Troubleshooting workflows</SubHeading>
         <RelatedList
           items={related.workflows}

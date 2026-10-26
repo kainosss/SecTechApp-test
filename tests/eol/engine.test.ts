@@ -142,3 +142,20 @@ describe("helpers", () => {
     expect(sameReading(2350, 2351)).toBe(false);
   });
 });
+
+describe("Circuit Lab readiness", () => {
+  it("recalculates when a learner toggles contacts or changes a resistor value (pure, no mutation)", async () => {
+    const { circuitNodeSchema } = await import("@/lib/eol/model");
+    const network = circuitNodeSchema.parse({
+      kind: "series",
+      children: [
+        { kind: "parallel", children: [{ kind: "contact", id: "ALM", function: "alarm", type: "NC", location: { terminals: ["ALM", "ALM"], description: "Inside detector" } }, { kind: "resistor", id: "RA", ohms: 2200, role: "alarm" }] },
+        { kind: "resistor", id: "RE", ohms: 4700, role: "end-of-line" },
+      ],
+    });
+    expect(networkResistance(network, { ALM: "open" })).toBe(6900);
+    const swapped = JSON.parse(JSON.stringify(network).replace('"ohms":2200', '"ohms":10000'));
+    expect(networkResistance(swapped, { ALM: "open" })).toBe(14700);
+    expect(networkResistance(network, { ALM: "open" })).toBe(6900);
+  });
+});
