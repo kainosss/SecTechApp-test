@@ -12,7 +12,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `/` dashboard · `/search` · `/devices`, `/devices/[id]` Device Library
 - `/eol` EOL Wiring Assistant (explorer; URL state `?t=<template>&p=<preset>`), `/eol/[id]`
 - `/fault-finder`, `/fault-finder/[id]`
-- `/circuit-lab` wiring bench exercise · `/circuit-lab/faults/[id]` fault-finding exercises
+- `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
 - Navigation: `src/lib/navigation.ts` (NAV_ITEMS, TOOLS → search index)
 
 ## Content
@@ -25,10 +25,11 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `src/lib/eol/engine.ts`: authored series/parallel trees → `stateResistance`, `formatOhms`, `resistorCode`.
 - `src/lib/eol/netlist.ts`: arbitrary graphs (wires/resistors/switches); union-find for 0 Ω + nodal analysis.
   `resistanceBetween(elements, a, b)` → `{ok, ohms}` (Infinity = open) or `{ok:false, reason}` — never invent a value.
-- `src/lib/lab/bench.ts`: bench terminals, tray, undoable reducer, `zoneNetlist(components, state)`.
+- `src/lib/lab/bench.ts`: terminals, tray, undoable reducer, `circuitNetlist(components, contacts)`, `zoneNetlist`.
 - `src/lib/lab/check.ts`: `checkWiring` (5 states, behaviour-based findings), `stepStatus`.
 - `src/lib/lab/meter.ts`: virtual multimeter (resistance between probe nodes, de-energised only).
-- `src/lib/lab/faults.ts`: fault-finding scenarios + diagnosis checking.
+- `src/lib/lab/faults.ts`: scenarios (hidden elements, broken conductors) + diagnosis checked against the circuit.
+- `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the
   simulated de-energised circuit, never across supply terminals.

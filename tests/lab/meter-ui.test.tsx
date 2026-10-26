@@ -193,7 +193,7 @@ describe("fault-finding exercises", () => {
   it("lists every exercise and marks the current one", () => {
     render(<LabExerciseNav current="/circuit-lab/faults/bypassed-tamper" />);
     const nav = screen.getByRole("navigation", { name: "Circuit Lab exercises" });
-    expect(within(nav).getAllByRole("link")).toHaveLength(1 + FAULT_SCENARIOS.length);
+    expect(within(nav).getAllByRole("link")).toHaveLength(2 + FAULT_SCENARIOS.length); // "All exercises" + bench + faults
     expect(within(nav).getByRole("link", { name: /Bypassed tamper contact/ })).toHaveAttribute("aria-current", "page");
   });
 });

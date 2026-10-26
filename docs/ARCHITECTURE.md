@@ -153,6 +153,18 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
 - **UI** — `BenchWorkspace` (tray, bench, meter, edit controls) is shared by `CircuitLab` (build) and
   `FaultLab` (`/circuit-lab/faults/[id]`); `LabExerciseNav` switches exercises.
 
+### v0.4.2 — refinement and training expansion
+
+- Contacts are tappable on the bench; `circuitNetlist(components, contacts)` evaluates any combination
+  (both open included) and the meter's Sealed/Alarm/Tamper control mirrors it.
+- Faults: open circuit (`brokenIds` — a drawn conductor that doesn't conduct) and incorrect resistor value
+  (learner states the fitted value). `checkDiagnosis` requires the fault to still be present, the type to be
+  consistent with the readings (`faultTypesShown`) and a stated value to match the resistor fitted (`resistorsAt`).
+- `layout.ts`: leads avoid terminals they don't connect to; resistor bodies and labels avoid board text,
+  terminals and each other (tested).
+- `progress.ts`: per-device progress (`fieldwise:lab:progress:v1`), validated with zod; invalid or unknown
+  entries are dropped. `/circuit-lab` is the exercise picker with completion status and Reset progress.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -171,5 +183,6 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.4.2 ✅ | Tappable contacts, five fault exercises, readable routing, saved progress, exercise picker |
 | Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
 | Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |

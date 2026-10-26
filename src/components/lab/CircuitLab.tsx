@@ -9,11 +9,12 @@ import { EMPTY_BENCH, benchReducer, type BenchAction, type BenchState, type Plac
 import { checkWiring, stepStatus, type CheckResult, type StepId } from "@/lib/lab/check";
 import { Icon } from "@/components/ui/Icon";
 import { CircuitDiagram } from "@/components/eol/CircuitDiagram";
+import { BENCH_EXERCISE_ID } from "@/lib/lab/exercises";
+import { BENCH_KEY, saveExercise } from "@/lib/lab/progress";
 import { BenchWorkspace } from "./BenchWorkspace";
 import { LabFeedback } from "./LabFeedback";
 
 export const EXPLANATION_HREF = "/eol?t=demo-generic-deol-alarm-tamper&p=generic-2k2-4k4";
-const STORAGE_KEY = "fieldwise:lab:pir-deol:v1";
 
 export interface LabSchematic {
   circuit: Circuit;
@@ -75,7 +76,7 @@ interface Saved {
 
 function readSaved(): Saved | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(BENCH_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Saved>;
     return { components: Array.isArray(parsed.components) ? parsed.components : [], reviewed: parsed.reviewed === true };
@@ -120,7 +121,7 @@ export function CircuitLab({ schematic }: { schematic: LabSchematic | null }) {
   useEffect(() => {
     if (!loaded) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ components, reviewed } satisfies Saved));
+      window.localStorage.setItem(BENCH_KEY, JSON.stringify({ components, reviewed } satisfies Saved));
     } catch {
       // Progress just won't persist.
     }
@@ -133,7 +134,9 @@ export function CircuitLab({ schematic }: { schematic: LabSchematic | null }) {
   const currentStep = STEPS.find((s) => !status[s.id])?.id ?? "test";
   const shownStep = STEPS.find((s) => s.id === (viewedStep ?? currentStep))!;
   function runCheck() {
-    setCheck({ result: checkWiring(components), sig });
+    const result = checkWiring(components);
+    setCheck({ result, sig });
+    if (result.correct) saveExercise(BENCH_EXERCISE_ID, { completed: true });
     feedbackRef.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
   }
 

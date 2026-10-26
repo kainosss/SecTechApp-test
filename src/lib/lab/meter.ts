@@ -8,7 +8,7 @@
  * modelled. Supply terminals can't be probed.
  */
 import { resistanceBetween, type Element } from "@/lib/eol/netlist";
-import { POINTS_BY_ID, POWER_POINTS, zoneNetlist, type PlacedComponent, type PointId } from "./bench";
+import { circuitNetlist, POINTS_BY_ID, POWER_POINTS, type ContactState, type PlacedComponent, type PointId } from "./bench";
 
 export type DetectorState = "sealed" | "alarm" | "tamper";
 
@@ -17,6 +17,19 @@ export const DETECTOR_STATES: { kind: DetectorState; label: string; short: strin
   { kind: "alarm", label: "Alarm (alarm contact open)", short: "Alarm" },
   { kind: "tamper", label: "Tamper (cover off, tamper contact open)", short: "Tamper" },
 ];
+
+/** Contact positions for each named detector state. */
+export function contactsFor(state: DetectorState): ContactState {
+  return { alarm: state === "alarm" ? "open" : "closed", tamper: state === "tamper" ? "open" : "closed" };
+}
+
+/** The named state matching these contact positions, or null (e.g. both open). */
+export function stateFor(contacts: ContactState): DetectorState | null {
+  return DETECTOR_STATES.find((s) => {
+    const c = contactsFor(s.kind);
+    return c.alarm === contacts.alarm && c.tamper === contacts.tamper;
+  })?.kind ?? null;
+}
 
 export interface Probes {
   red: PointId | null;
@@ -50,7 +63,7 @@ export function formatMeter(ohms: number): { value: string; unit: string } {
   return { value: scaled(ohms / 1e6), unit: "MΩ" };
 }
 
-export function measure(components: PlacedComponent[], probes: Probes, state: DetectorState, extra: Element[] = []): MeterReading {
+export function measure(components: PlacedComponent[], probes: Probes, state: DetectorState | ContactState, extra: Element[] = []): MeterReading {
   const { red, black } = probes;
   if (!red || !black) return { status: "idle", message: `Place the ${!red && !black ? "red and black probes" : !red ? "red probe" : "black probe"} on a terminal.` };
   if (isSupplyPoint(red) || isSupplyPoint(black)) return { status: "blocked", message: SUPPLY_WARNING };
@@ -60,7 +73,8 @@ export function measure(components: PlacedComponent[], probes: Probes, state: De
       message: "Wiring is connected to the detector's power terminals. The detector's internal electronics aren't modelled, so no trustworthy reading can be given. Remove that wiring first.",
     };
   }
-  const r = resistanceBetween(zoneNetlist(components, state, extra), red, black);
+  const contacts = typeof state === "string" ? contactsFor(state) : state;
+  const r = resistanceBetween(circuitNetlist(components, contacts, extra), red, black);
   if (!r.ok) return { status: "error", message: `No reading: ${r.reason}` };
   return { status: "ok", ohms: r.ohms, ...formatMeter(r.ohms) };
 }

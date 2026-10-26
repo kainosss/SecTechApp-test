@@ -1,6 +1,7 @@
 "use client";
 
-import { BENCH_POINTS, POWER_POINTS, TRAY, componentLabels, type PlacedComponent, type PointId } from "@/lib/lab/bench";
+import { BENCH_POINTS, POWER_POINTS, TRAY, componentLabels, type ContactState, type PlacedComponent, type PointId } from "@/lib/lab/bench";
+import { layoutBench, pointLabelXY, POINT_XY } from "@/lib/lab/layout";
 import { resistorCode } from "@/lib/eol/engine";
 import { isSupplyPoint, type Probes } from "@/lib/lab/meter";
 
@@ -33,52 +34,6 @@ const BAND_COLOR: Record<string, string> = {
   gold: "#c9a227",
 };
 
-/** Fixed drawing positions for every terminal (viewBox 360 × 500). */
-export const POINT_XY: Record<PointId, { x: number; y: number }> = {
-  "panel-aux-pos": { x: 50, y: 74 },
-  "panel-aux-neg": { x: 105, y: 74 },
-  "panel-z": { x: 215, y: 74 },
-  "panel-com": { x: 290, y: 74 },
-  j1: { x: 185, y: 236 },
-  j2: { x: 255, y: 236 },
-  "det-12v": { x: 40, y: 432 },
-  "det-0v": { x: 92, y: 432 },
-  "alm-com": { x: 160, y: 432 },
-  "alm-nc": { x: 212, y: 432 },
-  "tmp-com": { x: 268, y: 432 },
-  "tmp-nc": { x: 320, y: 432 },
-};
-
-const BOARD_MID = 250;
-
-/** A gentle curve between two terminals; parallel components on the same pair fan out. */
-function geometry(c: PlacedComponent, index: number) {
-  const a = POINT_XY[c.a];
-  const b = POINT_XY[c.b];
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  let nx = -dy / len;
-  let ny = dx / len;
-  const midY = (a.y + b.y) / 2;
-  // Bulge toward the middle of the bench so leads don't lie over the terminal strips.
-  if ((midY > BOARD_MID && ny > 0) || (midY <= BOARD_MID && ny < 0) || (Math.abs(ny) < 1e-6 && nx < 0)) {
-    nx = -nx;
-    ny = -ny;
-  }
-  const sameRow = Math.abs(dy) < 1;
-  const bulge = (sameRow ? 76 : 16) + index * 24;
-  const cx = (a.x + b.x) / 2 + nx * bulge * 2;
-  const cy = (a.y + b.y) / 2 + ny * bulge * 2;
-  // Quadratic midpoint (t = 0.5) and the tangent there (parallel to a→b).
-  const mx = 0.25 * a.x + 0.5 * cx + 0.25 * b.x;
-  const my = 0.25 * a.y + 0.5 * cy + 0.25 * b.y;
-  let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-  if (angle > 90) angle -= 180;
-  if (angle <= -90) angle += 180;
-  return { d: `M${a.x} ${a.y} Q${cx} ${cy} ${b.x} ${b.y}`, mx, my, angle, nx, ny };
-}
-
 export interface WiringBenchProps {
   components: PlacedComponent[];
   /** First terminal chosen for the component being placed. */
@@ -90,7 +45,9 @@ export interface WiringBenchProps {
   /** Components flagged by the latest wiring check. */
   flagged: Set<string>;
   /** Detector contact positions to draw (default: both closed). */
-  contacts?: { alarm: "open" | "closed"; tamper: "open" | "closed" };
+  contacts?: ContactState;
+  /** When set, the drawn contacts are buttons that open/close them. */
+  onContact?: (contact: keyof ContactState) => void;
   /** Multimeter probe positions. */
   probes?: Probes;
   /** Placing a probe: supply terminals aren't valid targets. */
@@ -109,13 +66,8 @@ export function WiringBench(props: WiringBenchProps) {
   const contacts = props.contacts ?? { alarm: "closed", tamper: "closed" };
   const probes = props.probes ?? { red: null, black: null };
   const labels = componentLabels(components);
-  const pairCount = new Map<string, number>();
-  const placed = components.map((c) => {
-    const pair = [c.a, c.b].sort().join("|");
-    const index = pairCount.get(pair) ?? 0;
-    pairCount.set(pair, index + 1);
-    return { c, g: geometry(c, index) };
-  });
+  const layout = layoutBench(components);
+  const placed = components.map((c, i) => ({ c, g: layout[i]! }));
   const keyActivate = (fn: () => void) => (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -172,20 +124,41 @@ export function WiringBench(props: WiringBenchProps) {
       {/* Internal contacts in the selected detector state. */}
       {(
         [
-          ["alm-com", "alm-nc", C.amber, "relay", contacts.alarm === "open"],
-          ["tmp-com", "tmp-nc", C.fault, "switch", contacts.tamper === "open"],
+          ["alarm", "alm-com", "alm-nc", C.amber, "relay", contacts.alarm === "open"],
+          ["tamper", "tmp-com", "tmp-nc", C.fault, "switch", contacts.tamper === "open"],
         ] as const
-      ).map(([a, b, color, name, open]) => {
+      ).map(([which, a, b, color, name, open]) => {
         const pa = POINT_XY[a];
         const pb = POINT_XY[b];
         const y = 466;
+        const interactive = Boolean(props.onContact);
         return (
-          <g key={a} aria-hidden="true">
+          <g
+            key={a}
+            {...(interactive
+              ? {
+                  role: "button",
+                  tabIndex: 0,
+                  "aria-pressed": open,
+                  "aria-label": `${which === "alarm" ? "ALARM" : "TAMPER"} contact, ${open ? "open" : "closed"}. Activate to ${open ? "close" : "open"} it.`,
+                  onClick: () => props.onContact!(which),
+                  onKeyDown: keyActivate(() => props.onContact!(which)),
+                  className: "fw-bench-target cursor-pointer outline-none",
+                }
+              : { "aria-hidden": true })}
+            data-contact-button={which}
+          >
+            {interactive && (
+              <>
+                <rect x={pa.x + 2} y={y - 18} width={pb.x - pa.x - 4} height={44} rx="6" fill="transparent" />
+                <rect className="fw-focus-ring" x={pa.x + 4} y={y - 16} width={pb.x - pa.x - 8} height={40} rx="6" fill="none" stroke={C.text} strokeWidth="1.5" strokeOpacity="0" />
+              </>
+            )}
             <path d={`M${pa.x} ${pa.y + 12} V${y} H${pa.x + 14} M${pb.x - 14} ${y} H${pb.x} V${pb.y + 12}`} fill="none" stroke={color} strokeWidth="1.5" strokeOpacity="0.8" />
             <circle cx={pa.x + 14} cy={y} r="2.2" fill={color} />
             <circle cx={pb.x - 14} cy={y} r="2.2" fill={color} />
             <line x1={pa.x + 14} y1={y} x2={pb.x - 15} y2={open ? y - 11 : y - 2} stroke={color} strokeWidth="2" data-contact={a} data-open={open} />
-            <text x={(pa.x + pb.x) / 2} y={y + 18} textAnchor="middle" fill={C.muted} fontSize="8">
+            <text x={(pa.x + pb.x) / 2} y={y + 18} textAnchor="middle" fill={open ? color : C.muted} fontSize="8" fontWeight={open ? 700 : 400}>
               {name} {open ? "OPEN" : "closed"}
             </text>
           </g>
@@ -238,19 +211,18 @@ export function WiringBench(props: WiringBenchProps) {
             />
             <path d={g.d} fill="none" stroke={stroke} strokeWidth={c.kind === "wire" ? 2.5 : 1.5} strokeDasharray={bad ? "5 3" : undefined} strokeLinecap="round" />
             {c.kind === "resistor" ? (
-              <g transform={`translate(${g.mx} ${g.my}) rotate(${g.angle})`}>
+              <g transform={`translate(${g.body.x} ${g.body.y}) rotate(${g.body.angle})`}>
                 <rect x="-17" y="-6" width="34" height="12" rx="5" fill={C.resistorBody} stroke={bad ? C.fault : selected ? C.signal : "#8c7a55"} strokeWidth={bad || selected ? 2 : 1} />
                 {(tray?.bands ?? []).map((band, i) => (
                   <rect key={i} x={[-11, -5, 1, 9][i]} y="-6" width="3" height="12" fill={BAND_COLOR[band]} />
                 ))}
               </g>
             ) : null}
-            <g transform={`translate(${g.mx + g.nx * (c.kind === "resistor" ? 18 : 10)} ${g.my + g.ny * (c.kind === "resistor" ? 18 : 10)})`}>
-              <rect x="-22" y="-8" width="44" height="15" rx="4" fill="#0b1424" fillOpacity="0.85" />
+            <g transform={`translate(${g.label.x} ${g.label.y})`}>
+              <rect x={-g.label.box.w / 2} y="-7.5" width={g.label.box.w} height="15" rx="4" fill="#0b1424" fillOpacity="0.9" stroke={bad ? C.fault : selected ? C.signal : "none"} strokeWidth="1" />
               <text textAnchor="middle" y="3.5" fill={bad ? C.fault : selected ? C.signal : C.text} fontSize="10" fontWeight="600" fontFamily="ui-monospace, monospace">
-                {bad ? "! " : ""}
-                {label}
-                {c.kind === "resistor" ? ` ${resistorCode(c.ohms!)}` : ""}
+                {bad ? "!" : ""}
+                {g.label.text}
               </text>
             </g>
           </g>
@@ -264,7 +236,7 @@ export function WiringBench(props: WiringBenchProps) {
         const isTarget = armed && p.connectable && !isPending && !(props.probeMode && isSupplyPoint(p.id));
         const isSelected = selectedPoint === p.id;
         const isEnd = endpoints.has(p.id);
-        const labelY = p.group === "joint" ? y + 20 : y - 16;
+        const labelY = pointLabelXY(p.id).y;
         const fill = p.connectable ? C.brass : "#4b5563";
         return (
           <g

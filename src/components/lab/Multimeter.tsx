@@ -1,7 +1,7 @@
 "use client";
 
-import { POINTS_BY_ID, type PointId } from "@/lib/lab/bench";
-import { DETECTOR_STATES, type DetectorState, type MeterReading, type Probes } from "@/lib/lab/meter";
+import { POINTS_BY_ID, type ContactState, type PointId } from "@/lib/lab/bench";
+import { contactsFor, DETECTOR_STATES, stateFor, type MeterReading, type Probes } from "@/lib/lab/meter";
 import { Icon } from "@/components/ui/Icon";
 
 export type ProbeColor = "red" | "black";
@@ -24,15 +24,18 @@ export interface MultimeterProps {
   probes: Probes;
   /** Probe currently being placed, if any. */
   activeProbe: ProbeColor | null;
-  state: DetectorState;
-  onState: (s: DetectorState) => void;
+  /** Detector contact positions (also switchable by tapping the contacts on the bench). */
+  contacts: ContactState;
+  onContacts: (c: ContactState) => void;
   onArmProbe: (c: ProbeColor) => void;
   onRemoveProbe: (c: ProbeColor) => void;
 }
 
 /** Digital multimeter on the resistance range. Readings come from the circuit graph (see lib/lab/meter). */
 export function Multimeter(props: MultimeterProps) {
-  const { reading, probes, activeProbe, state } = props;
+  const { reading, probes, activeProbe, contacts } = props;
+  const state = stateFor(contacts);
+  const stateText = state ? DETECTOR_STATES.find((s) => s.kind === state)!.short : "Alarm + tamper";
   const ok = reading.status === "ok";
   const spoken = ok ? `Meter reads ${reading.value === "OL" ? "OL, open circuit" : `${reading.value} ${reading.unit}`}` : reading.message;
 
@@ -43,7 +46,7 @@ export function Multimeter(props: MultimeterProps) {
         <div className="flex min-w-0 flex-1 flex-col justify-center rounded-lg bg-[#b9c7a5] px-3 py-1.5 text-[#14200f] shadow-inner">
           <div className="flex items-center justify-between font-mono text-[10px] font-semibold tracking-wider uppercase opacity-70">
             <span>Ω · auto</span>
-            <span>{DETECTOR_STATES.find((s) => s.kind === state)!.short}</span>
+            <span>{stateText}</span>
           </div>
           <p className="flex items-baseline justify-end gap-1.5 font-mono leading-none" data-testid="meter-display">
             <span className="text-[32px] font-semibold tracking-tight tabular-nums">{ok ? reading.value : "- - - -"}</span>
@@ -109,14 +112,20 @@ export function Multimeter(props: MultimeterProps) {
             role="radio"
             aria-checked={state === s.kind}
             aria-label={s.label}
-            onClick={() => props.onState(s.kind)}
+            onClick={() => props.onContacts(contactsFor(s.kind))}
             className={`h-10 rounded-lg border text-xs font-medium ${state === s.kind ? "border-signal-400 bg-signal-500/15 text-signal-300" : "border-line text-fg-muted hover:text-fg"}`}
           >
             {s.short}
           </button>
         ))}
       </div>
+      {!state && (
+        <p className="mt-1.5 text-xs text-amber-300" data-testid="custom-contacts">
+          Alarm and tamper contacts are both open.
+        </p>
+      )}
       <p className="mt-1.5 text-[11px] leading-snug text-fg-subtle">
+        Tap the ALARM or TAMPER contact on the bench to open or close it. 
         Simulated with power isolated and the zone disconnected from the panel. On site, always isolate before measuring resistance.
       </p>
     </section>

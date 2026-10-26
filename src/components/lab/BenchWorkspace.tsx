@@ -3,8 +3,8 @@
 import { useState } from "react";
 import type { Element } from "@/lib/eol/netlist";
 import { resistorCode } from "@/lib/eol/engine";
-import { POINTS_BY_ID, TRAY, componentLabels, type BenchAction, type PlacedComponent, type PointId } from "@/lib/lab/bench";
-import { NO_PROBES, isSupplyPoint, measure, SUPPLY_WARNING, type DetectorState, type Probes } from "@/lib/lab/meter";
+import { POINTS_BY_ID, SEALED_CONTACTS, TRAY, componentLabels, type BenchAction, type ContactState, type PlacedComponent, type PointId } from "@/lib/lab/bench";
+import { NO_PROBES, isSupplyPoint, measure, SUPPLY_WARNING, type Probes } from "@/lib/lab/meter";
 import { Icon } from "@/components/ui/Icon";
 import { Multimeter, pointShortName as short, type ProbeColor } from "./Multimeter";
 import { WiringBench } from "./WiringBench";
@@ -30,6 +30,8 @@ export interface BenchWorkspaceProps {
   resetAlwaysEnabled?: boolean;
   /** Undrawn elements included in measurements (e.g. a hidden training fault). */
   extra?: Element[];
+  /** Drawn components that don't conduct (e.g. a conductor broken inside its insulation). */
+  inactive?: string[];
   flagged?: Set<string>;
   /** Primary actions shown beside Undo / Reset (e.g. Check wiring). */
   actions?: React.ReactNode;
@@ -46,7 +48,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<PointId | null>(null);
   const [probes, setProbes] = useState<Probes>(NO_PROBES);
-  const [detector, setDetector] = useState<DetectorState>("sealed");
+  const [contacts, setContacts] = useState<ContactState>(SEALED_CONTACTS);
   const [message, setMessage] = useState(props.initialMessage ?? "Choose a component from the tray, then tap two terminals to connect it.");
 
   const labels = componentLabels(components);
@@ -56,7 +58,8 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
   const movingComponent = components.find((c) => c.id === moving);
   const selected = components.find((c) => c.id === selectedComponent);
   const inspected = selectedPoint ? POINTS_BY_ID[selectedPoint] : null;
-  const reading = measure(components, probes, detector, props.extra);
+  const conducting = props.inactive?.length ? components.filter((c) => !props.inactive!.includes(c.id)) : components;
+  const reading = measure(conducting, probes, contacts, props.extra);
 
   function cancelPlacement() {
     setPending(null);
@@ -214,8 +217,8 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
           reading={reading}
           probes={probes}
           activeProbe={probeTool}
-          state={detector}
-          onState={setDetector}
+          contacts={contacts}
+          onContacts={setContacts}
           onArmProbe={(c) => chooseTool(`probe-${c}`)}
           onRemoveProbe={(c) => {
             setProbes({ ...probes, [c]: null });
@@ -232,7 +235,12 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
           selectedComponent={selectedComponent}
           selectedPoint={selectedPoint}
           flagged={props.flagged ?? new Set()}
-          contacts={{ alarm: detector === "alarm" ? "open" : "closed", tamper: detector === "tamper" ? "open" : "closed" }}
+          contacts={contacts}
+          onContact={(which) => {
+            const next = { ...contacts, [which]: contacts[which] === "open" ? "closed" : "open" } as ContactState;
+            setContacts(next);
+            setMessage(`${which === "alarm" ? "ALARM" : "TAMPER"} contact ${next[which] === "open" ? "opened" : "closed"}.`);
+          }}
           probes={probes}
           probeMode={probeTool !== null}
           onPoint={onPoint}

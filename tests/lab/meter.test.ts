@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PlacedComponent, PointId } from "@/lib/lab/bench";
 import { checkWiring } from "@/lib/lab/check";
-import { checkDiagnosis, FAULT_SCENARIOS, getFaultScenario } from "@/lib/lab/faults";
+import { checkDiagnosis, effectiveCircuit, FAULT_SCENARIOS, getFaultScenario } from "@/lib/lab/faults";
 import { formatMeter, measure, type DetectorState, type MeterReading } from "@/lib/lab/meter";
 
 let n = 0;
@@ -108,7 +108,8 @@ describe("fault-finding scenarios behave as described", () => {
 
   it("every scenario is faulty as found and correct once repaired", () => {
     for (const s of FAULT_SCENARIOS) {
-      expect(checkWiring(s.components, s.hidden?.elements).correct, s.id).toBe(false);
+      const eff = effectiveCircuit(s, { components: s.components, repaired: false });
+      expect(checkWiring(eff.components, eff.extra).correct, s.id).toBe(false);
       expect(new Set(s.components.map((c) => c.id)).size, s.id).toBe(s.components.length);
     }
   });
@@ -116,8 +117,8 @@ describe("fault-finding scenarios behave as described", () => {
   it("diagnosis needs both the fault type and the location", () => {
     const s = scenario("bypassed-tamper");
     expect(checkDiagnosis(s, { type: "bypassed-tamper", location: "tamper-contact" }).correct).toBe(true);
-    expect(checkDiagnosis(s, { type: "bypassed-tamper", location: "alarm-contact" })).toEqual({ typeCorrect: true, locationCorrect: false, correct: false });
-    expect(checkDiagnosis(s, { type: "zone-short", location: "tamper-contact" })).toEqual({ typeCorrect: false, locationCorrect: true, correct: false });
+    expect(checkDiagnosis(s, { type: "bypassed-tamper", location: "alarm-contact" })).toMatchObject({ typeCorrect: true, locationCorrect: false, correct: false });
+    expect(checkDiagnosis(s, { type: "zone-short", location: "tamper-contact" })).toMatchObject({ typeCorrect: false, locationCorrect: true, correct: false });
     expect(checkDiagnosis(s, { type: null, location: null }).correct).toBe(false);
   });
 });
