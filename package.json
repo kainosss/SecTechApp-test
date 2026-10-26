@@ -1,6 +1,6 @@
 {
   "name": "fieldwise",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -14,7 +14,8 @@
     "predev": "npm run content:manifest --silent",
     "prebuild": "npm run content:manifest --silent",
     "pretest": "npm run content:manifest --silent",
-    "dev:demo": "npm run content:manifest --silent && node scripts/dev-demo.mjs"
+    "dev:demo": "npm run content:manifest --silent && node scripts/dev-demo.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "next": "^16.4.3",
@@ -32,10 +33,12 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.3",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.31",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
+    "typescript": "^6.0.3",
     "vitest": "^5.0.5"
   }
 }

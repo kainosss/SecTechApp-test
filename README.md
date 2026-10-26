@@ -1,9 +1,10 @@
 # Fieldwise
 
-Mobile-first technical reference and troubleshooting for electronic security technicians.
+Mobile-first technical reference for Australian electronic security technicians and apprentices.
 
-> **Status: v0.2 in progress (Device Library done).** All manufacturers and devices are **fictional demonstration data**,
-> labelled "Example data" in the UI. Nothing in this build describes real equipment.
+> **Status: v0.3 beta.** The Device Library is functional. All real device records are
+> identification-only and marked **Needs verification**. See
+> [docs/VERIFICATION_BACKLOG.md](docs/VERIFICATION_BACKLOG.md).
 
 ## Run locally
 
@@ -11,35 +12,41 @@ Requires Node.js 20.9+ (22 recommended).
 
 ```bash
 npm install
-npm run dev          # http://localhost:3000
+npm run dev          # http://localhost:3000 — real records only
+npm run dev:demo     # also shows fictional demonstration devices, wiring and workflows
 ```
 
-Open it on your phone: run `npm run dev -- -H 0.0.0.0` and visit `http://<your-computer-ip>:3000`
-on the same Wi-Fi network.
+### On your phone
+
+1. Connect the phone to the same Wi-Fi as your computer.
+2. Run `npm run dev -- -H 0.0.0.0` (or `npm run dev:demo -- -H 0.0.0.0`).
+3. Find your computer's local IP (macOS: `ipconfig getifaddr en0`, Windows: `ipconfig`).
+4. Open `http://<that-ip>:3000` on the phone.
 
 ## Scripts
 
 | Command | What it does |
 |---------|--------------|
-| `npm run dev` | Development server with hot reload |
-| `npm test` | Run all automated tests (Vitest) |
-| `npm run validate:content` | Validate only the content files |
+| `npm run dev` / `npm run dev:demo` | Development server (demo mode off / on) |
+| `npm run lint` | ESLint (Next.js core-web-vitals + TypeScript rules) |
 | `npm run typecheck` | TypeScript check |
+| `npm test` | All automated tests (Vitest) |
+| `npm run validate:content` | Content validation tests only |
 | `npm run build` / `npm start` | Production build and server |
 
-## What's in Phase 1
+## Content statuses
 
-- Dashboard: universal search, the three tools, recently viewed, favourites, library status
-- Navigation: bottom tab bar on phones, sidebar on desktop
-- Device Library (preview): list, category filter, basic device pages with sources and verification status
-- EOL Wiring Assistant and Guided Fault Finder: placeholder pages describing the planned approach
-- Content schema that requires sources, revisions and verification status
+| Status | Meaning |
+|---|---|
+| **Verified** | A named reviewer checked it against a cited, non-demo manufacturer document for stated device revisions |
+| **Needs verification** | Real product, but not (yet) verified. Never presented as installation instructions |
+| **Demonstration only** | Fictional development data. Hidden unless demo mode is on |
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the structure and the phased plan.
+The effective status is computed in `src/lib/content/verification.ts` and fails safe: any missing or invalid
+evidence downgrades a claim to Needs verification.
 
 ## Adding content
 
-1. Add or reference a source document in `content/sources/sources.json`.
-2. Create `content/devices/<manufacturer>-<model>.json` (copy an existing file).
-3. Run `npm test` (or `npm run dev`). The content manifest regenerates automatically, and invalid or
-   unsourced "verified" content fails the tests.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#adding-content) and the verification steps in
+[docs/VERIFICATION_BACKLOG.md](docs/VERIFICATION_BACKLOG.md#how-to-verify-a-claim).
+The content manifest regenerates automatically before `dev`, `build` and `test`.

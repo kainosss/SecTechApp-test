@@ -2,85 +2,87 @@
 
 ## Principles
 
-1. **Content is data, not code.** Technical information (manufacturers, devices, sources, and later EOL
-   configurations and fault trees) lives in `/content` as JSON. The app never hard-codes technical facts.
-2. **Every fact has a source.** Terminals, power data and documentation entries carry `sourceRefs`
-   pointing at a `Source` record (title, publisher, document revision, URL, accessed date).
-3. **Verification is explicit.** Every device has `verification.status`:
-   - `verified`: checked against a cited, non-demo manufacturer document. Must record `verifiedBy` + `verifiedAt`.
-   - `unverified`: a real product, but not yet checked. Shown with a warning.
-   - `example`: fictional demonstration data. Shown with an amber "Example data" badge.
-   The loader rejects verified content that has no reviewer, no documentation, or relies on a demo source.
-4. **One access layer.** UI code reads content only through `src/lib/content/repository.ts`. Swapping
-   local JSON for Supabase later changes that file, not the pages.
-5. **Mobile first.** Bottom tab bar and 44px+ touch targets on phones. A sidebar takes over at `lg`.
+1. **Content is data, not code.** Technical information lives in `/content` as JSON, validated by
+   Zod schemas in `src/lib/content/schema.ts`. UI components never contain technical facts.
+2. **Every claim carries evidence.** Variants, terminals, power, specifications and notes each record
+   `sourceRefs` (with page/section locator), `appliesToVariantIds`, `appliesToRevisions`, a declared
+   `status` and an optional `review`.
+3. **Verification fails safe.** `resolveStatus()` in `src/lib/content/verification.ts` is the only code
+   that can produce "Verified", and only when reviewer, valid past review date, existing non-demo sources
+   with a document revision/date, and applicable device revisions are all present. It can only lower a
+   status. The loader additionally rejects content that declares Verified without that evidence, so it
+   fails tests and builds.
+4. **Demonstration content is separate.** It lives in `content/demo/`, must be declared
+   `demonstration`, cannot cite or link real records (and vice versa), and is excluded by the repository
+   unless `FIELDWISE_DEMO_MODE=true`.
+5. **One async access layer.** Pages call `src/lib/content/repository.ts`, which returns plain,
+   serialisable view models with effective statuses resolved. Replacing local JSON with Supabase means
+   reimplementing this file, not the UI.
+6. **Mobile first.** Bottom tab bar, 44px+ targets, static pages, instant client-side filtering.
 
 ## Layout
 
 ```
-content/                      Technical content (reviewed like documentation)
-  index.ts                    AUTO-GENERATED manifest (scripts/generate-content-manifest.mjs)
-  manufacturers/*.json
-  sources/*.json              Source documents (manuals, datasheets) with revisions
-  devices/<id>.json           One file per device: small diffs, easy review
+content/
+  index.ts                 AUTO-GENERATED manifest (scripts/generate-content-manifest.mjs)
+  manufacturers/ sources/ devices/ wiring/ workflows/      Real content
+  demo/{same folders}                                      Fictional demonstration content
 src/
-  app/                        Next.js App Router pages
-    page.tsx                  Dashboard
-    search/                   Universal search results
-    devices/ devices/[id]/    Device Library (preview)
-    eol/ fault-finder/        Placeholders for Phases 3–4
+  app/
+    page.tsx               Dashboard (search, tools, recent, favourites)
+    search/                Universal search (?q= kept in URL)
+    devices/               Library (static; filters/page/scroll restored) and device pages
+    eol/  eol/[id]/        Wiring configurations list + summary pages
+    fault-finder/ [id]/    Troubleshooting workflows list + summary pages
   components/
-    layout/                   AppShell, Sidebar (desktop), BottomNav + TopBar (mobile)
-    dashboard/                UniversalSearch, ToolCards, DeviceShortlists
-    devices/                  DeviceRow, FavouriteButton, RecordView
-    ui/                       Icon, VerificationBadge, DemoNotice, PageHeader, PlannedTool
+    layout/  dashboard/  devices/  records/  ui/
   lib/
-    content/schema.ts         Zod schemas + verification rules
-    content/loader.ts         Validation + cross-reference checks
-    content/repository.ts     Read API used by pages
-    devices/filter.ts         Device Library filtering, category counts, URL state
-    search/                   Pure search scoring + index builder
-    storage/                  Recently viewed / favourites (localStorage today)
-    navigation.ts             Nav items + tool registry
-tests/                        Vitest: content rules, search, storage, components
+    content/schema.ts      Types + validation for every record type
+    content/verification.ts  Effective status (fail-safe)
+    content/loader.ts      Structural, cross-reference, demo-separation and evidence checks
+    content/repository.ts  Async read API and view models
+    devices/filter.ts      Library search/filter/URL state (pure)
+    search/                Universal search scoring + index
+    storage/               Favourites, recently viewed (localStorage), library position (sessionStorage)
+    config.ts              Demo mode flag
+tests/                     Vitest: content rules, verification, repository, UI and pages
 ```
 
-## Device records
+## Record types
 
-A device page is rendered entirely from its JSON record. Optional sections (terminals, specifications,
-installation notes) only appear when the record has data, so adding a device never needs UI code.
+| Type | Key fields |
+|------|------------|
+| Manufacturer | name, country, website, parentCompany, sourceRefs, isDemo |
+| Source (document) | title, publisher, documentType, documentNumber, documentRevision, publishedDate, url + accessedDate |
+| Device | model, name, category, aliases, variants, terminals, power, specifications, notes (installation / commissioning), documentation, verification |
+| Variant | name, partNumber, hardwareRevisions (revision, firmware), evidence |
+| Wiring configuration | inputType, contactArrangement, resistors, appliesToDeviceIds, sourceRefs, appliesToRevisions, verification |
+| Troubleshooting workflow | faultArea, symptoms, outline, appliesToCategories, appliesToDeviceIds, sourceRefs, verification |
 
-| Field | Purpose |
-|-------|---------|
-| `terminals[]` | Label, function, notes, `sourceRefs` |
-| `power` | Supply voltage range, current draw, `sourceRefs` |
-| `specifications[]` | Generic `{group, label, value, sourceRefs}` rows: electrical, communications, physical, environmental |
-| `installationNotes[]` | `{text, severity: info \| caution, sourceRefs}` |
-| `documentation[]` | Source documents (manuals, datasheets) with revision and URL |
-| `modelRevisions[]` | Hardware/firmware revisions the record applies to |
+Relationships are declared once, on wiring configurations and workflows, and resolved for device pages
+by `getRelatedForDevice()`.
 
-**Relationships:** EOL configurations and fault workflows will declare which devices they apply to.
-The device page resolves them through `getRelatedForDevice()`, so each link is stored once.
+## Adding content
 
-## Scaling notes
+1. Add the source document to `content/sources/` (see the verification backlog for required fields).
+2. Create `content/devices/<manufacturer>-<model>.json`. Leave unknown fields out entirely.
+3. Run `npm test`. The manifest regenerates, and any invalid record or unsupported Verified claim fails
+   with a message naming the record and the missing evidence.
 
-- **Thousands of devices:** the JSON + manifest approach is for the MVP. Phase 4 moves content into
-  Supabase Postgres tables that mirror these schemas (`manufacturers`, `devices`, `device_revisions`,
-  `terminals`, `sources`, `source_refs`). The Zod schemas stay as the import/validation contract.
-- **Search:** today the index is built on the server and searched in the browser. Once the catalogue is
-  large, `search()` moves behind an API route backed by Postgres full-text / trigram search.
-- **Model revisions:** devices list `modelRevisions`. When terminals differ between revisions, the plan is
-  to scope terminal/power blocks per revision rather than duplicating devices.
-- **Recent/favourites:** stored on the device. When accounts arrive they sync to a user profile table;
-  the pure list functions in `storage/device-lists.ts` are reused.
+## Supabase migration path
+
+Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
+table per claim type) with evidence columns, `claim_sources`, `wiring_configurations`, `workflows`,
+`record_devices`. The Zod schemas remain the import contract, and `verification.ts` keeps running on read.
+The client-side library filter moves behind a search API once the catalogue is too large to ship to the
+browser.
 
 ## Phased plan
 
 | Phase | Scope |
 |-------|-------|
-| 1 ✅ | Architecture, content schema, demo data, dashboard, navigation, search, recent/favourites |
-| 2 (v0.2) | ✅ Device Library foundation · EOL Wiring Assistant · Guided Fault Finder |
-| 3 | EOL Wiring Assistant: EOL config schema, panel/input/contact selection, SVG references from verified data only |
-| 4 | Guided Fault Finder: decision-tree schema, interactive runner, test procedures |
-| 5 | Supabase: auth, content tables, content admin/review workflow, synced favourites |
-| 6 | Stripe subscriptions, plans, paywall; Vercel production deployment |
+| v0.1 ✅ | Foundation, dashboard, navigation |
+| v0.2 ✅ | Device Library foundation |
+| v0.3 ✅ | Evidence model, fail-safe verification, real device identification, library journey, summary pages, ESLint |
+| Next | Verify a first set of real devices; interactive EOL Wiring Assistant; interactive Fault Finder |
+| Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |
