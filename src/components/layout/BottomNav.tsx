@@ -12,7 +12,7 @@ export function BottomNav() {
       aria-label="Primary"
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink-900/95 backdrop-blur lg:hidden"
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul className="mx-auto grid max-w-lg grid-cols-5">
         {NAV_ITEMS.map((item) => {
           const active = isActivePath(pathname, item.href);
           return (

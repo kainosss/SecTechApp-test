@@ -117,10 +117,28 @@ kept (`explorerHidden`) for the engine, permanent links and future use.
 separated "Demonstration" area and are branded inside the diagram. Demo records linked to fictional
 demo devices appear only in demo mode.
 
-**Circuit Lab readiness (planned v0.4):** the engine is pure (contact positions and resistor values are
-inputs), components can carry an optional `location` (physical device terminals), and diagrams are
-prop-driven. Measuring across arbitrary points and voltage/current visualisation will need a netlist +
-nodal solver derived from the same tree; no content migration is required.
+## Circuit Lab (v0.4.0)
+
+`/circuit-lab` — one beginner exercise: a generic NC PIR (illustrative terminals, not any manufacturer's)
+wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; no backend.
+
+- **`src/lib/eol/netlist.ts`** — general circuit-graph evaluator for user-built wiring (the EOL engine only
+  handles authored series/parallel trees). Wires and closed contacts merge nodes (union-find); the rest is
+  solved by nodal analysis. Handles bridges, bypasses and dangling parts; returns `{ ok: false }` instead
+  of a reading when a network can't be evaluated. Cross-checked against `stateResistance` for every
+  generic circuit.
+- **`src/lib/lab/bench.ts`** — terminals, tray, placed components and an undoable reducer
+  (place / move / remove / undo / reset / load). `zoneNetlist()` turns the learner's wiring plus the
+  detector's internal ALARM and TAMPER contacts into a netlist for each test state (sealed, alarm,
+  tamper, cable open, cable short). Detector power (+12V/0V, pre-wired from AUX) is a separate circuit.
+- **`src/lib/lab/check.ts`** — `checkWiring()` measures Z1–COM in all five states and diagnoses from
+  electrical facts (wire-only shorts, bypassed contacts, components whose removal changes nothing),
+  never by matching a drawing. Electrically equivalent layouts pass and are labelled as such. `correct`
+  requires every state to match. `stepStatus()` drives the six guided steps from the same circuit.
+- **UI** (`src/components/lab/`) — tap-to-connect SVG bench (terminals and components are buttons with
+  ≥ 44 px hit areas and keyboard support), tray, step guide with hints, feedback (what / why / how to
+  fix), and the target schematic reusing `CircuitDiagram` with the generic DEOL record. Progress is
+  saved per device in `localStorage` (`fieldwise:lab:pir-deol:v1`).
 
 ## Supabase migration path
 
@@ -138,6 +156,6 @@ browser.
 | v0.2 ✅ | Device Library foundation |
 | v0.3 ✅ | Evidence model, fail-safe verification, real device identification, library journey, summary pages, ESLint |
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
-| v0.4 (proposed) | Circuit Lab: Learn Mode with one interactive DEOL experience |
+| v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
 | Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |

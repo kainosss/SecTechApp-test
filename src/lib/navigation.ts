@@ -1,4 +1,4 @@
-export type IconName = "home" | "library" | "eol" | "fault" | "search";
+export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "search";
 
 export interface NavItem {
   href: string;
@@ -11,6 +11,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/devices", label: "Devices", icon: "library" },
   { href: "/eol", label: "EOL", icon: "eol" },
   { href: "/fault-finder", label: "Faults", icon: "fault" },
+  { href: "/circuit-lab", label: "Lab", icon: "lab" },
 ];
 
 export interface ToolDefinition {
@@ -50,6 +51,15 @@ export const TOOLS: ToolDefinition[] = [
     icon: "fault",
     status: "preview",
     keywords: ["fault", "troubleshoot", "tamper", "diagnose", "trouble"],
+  },
+  {
+    id: "circuit-lab",
+    title: "Circuit Lab",
+    description: "Practise wiring a dual EOL detector and check it in every state.",
+    href: "/circuit-lab",
+    icon: "lab",
+    status: "preview",
+    keywords: ["lab", "practice", "training", "wiring", "exercise", "pir", "dual eol", "learn"],
   },
 ];
 

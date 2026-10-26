@@ -10,7 +10,7 @@ const STATUS_LABEL: Record<ToolDefinition["status"], string> = {
 
 export function ToolCards({ tools }: { tools: ToolDefinition[] }) {
   return (
-    <ul className="grid gap-3 sm:grid-cols-3">
+    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {tools.map((tool, i) => (
         <li key={tool.id}>
           <Link

@@ -5,6 +5,7 @@ export type IconKey =
   | "library"
   | "eol"
   | "fault"
+  | "lab"
   | "search"
   | "star"
   | "star-filled"
@@ -34,6 +35,15 @@ const PATHS: Record<IconKey, React.ReactNode> = {
       <rect x="3" y="16" width="6" height="5" rx="1.2" />
       <rect x="15" y="16" width="6" height="5" rx="1.2" />
       <path d="M12 8v4M6 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
+    </>
+  ),
+  // Breadboard: two terminals joined by a lead
+  lab: (
+    <>
+      <rect x="3.5" y="5" width="17" height="14" rx="2" />
+      <circle cx="8" cy="10" r="1.3" />
+      <circle cx="16" cy="14" r="1.3" />
+      <path d="M8 11.3v1.2a1.5 1.5 0 0 0 1.5 1.5h5.2" />
     </>
   ),
   search: (

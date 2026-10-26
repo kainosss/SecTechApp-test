@@ -83,3 +83,11 @@
     animation: none;
   }
 }
+
+/* Circuit Lab bench: SVG buttons show a drawn focus ring instead of a box outline. */
+.fw-bench-target:focus-visible {
+  outline: none;
+}
+.fw-bench-target:focus-visible .fw-focus-ring {
+  stroke-opacity: 0.9;
+}
