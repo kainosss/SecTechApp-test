@@ -2,7 +2,14 @@
   {
     "id": "inner-range",
     "name": "Inner Range",
-    "country": "AU"
+    "country": "AU",
+    "website": "https://www.innerrange.com",
+    "sourceRefs": [
+      {
+        "sourceId": "ir-about-us",
+        "locator": "Head office: Mount Waverley, Victoria, Australia"
+      }
+    ]
   },
   {
     "id": "tecom",

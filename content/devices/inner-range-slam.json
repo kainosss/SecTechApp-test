@@ -1,0 +1,35 @@
+{
+  "id": "inner-range-slam",
+  "manufacturerId": "inner-range",
+  "model": "Standard LAN Access Module (SLAM)",
+  "name": "Inner Range Standard LAN Access Module (SLAM)",
+  "category": "access-controller",
+  "description": "Two-door Integriti access module (manufacturer description).",
+  "aliases": [
+    "SLAM",
+    "996012"
+  ],
+  "variants": [
+    {
+      "id": "996012pcbk",
+      "name": "SLAM PCB & kit",
+      "partNumber": "996012PCB&K",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-996012pcbk",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-996012pcbk"
+    }
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
+  },
+  "updatedAt": "2026-10-26"
+}

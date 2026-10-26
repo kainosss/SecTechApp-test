@@ -1,0 +1,36 @@
+{
+  "id": "inner-range-elitex-oled-keypad",
+  "manufacturerId": "inner-range",
+  "model": "EliteX OLED Keypad",
+  "name": "Inner Range EliteX OLED Keypad",
+  "category": "keypad",
+  "description": "Two-line OLED keypad, with an optional SIFER reader (manufacturer description).",
+  "aliases": [
+    "EliteX",
+    "Elite keypad",
+    "995400"
+  ],
+  "variants": [
+    {
+      "id": "995400",
+      "name": "EliteX OLED Keypad",
+      "partNumber": "995400",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-995400",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-995400"
+    }
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
+  },
+  "updatedAt": "2026-10-26"
+}

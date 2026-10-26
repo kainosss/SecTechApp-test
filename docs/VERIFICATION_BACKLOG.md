@@ -6,25 +6,32 @@ documents in hand.
 
 ## Why the records are empty
 
-The build environment's network policy blocked the manufacturer sites (`innerrange.com`, `axis.com`,
-`takex-eng.co.jp`, `aritech.com.au`), and web search returned only third-party reseller pages. Following
-the content rules, no URLs, part numbers or technical values were recorded from unconfirmed sources.
+- **Inner Range:** `www.innerrange.com` is reachable. Product names, part numbers (SKUs) and product-page
+  URLs were confirmed on 2026-10-26. Datasheet PDFs are served from a separate host
+  (`*.filesusr.com`) that the network policy blocks, so no technical values could be read. Some product
+  pages (996300 Inception, 996035PCB&K IAC) returned a bot check and were not used.
+- **Axis, Takex, Tecom:** `axis.com`, `takex-eng.co.jp` and `aritech.com.au` are still blocked, and web
+  search returned only third-party reseller pages. Nothing was recorded from unconfirmed sources.
 
-## Real device records (15) — identification only
+Product pages have no document revision, so claims citing them cannot be Verified even after review.
+Verification needs the datasheet or installation manual with its revision.
 
-For every device below, **all** of these are still empty and need sourcing:
-official document link(s) and revision, variants/part numbers, hardware/firmware revisions, power
-requirements, terminal assignments, specifications, installation and commissioning notes.
+## Real device records (17)
 
-The model name itself is also unconfirmed against manufacturer documentation.
+For every device below, these are still empty and need sourcing from a revisioned manufacturer
+document: hardware/firmware revisions, power requirements, terminal assignments, specifications,
+installation and commissioning notes. For Axis, Takex and Tecom the model name, part numbers and
+document links are also unconfirmed.
 
 | Manufacturer | Device | Record id | Extra notes |
 |---|---|---|---|
-| Inner Range | Integriti Security Controller | `inner-range-integriti-controller` | Confirm part number(s) and PCB revisions |
-| Inner Range | Inception | `inner-range-inception-controller` | Confirm firmware/PCB revisions covered by the manual |
-| Inner Range | Integriti Intelligent LAN Access Module | `inner-range-integriti-lam` | Confirm exact product name and variants |
-| Inner Range | Elite Terminal | `inner-range-elite-terminal` | Confirm exact product name and variants |
-| Inner Range | SIFER | `inner-range-sifer-reader` | Confirm reader variants (e.g. keypad / multi-format) |
+| Inner Range | Integriti Security Controller (ISC) — 996001PCB&K | `inner-range-integriti-controller` | Name + part number confirmed on product page. Needs datasheet / install manual and PCB revisions |
+| Inner Range | Inception Controller | `inner-range-inception-controller` | Name confirmed on controllers page only. Part number, documents and all technical data missing |
+| Inner Range | Intelligent LAN Access Module (ILAM) — 996018PCB&K | `inner-range-ilam` | Name + part number confirmed. Needs datasheet |
+| Inner Range | Standard LAN Access Module (SLAM) — 996012PCB&K | `inner-range-slam` | Name + part number confirmed. Needs datasheet |
+| Inner Range | SIFER Reader — 994720 | `inner-range-sifer-reader` | Name + part number confirmed. Needs datasheet and reader variants |
+| Inner Range | EliteX OLED Keypad — 995400 | `inner-range-elitex-oled-keypad` | Name + part number confirmed (replaces the unconfirmed "Elite Terminal" record) |
+| Inner Range | PrismaX Colour LCD Keypad — 996400 | `inner-range-prismax-keypad` | Name + part number confirmed. Needs datasheet |
 | Tecom | ChallengerPlus | `tecom-challengerplus` | Confirm part number (reported as TS-CHPLUS by a third party) and current brand owner |
 | Tecom | Challenger10 | `tecom-challenger10` | Confirm part number (reported as TS1016 by a third party) and support status |
 | Axis | AXIS P3265-LVE | `axis-p3265-lve` | Datasheet and installation guide |
@@ -40,7 +47,7 @@ The model name itself is also unconfirmed against manufacturer documentation.
 
 | Manufacturer | Unconfirmed |
 |---|---|
-| Inner Range | Official website, head office (recorded as AU) |
+| Inner Range | Confirmed 2026-10-26: website and head office (Mount Waverley, Victoria) from the About Us page |
 | Tecom | Country, current brand owner (Aritech / parent company), website |
 | Axis Communications | Official website, head office (recorded as SE), parent company |
 | Takex | Official website, head office (recorded as JP) |

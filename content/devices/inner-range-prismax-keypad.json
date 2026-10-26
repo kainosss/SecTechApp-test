@@ -1,0 +1,36 @@
+{
+  "id": "inner-range-prismax-keypad",
+  "manufacturerId": "inner-range",
+  "model": "PrismaX Colour LCD Keypad",
+  "name": "Inner Range PrismaX Colour LCD Keypad",
+  "category": "keypad",
+  "description": "Colour LCD keypad for Integriti, with an optional SIFER reader (manufacturer description).",
+  "aliases": [
+    "PrismaX",
+    "Prisma keypad",
+    "996400"
+  ],
+  "variants": [
+    {
+      "id": "996400",
+      "name": "PrismaX Colour LCD Keypad",
+      "partNumber": "996400",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-996400",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-996400"
+    }
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
+  },
+  "updatedAt": "2026-10-26"
+}

@@ -1,0 +1,36 @@
+{
+  "id": "inner-range-ilam",
+  "manufacturerId": "inner-range",
+  "model": "Intelligent LAN Access Module (ILAM)",
+  "name": "Inner Range Intelligent LAN Access Module (ILAM)",
+  "category": "access-controller",
+  "description": "Integriti door and lift access module connected over RS-485 or IP LAN (manufacturer description).",
+  "aliases": [
+    "ILAM",
+    "Integriti access module",
+    "996018"
+  ],
+  "variants": [
+    {
+      "id": "996018pcbk",
+      "name": "ILAM PCB & kit",
+      "partNumber": "996018PCB&K",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-996018pcbk",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-996018pcbk"
+    }
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
+  },
+  "updatedAt": "2026-10-26"
+}

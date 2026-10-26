@@ -1,15 +1,36 @@
 {
   "id": "inner-range-sifer-reader",
   "manufacturerId": "inner-range",
-  "model": "SIFER",
-  "name": "Inner Range SIFER Card Reader",
+  "model": "SIFER Reader",
+  "name": "Inner Range SIFER Reader",
   "category": "card-reader",
+  "description": "Smart card reader using encrypted RS-485 communication (manufacturer description).",
   "aliases": [
-    "SIFER reader"
+    "SIFER",
+    "SIFER smart card reader",
+    "994720"
+  ],
+  "variants": [
+    {
+      "id": "994720",
+      "name": "SIFER Reader",
+      "partNumber": "994720",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-994720",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-994720"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
   },
   "updatedAt": "2026-10-26"
 }

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ir-about-us",
+    "manufacturerId": "inner-range",
+    "title": "About Us — Inner Range",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/about-us",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-products-controllers",
+    "manufacturerId": "inner-range",
+    "title": "Products: Controllers — Inner Range",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/controllers",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-996001pcbk",
+    "manufacturerId": "inner-range",
+    "title": "996001PCB&K Integriti Security Controller (ISC) PCB Only — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/controllers/996001pcbk",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-996018pcbk",
+    "manufacturerId": "inner-range",
+    "title": "996018PCB&K Intelligent LAN Access Module (ILAM) — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/expansion-modules/996018pcbk",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-996012pcbk",
+    "manufacturerId": "inner-range",
+    "title": "996012PCB&K Standard LAN Access Module (SLAM) — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/expansion-modules/996012pcbk",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-994720",
+    "manufacturerId": "inner-range",
+    "title": "994720 SIFER Reader — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/user-interface/994720",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-995400",
+    "manufacturerId": "inner-range",
+    "title": "995400 EliteX OLED Keypad — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/user-interface/995400",
+    "accessedDate": "2026-10-26"
+  },
+  {
+    "id": "ir-996400",
+    "manufacturerId": "inner-range",
+    "title": "996400 PrismaX Colour LCD Keypad — product page",
+    "publisher": "Inner Range",
+    "documentType": "product-page",
+    "url": "https://www.innerrange.com/products/user-interface/996400",
+    "accessedDate": "2026-10-26"
+  }
+]

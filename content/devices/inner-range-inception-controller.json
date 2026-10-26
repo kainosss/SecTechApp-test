@@ -1,15 +1,20 @@
 {
   "id": "inner-range-inception-controller",
   "manufacturerId": "inner-range",
-  "model": "Inception",
+  "model": "Inception Controller",
   "name": "Inner Range Inception Controller",
   "category": "alarm-panel",
   "aliases": [
-    "Inception controller"
+    "Inception"
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-products-controllers"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Product name confirmed on Inner Range's controllers page (accessed 2026-10-26). The product page itself did not load, so the part number, datasheet and all technical details are intentionally empty. Not yet reviewed."
   },
   "updatedAt": "2026-10-26"
 }

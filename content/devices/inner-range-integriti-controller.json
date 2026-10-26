@@ -1,16 +1,36 @@
 {
   "id": "inner-range-integriti-controller",
   "manufacturerId": "inner-range",
-  "model": "Integriti Security Controller",
-  "name": "Inner Range Integriti Security Controller",
+  "model": "Integriti Security Controller (ISC)",
+  "name": "Inner Range Integriti Security Controller (ISC)",
   "category": "alarm-panel",
+  "description": "Modular IP-based security controller for the Integriti system (manufacturer description).",
   "aliases": [
     "Integriti",
-    "ISC"
+    "ISC",
+    "996001"
+  ],
+  "variants": [
+    {
+      "id": "996001pcbk",
+      "name": "ISC PCB only",
+      "partNumber": "996001PCB&K",
+      "sourceRefs": [
+        {
+          "sourceId": "ir-996001pcbk",
+          "locator": "Product title / SKU"
+        }
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "sourceId": "ir-996001pcbk"
+    }
   ],
   "verification": {
     "status": "needs-verification",
-    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+    "notes": "Product name and part number are taken from Inner Range's product page (accessed 2026-10-26). The datasheet could not be downloaded from the build environment, so power, terminals and specifications are intentionally empty. Not yet reviewed."
   },
   "updatedAt": "2026-10-26"
 }
