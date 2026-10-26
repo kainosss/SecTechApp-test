@@ -1,0 +1,15 @@
+{
+  "id": "inner-range-inception-controller",
+  "manufacturerId": "inner-range",
+  "model": "Inception",
+  "name": "Inner Range Inception Controller",
+  "category": "alarm-panel",
+  "aliases": [
+    "Inception controller"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

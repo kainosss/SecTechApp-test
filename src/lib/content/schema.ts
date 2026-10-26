@@ -131,6 +131,7 @@ export const deviceCategorySchema = z.enum([
   "alarm-expander",
   "keypad",
   "motion-detector",
+  "photoelectric-beam",
   "reed-switch",
   "glass-break-detector",
   "siren",
@@ -152,6 +153,7 @@ export const CATEGORY_LABELS: Record<DeviceCategory, string> = {
   "alarm-expander": "Expander",
   keypad: "Keypad",
   "motion-detector": "PIR / motion detector",
+  "photoelectric-beam": "Photoelectric beam",
   "reed-switch": "Reed switch / contact",
   "glass-break-detector": "Glass-break detector",
   siren: "Siren / strobe",
@@ -170,7 +172,7 @@ export const CATEGORY_LABELS: Record<DeviceCategory, string> = {
 /** Top-level equipment families used for filtering. */
 export const CATEGORY_GROUPS = [
   { id: "panels", label: "Alarm panels & expanders", categories: ["alarm-panel", "alarm-expander", "keypad"] },
-  { id: "detectors", label: "PIR detectors", categories: ["motion-detector", "glass-break-detector"] },
+  { id: "detectors", label: "PIR & beam detectors", categories: ["motion-detector", "photoelectric-beam", "glass-break-detector"] },
   { id: "contacts", label: "Reed switches & contacts", categories: ["reed-switch"] },
   { id: "access", label: "Access controllers", categories: ["access-controller"] },
   { id: "readers", label: "Card readers", categories: ["card-reader"] },

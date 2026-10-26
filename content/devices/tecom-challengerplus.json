@@ -1,0 +1,16 @@
+{
+  "id": "tecom-challengerplus",
+  "manufacturerId": "tecom",
+  "model": "ChallengerPlus",
+  "name": "Tecom ChallengerPlus Control Panel",
+  "category": "alarm-panel",
+  "aliases": [
+    "Challenger Plus",
+    "Challenger+"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

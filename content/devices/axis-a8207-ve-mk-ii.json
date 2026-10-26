@@ -1,0 +1,16 @@
+{
+  "id": "axis-a8207-ve-mk-ii",
+  "manufacturerId": "axis",
+  "model": "AXIS A8207-VE Mk II",
+  "name": "AXIS A8207-VE Mk II Network Video Door Station",
+  "category": "intercom",
+  "aliases": [
+    "A8207-VE",
+    "A8207"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

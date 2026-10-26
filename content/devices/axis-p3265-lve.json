@@ -1,0 +1,16 @@
+{
+  "id": "axis-p3265-lve",
+  "manufacturerId": "axis",
+  "model": "AXIS P3265-LVE",
+  "name": "AXIS P3265-LVE Dome Camera",
+  "category": "ip-camera",
+  "aliases": [
+    "P3265-LVE",
+    "P3265"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

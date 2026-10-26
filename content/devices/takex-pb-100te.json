@@ -1,0 +1,16 @@
+{
+  "id": "takex-pb-100te",
+  "manufacturerId": "takex",
+  "model": "PB-100TE",
+  "name": "Takex PB-100TE Photoelectric Beam",
+  "category": "photoelectric-beam",
+  "aliases": [
+    "PB100TE",
+    "PB-TE"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

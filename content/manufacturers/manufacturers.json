@@ -1,0 +1,21 @@
+[
+  {
+    "id": "inner-range",
+    "name": "Inner Range",
+    "country": "AU"
+  },
+  {
+    "id": "tecom",
+    "name": "Tecom"
+  },
+  {
+    "id": "axis",
+    "name": "Axis Communications",
+    "country": "SE"
+  },
+  {
+    "id": "takex",
+    "name": "Takex",
+    "country": "JP"
+  }
+]

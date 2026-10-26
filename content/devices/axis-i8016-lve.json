@@ -1,0 +1,16 @@
+{
+  "id": "axis-i8016-lve",
+  "manufacturerId": "axis",
+  "model": "AXIS I8016-LVE",
+  "name": "AXIS I8016-LVE Network Video Intercom",
+  "category": "intercom",
+  "aliases": [
+    "I8016-LVE",
+    "I8016"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "axis-a1601",
+  "manufacturerId": "axis",
+  "model": "AXIS A1601",
+  "name": "AXIS A1601 Network Door Controller",
+  "category": "access-controller",
+  "aliases": [
+    "A1601"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}

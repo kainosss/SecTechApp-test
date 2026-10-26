@@ -42,6 +42,20 @@ describe("device detail page", () => {
     expect(screen.queryByRole("region", { name: "Power requirements" })).not.toBeInTheDocument();
   });
 
+  it("shows real identification-only records as needing verification, with honest empty states", async () => {
+    vi.stubEnv("FIELDWISE_DEMO_MODE", "false");
+    await renderDevice("axis-p3265-lve");
+    expect(screen.getByRole("heading", { level: 1, name: "AXIS P3265-LVE" })).toBeInTheDocument();
+    expect(screen.getByRole("note", { name: "Verification status: Needs verification" })).toHaveTextContent(/Don't treat anything here as installation instructions/);
+    expect(screen.getByRole("region", { name: "Not yet documented" })).toHaveTextContent(
+      /power requirements, terminal assignments, technical specifications, installation and commissioning notes/,
+    );
+    expect(screen.getByText(/No manufacturer documents have been linked yet/)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Open / })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Verified/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Demonstration/)).not.toBeInTheDocument();
+  });
+
   it("records the view in recently viewed", async () => {
     await renderDevice("kestrel-demo-ks-rs1");
     expect(JSON.parse(window.localStorage.getItem(RECENT_KEY) ?? "[]")).toEqual(["kestrel-demo-ks-rs1"]);

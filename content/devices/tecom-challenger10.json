@@ -1,0 +1,16 @@
+{
+  "id": "tecom-challenger10",
+  "manufacturerId": "tecom",
+  "model": "Challenger10",
+  "name": "Tecom Challenger10 Control Panel",
+  "category": "alarm-panel",
+  "aliases": [
+    "Challenger 10",
+    "Challenger V10"
+  ],
+  "verification": {
+    "status": "needs-verification",
+    "notes": "Identification only. Manufacturer documentation for this model has not yet been accessed and confirmed, so power, terminals, specifications and document links are intentionally left empty."
+  },
+  "updatedAt": "2026-10-26"
+}
