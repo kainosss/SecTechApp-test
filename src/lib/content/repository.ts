@@ -165,8 +165,10 @@ export interface WiringSummary {
   arrangement: WiringConfiguration["arrangement"];
   /** e.g. "4k7 EOL / 2k2 alarm". */
   configurationLabel: string;
-  /** Short name in the explorer's arrangement picker, e.g. "DEOL". */
+  /** Short name in the explorer's arrangement picker, e.g. "Dual EOL". */
   shortLabel: string;
+  /** Not offered in the explorer's selector (still reachable by link). */
+  explorerHidden: boolean;
   devices: LinkedRecordDetail["devices"];
 }
 
@@ -361,6 +363,7 @@ function toWiringSummary(w: WiringConfiguration, status = wiringStatus(w).status
     arrangement: w.arrangement,
     configurationLabel: w.configurationLabel ?? defaultConfigurationLabel(w),
     shortLabel: w.shortLabel ?? w.configurationLabel ?? defaultConfigurationLabel(w),
+    explorerHidden: w.explorerHidden,
     devices: linkedDevices(w.appliesToDeviceIds),
   };
 }

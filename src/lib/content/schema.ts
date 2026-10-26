@@ -328,6 +328,8 @@ export const wiringConfigurationSchema = z.object({
   /** Generic circuits: name and order in the explorer's arrangement picker (DEOL first). */
   shortLabel: z.string().min(1).optional(),
   explorerOrder: z.number().int().optional(),
+  /** Kept for engine support, permanent links and future use, but not offered in the explorer's selector. */
+  explorerHidden: z.boolean().default(false),
   circuit: circuitSchema,
   states: z.array(circuitStateSchema).min(1),
   /** How the panel distinguishes the states, as documented. */

@@ -119,8 +119,18 @@ function Resistor(props: { x: number; y: number; node: ResistorNode; live: boole
   );
 }
 
-function Contact(props: { x: number; y: number; node: ContactNode; position?: "open" | "closed"; live: boolean; tone: string; onToggle?: (id: string) => void }) {
-  const { x, y, node, position, live, tone, onToggle } = props;
+function Contact(props: {
+  x: number;
+  y: number;
+  node: ContactNode;
+  position?: "open" | "closed";
+  /** Moved from its sealed position: highlighted so the change is obvious. */
+  changed?: boolean;
+  live: boolean;
+  tone: string;
+  onToggle?: (id: string) => void;
+}) {
+  const { x, y, node, position, changed, live, tone, onToggle } = props;
   const style = FUNCTION_STYLE[node.function];
   const stroke = live ? tone : position ? COLOR.wire : COLOR.fault;
   const left = x - 17;
@@ -133,6 +143,7 @@ function Contact(props: { x: number; y: number; node: ContactNode; position?: "o
     <g
       data-component={node.id}
       data-position={position ?? "unknown"}
+      data-changed={changed ? true : undefined}
       data-live={live}
       {...(interactive
         ? {
@@ -160,11 +171,12 @@ function Contact(props: { x: number; y: number; node: ContactNode; position?: "o
           height={70}
           rx={9}
           fill={style.color}
-          fillOpacity={0.06}
+          fillOpacity={changed ? 0.16 : 0.06}
           stroke={style.color}
-          strokeOpacity={0.55}
-          strokeDasharray="3 3"
-          className="opacity-60 group-hover:opacity-100 group-focus-visible:opacity-100"
+          strokeOpacity={changed ? 0.95 : 0.55}
+          strokeWidth={changed ? 2 : 1}
+          strokeDasharray={changed ? undefined : "3 3"}
+          className={changed ? "" : "opacity-60 group-hover:opacity-100 group-focus-visible:opacity-100"}
         />
       )}
       <line x1={x - 42} y1={y} x2={left} y2={y} stroke={live ? tone : COLOR.dead} strokeWidth={live ? 3 : 2} strokeDasharray={live ? undefined : "4 5"} />
@@ -182,9 +194,24 @@ function Contact(props: { x: number; y: number; node: ContactNode; position?: "o
   );
 }
 
+/**
+ * Illustrative conventional-current "particles": round dots moving at one
+ * uniform speed along every conducting segment, including straight through
+ * resistors and closed contacts, so nothing suggests current slows in a
+ * resistor. Drawn only where the engine reports a conducting path.
+ */
+function particleSegments(items: Drawable[], ctx: LiveContext): { x1: number; y1: number; x2: number; y2: number }[] {
+  const out: { x1: number; y1: number; x2: number; y2: number }[] = [];
+  for (const d of items) {
+    if (d.type === "wire" && isLive(d.live, ctx)) out.push(d);
+    else if ((d.type === "resistor" || d.type === "contact") && ctx.paths.has(d.path)) out.push({ x1: d.x - 42, y1: d.y, x2: d.x + 42, y2: d.y });
+  }
+  return out;
+}
+
 function wireStyle(live: boolean, tone: string) {
   return live
-    ? { stroke: tone, strokeWidth: 3, strokeLinecap: "round" as const }
+    ? { stroke: tone, strokeWidth: 3.5, strokeLinecap: "round" as const }
     : { stroke: COLOR.dead, strokeWidth: 2, strokeDasharray: "4 5", strokeLinecap: "round" as const };
 }
 
@@ -194,7 +221,12 @@ function draw(
   ctx: LiveContext,
   positions: ContactPositions,
   tone: string,
-  opts: { onToggleContact?: (id: string) => void; onSelectResistor?: (id: string) => void; selectedResistor?: string; animate: boolean },
+  opts: {
+    onToggleContact?: (id: string) => void;
+    onSelectResistor?: (id: string) => void;
+    selectedResistor?: string;
+    normalPositions?: ContactPositions;
+  },
 ) {
   switch (d.type) {
     case "wire": {
@@ -202,9 +234,6 @@ function draw(
       return (
         <g key={i} data-wire data-live={live}>
           <line x1={d.x1} y1={d.y1} x2={d.x2} y2={d.y2} {...wireStyle(live, tone)} />
-          {live && opts.animate && (
-            <line x1={d.x1} y1={d.y1} x2={d.x2} y2={d.y2} stroke="#ffffff" strokeOpacity={0.7} strokeWidth={1.6} strokeDasharray="2 14" className="fw-current" />
-          )}
         </g>
       );
     }
@@ -224,7 +253,19 @@ function draw(
         />
       );
     case "contact":
-      return <Contact key={i} x={d.x} y={d.y} node={d.node} position={positions[d.node.id]} live={ctx.paths.has(d.path)} tone={tone} onToggle={opts.onToggleContact} />;
+      return (
+        <Contact
+          key={i}
+          x={d.x}
+          y={d.y}
+          node={d.node}
+          position={positions[d.node.id]}
+          changed={Boolean(opts.normalPositions?.[d.node.id] && positions[d.node.id] !== opts.normalPositions[d.node.id])}
+          live={ctx.paths.has(d.path)}
+          tone={tone}
+          onToggle={opts.onToggleContact}
+        />
+      );
   }
 }
 
@@ -328,17 +369,39 @@ export function CircuitDiagram(props: CircuitDiagramProps) {
 
       {layout.items
         .filter((d) => d.type === "wire" || d.type === "dot")
-        .map((d, i) => draw(d, i, ctx, positions, tone, { animate: Boolean(props.animateCurrent) }))}
+        .map((d, i) => draw(d, i, ctx, positions, tone, {}))}
       {layout.items
         .filter((d) => d.type === "resistor" || d.type === "contact")
         .map((d, i) =>
           draw(d, 10_000 + i, ctx, positions, tone, {
-            animate: false,
+            normalPositions,
             onToggleContact: props.onToggleContact,
             onSelectResistor: props.onSelectResistor,
             selectedResistor: props.selectedResistor,
           }),
         )}
+
+      {props.animateCurrent && (
+        <g data-particles aria-hidden="true">
+          {[
+            ...particleSegments(layout.items, ctx),
+            ...(line === "short"
+              ? [{ x1: layout.faultX, y1: terminalA.y, x2: layout.faultX, y2: terminalB.y }]
+              : []),
+          ].map((seg, i) => (
+            <line
+              key={i}
+              {...seg}
+              stroke="#ffffff"
+              strokeOpacity={0.95}
+              strokeWidth={5}
+              strokeLinecap="round"
+              strokeDasharray="0.1 18"
+              className="fw-current"
+            />
+          ))}
+        </g>
+      )}
 
       {line === "open" && (
         <g data-fault="open">

@@ -9,7 +9,7 @@
   },
   "configurationLabel": "4k7 EOL",
   "shortLabel": "Single EOL · NC",
-  "explorerOrder": 3,
+  "explorerOrder": 1,
   "circuit": {
     "terminals": {
       "a": {

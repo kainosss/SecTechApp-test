@@ -10,6 +10,7 @@
   "configurationLabel": "4k7 EOL ∥ 4k7 alarm",
   "shortLabel": "DEOL · alternative",
   "explorerOrder": 1,
+  "explorerHidden": true,
   "circuit": {
     "terminals": {
       "a": {

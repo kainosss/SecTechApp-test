@@ -10,6 +10,7 @@
   "configurationLabel": "2k2 EOL / 2k2 alarm / 4k4 tamper",
   "shortLabel": "Triple EOL",
   "explorerOrder": 2,
+  "explorerHidden": true,
   "circuit": {
     "terminals": {
       "a": {

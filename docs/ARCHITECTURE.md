@@ -106,8 +106,12 @@ confirmed. Example presets (`content/presets/`) are provisional values, not manu
 **Explorer (default /eol view).** Generic DEOL with the 2k2 / 4k4 example opens immediately. Presets and
 custom targets are solved with the engine for the selected arrangement and re-checked; non-standard values
 are built from exact pairs of standard parts (e.g. 4k4 = 2k2 + 2k2), so the diagram shows real components.
-Contacts are tappable; highlighted wires are the engine's conducting paths. The optional current animation
-is labelled as an illustrative multimeter-style test current with uniform dash speed.
+Contacts are tappable; highlighted wires are the engine's conducting paths. The flow animation (on by
+default since v0.3.2, toggleable, static under reduced motion) draws round particles at one uniform speed
+along exactly the conducting segments, through resistors and closed contacts alike. It is labelled as an
+illustration of the connected path, not a measurement: no panel supply is modelled.
+The explorer offers Dual EOL, Single EOL (NC/NO) and No EOL. Alternative DEOL and triple EOL records are
+kept (`explorerHidden`) for the engine, permanent links and future use.
 
 **Visibility:** generic demonstration circuits (no panel, no devices) are shown in normal mode inside a
 separated "Demonstration" area and are branded inside the diagram. Demo records linked to fictional

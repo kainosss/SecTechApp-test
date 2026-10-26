@@ -145,7 +145,11 @@ describe("CircuitExplorer (component)", () => {
   it("shows the DEOL circuit immediately with no selection steps", async () => {
     await setup();
     expect(screen.getByTestId("reading")).toHaveTextContent("2.2 kΩ");
-    expect(screen.getByRole("radio", { name: "DEOL" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Dual EOL" })).toHaveAttribute("aria-checked", "true");
+    // Animation is on by default and labelled as illustrative.
+    expect(document.querySelectorAll("[data-particles] .fw-current").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("animation-note")).toHaveTextContent(/illustrative conventional-current path, not a measurement/);
+    expect(screen.getByRole("button", { name: "Flow animation" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("radio", { name: "2k2 / 4k4 generic" })).toHaveAttribute("aria-checked", "true");
     expect(document.querySelector("[data-classification]")).toHaveAttribute("data-classification", "electrically-validated");
     expect(document.querySelector("[data-classification]")).toHaveAttribute("title", "Electrically validated — generic circuit");
@@ -190,19 +194,47 @@ describe("CircuitExplorer (component)", () => {
     const user = await setup();
     await user.click(screen.getByRole("radio", { name: "Tecom example" }));
     expect(screen.getByTestId("reading")).toHaveTextContent("10 kΩ");
-    await user.click(screen.getByRole("radio", { name: "DEOL · alternative" }));
-    expect(window.location.search).toBe("?t=demo-generic-deol-parallel&p=tecom-example");
+    await user.click(screen.getByRole("radio", { name: "Single EOL · NC" }));
+    expect(window.location.search).toBe("?t=demo-generic-single-eol-nc&p=tecom-example");
+    expect(screen.getByTestId("reading")).toHaveTextContent("10 kΩ");
     await act(async () => {
       window.history.back();
       await new Promise((r) => setTimeout(r, 50));
     });
-    expect(screen.getByRole("radio", { name: "DEOL" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Dual EOL" })).toHaveAttribute("aria-checked", "true");
+    // Animation is on by default and labelled as illustrative.
+    expect(document.querySelectorAll("[data-particles] .fw-current").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("animation-note")).toHaveTextContent(/illustrative conventional-current path, not a measurement/);
+    expect(screen.getByRole("button", { name: "Flow animation" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("radio", { name: "Tecom example" })).toHaveAttribute("aria-checked", "true");
   });
 
-  it("explains when a preset can't size an arrangement and suggests what's missing", async () => {
-    const user = await setup();
-    await user.click(screen.getByRole("radio", { name: "Triple EOL" }));
+  it("offers Dual EOL, Single EOL and No EOL; hides alternative DEOL and triple EOL from the selector", async () => {
+    await setup();
+    const names = within(screen.getByRole("radiogroup", { name: "Circuit arrangement" }))
+      .getAllByRole("radio")
+      .map((r) => r.textContent);
+    expect(names).toEqual(["Dual EOL", "Single EOL · NC", "Single EOL · NO", "No EOL"]);
+  });
+
+  it("still opens hidden arrangements from existing links, and explains presets they can't use", async () => {
+    await setup("?t=demo-generic-triple-eol&p=integriti-example");
+    expect(screen.getByRole("radio", { name: "Triple EOL" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("status")).toHaveTextContent(/add a tamper target/);
+  });
+
+  it("the animation toggle turns the particles off and remembers it", async () => {
+    const user = await setup();
+    await user.click(screen.getByRole("button", { name: "Flow animation" }));
+    expect(document.querySelector("[data-particles]")).toBeNull();
+    expect(window.localStorage.getItem("fieldwise:eol-current")).toBe("off");
+    expect(screen.queryByTestId("animation-note")).not.toBeInTheDocument();
+  });
+
+  it("highlights a contact that has moved from its sealed position", async () => {
+    const user = await setup();
+    expect(document.querySelector('[data-component="ALM"]')?.getAttribute("data-changed")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /alarm contact ALM/ }));
+    expect(document.querySelector('[data-component="ALM"]')?.getAttribute("data-changed")).toBe("true");
   });
 });

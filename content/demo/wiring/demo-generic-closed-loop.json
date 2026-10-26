@@ -9,7 +9,7 @@
   },
   "configurationLabel": "No EOL",
   "shortLabel": "No EOL",
-  "explorerOrder": 5,
+  "explorerOrder": 3,
   "circuit": {
     "terminals": {
       "a": {

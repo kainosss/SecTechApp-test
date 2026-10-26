@@ -116,12 +116,32 @@ describe("CircuitDiagram", () => {
     expect(confirmed.querySelector("[data-banner], [data-footer]")).toBeNull();
   });
 
-  it("animates conventional-current dashes only on live wires, and only when asked", () => {
-    expect(renderDiagram().querySelectorAll(".fw-current")).toHaveLength(0);
+  it("animates particles along exactly the conducting segments (wires, resistors and closed contacts), only when asked", () => {
+    expect(renderDiagram().querySelector("[data-particles]")).toBeNull();
+    const particles = (c: Element) => c.querySelectorAll("[data-particles] .fw-current").length;
+    const liveWires = (c: Element) => c.querySelectorAll('[data-wire][data-live="true"]').length;
+    const liveParts = (c: Element) => c.querySelectorAll('[data-component][data-live="true"]').length;
+
+    const sealed = renderDiagram({ animateCurrent: true });
+    expect(particles(sealed)).toBe(liveWires(sealed) + liveParts(sealed));
+    expect(liveParts(sealed)).toBe(3); // ALM, R1(RE), TMP — not the bypassed RA
+
+    const alarm = renderDiagram({ animateCurrent: true, positions: { ALM: "open", TMP: "closed" } });
+    expect(particles(alarm)).toBe(liveWires(alarm) + liveParts(alarm));
+    expect(alarm.querySelector('[data-component="RA"]')?.getAttribute("data-live")).toBe("true");
+
+    expect(particles(renderDiagram({ animateCurrent: true, positions: { ALM: "closed", TMP: "open" } }))).toBe(0); // tamper open: nothing moves
+    const short = renderDiagram({ animateCurrent: true, line: "short" });
+    expect(particles(short)).toBe(liveWires(short) + 1); // near wires + the short link only
+  });
+
+  it("uses one animation speed for every segment, and the stylesheet stops it for reduced motion", async () => {
     const c = renderDiagram({ animateCurrent: true });
-    const animated = c.querySelectorAll(".fw-current").length;
-    expect(animated).toBe(c.querySelectorAll('[data-wire][data-live="true"]').length);
-    expect(renderDiagram({ animateCurrent: true, positions: { ALM: "closed", TMP: "open" } }).querySelectorAll(".fw-current")).toHaveLength(0);
+    const classes = new Set([...c.querySelectorAll("[data-particles] line")].map((l) => `${l.getAttribute("class")}|${l.getAttribute("stroke-dasharray")}`));
+    expect([...classes]).toEqual(["fw-current|0.1 18"]);
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("src/app/globals.css", "utf8");
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.fw-current[\s\S]*?animation: none/);
   });
 
   it("tone: tamper beats alarm; cable faults are red", () => {

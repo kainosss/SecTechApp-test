@@ -169,7 +169,8 @@ export function CircuitExplorer({ templates, presets }: { templates: WiringDetai
       <Chips
         label="Circuit arrangement"
         value={model.template.id}
-        options={templates.map((t) => ({ value: t.id, label: t.shortLabel }))}
+        // Hidden arrangements stay reachable by link; they only get a chip while selected.
+        options={templates.filter((t) => !t.explorerHidden || t.id === model.template.id).map((t) => ({ value: t.id, label: t.shortLabel }))}
         onChange={(t) => go({ t, p: current.p, seal: params.seal, alarm: params.alarm, tamper: params.tamper }, "push")}
       />
 

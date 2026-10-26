@@ -100,6 +100,7 @@ describe("verification gaps (mathematically correct is not enough)", () => {
     panelHardwareRevisions: ["Rev B"],
     panelFirmwareRevisions: ["4.2"],
     inputType: "double-eol",
+    explorerHidden: false,
     arrangement: { key: "nc-alarm-nc-tamper", label: "NC alarm + NC tamper" },
     circuit: {
       terminals: { a: { label: "Z1", sourceRefs: ref }, b: { label: "0V", sourceRefs: ref } },

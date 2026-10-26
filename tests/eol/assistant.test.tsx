@@ -18,6 +18,7 @@ const summary = (over: Partial<WiringSummary>): WiringSummary => ({
   arrangement: { key: "nc-alarm", label: "NC alarm" },
   configurationLabel: "4k7 EOL",
   shortLabel: "Single EOL",
+  explorerHidden: false,
   devices: [],
   ...over,
 });

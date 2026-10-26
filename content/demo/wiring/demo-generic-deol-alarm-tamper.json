@@ -8,7 +8,7 @@
     "label": "NC alarm + NC tamper"
   },
   "configurationLabel": "2k2 / 4k4 generic DEOL example",
-  "shortLabel": "DEOL",
+  "shortLabel": "Dual EOL",
   "explorerOrder": 0,
   "circuit": {
     "terminals": {

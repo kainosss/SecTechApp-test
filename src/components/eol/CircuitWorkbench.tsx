@@ -12,6 +12,7 @@ import { circuitTone } from "./CircuitDiagram";
 const TONE_TEXT = { sealed: "text-signal-300", alarm: "text-amber-300", fault: "text-fault" } as const;
 const TONE_DOT = { sealed: "bg-signal-400", alarm: "bg-amber-300", fault: "bg-fault" } as const;
 const TONE_LABEL = { sealed: "Sealed", alarm: "Alarm", fault: "Tamper / fault" } as const;
+const TONE_COLOR = { sealed: "rgb(63 217 194 / 0.55)", alarm: "rgb(251 191 36 / 0.55)", fault: "rgb(248 113 113 / 0.55)" } as const;
 
 /* "Explain" preference, remembered per device so technicians can keep it hidden on site. */
 const LEARN_KEY = "fieldwise:eol-explain";
@@ -41,11 +42,12 @@ function writeLearn(show: boolean) {
 }
 
 const ANIM_KEY = "fieldwise:eol-current";
+/** On by default; only an explicit "off" disables it. */
 function readAnim(): boolean {
   try {
-    return window.localStorage.getItem(ANIM_KEY) === "on";
+    return window.localStorage.getItem(ANIM_KEY) !== "off";
   } catch {
-    return false;
+    return true;
   }
 }
 function writeAnim(on: boolean) {
@@ -90,7 +92,7 @@ export interface CircuitWorkbenchProps {
 export function CircuitWorkbench(props: CircuitWorkbenchProps) {
   const { circuit, evaluations, positions, normalPositions, line, matchedStateId } = props;
   const showExplain = useSyncExternalStore(subscribeLearn, readLearn, () => true);
-  const animate = useSyncExternalStore(subscribeLearn, readAnim, () => false) && Boolean(props.allowCurrentAnimation);
+  const animate = useSyncExternalStore(subscribeLearn, readAnim, () => true) && Boolean(props.allowCurrentAnimation);
 
   const ohms = stateResistance(circuit, { id: "current", kind: "other", line, contacts: positions });
   const tone = circuitTone(circuit, positions, normalPositions, line);
@@ -123,7 +125,12 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
         })}
       </div>
 
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-ink-900 px-4 py-2">
+      {/* Re-keyed on every change so the brief flash replays (disabled for reduced motion in CSS). */}
+      <div
+        key={`${tone}:${ohms}:${line}`}
+        className="fw-pulse flex items-center justify-between gap-3 rounded-2xl border border-line bg-ink-900 px-4 py-2"
+        style={{ "--fw-pulse-color": TONE_COLOR[tone] } as React.CSSProperties}
+      >
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-xs text-fg-muted">
             <span className={`size-2 shrink-0 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
@@ -155,9 +162,26 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
         animateCurrent={animate}
       />
 
+      {props.allowCurrentAnimation && animate && (
+        <p className="-mt-1 text-[11px] text-fg-subtle" data-testid="animation-note">
+          Moving dots: illustrative conventional-current path, not a measurement of panel current.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-fg-subtle">Tap a contact to open or close it.</span>
         <span className="flex-1" />
+        {props.allowCurrentAnimation && (
+          <button
+            type="button"
+            aria-pressed={animate}
+            onClick={() => writeAnim(!animate)}
+            className={`h-10 rounded-lg border px-3 text-sm font-medium ${
+              animate ? "border-signal-400/60 bg-signal-500/15 text-signal-300" : "border-line-strong text-fg-muted hover:text-fg"
+            }`}
+          >
+            Flow animation
+          </button>
+        )}
         {(["open", "short"] as const).map((fault) => (
           <button
             key={fault}
@@ -201,20 +225,12 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
             </p>
           </div>
         )}
-        {props.allowCurrentAnimation && (
-          <div className="border-t border-line px-4 py-3">
-            <label className="flex min-h-10 cursor-pointer items-center gap-3 text-sm text-fg">
-              <input type="checkbox" checked={animate} onChange={(e) => writeAnim(e.target.checked)} className="size-5 accent-[var(--color-signal-500)]" />
-              Illustrate current direction
-            </label>
-            {animate && (
-              <p className="mt-1 text-xs leading-relaxed text-fg-subtle">
-                Illustrative only. Assumes a small DC test current, like a multimeter on its resistance range, flowing from {a.label} to {b.label} (conventional
-                direction). Dash speed is the same everywhere and does not represent current size or charge speed. Real panel inputs supply their own supervision
-                signal — this is not a model of one.
-              </p>
-            )}
-          </div>
+        {props.allowCurrentAnimation && animate && (
+          <p className="border-t border-line px-4 py-3 text-xs leading-relaxed text-fg-subtle">
+            About the moving dots: they mark the connected path the engine calculates, moving {a.label} → {b.label} in the conventional-current direction.
+            They are a concept illustration, not a measurement — no panel supply voltage is modelled, and the dots move at the same speed everywhere, including
+            through resistors, so their speed means nothing about current size.
+          </p>
         )}
         {props.children}
       </section>
