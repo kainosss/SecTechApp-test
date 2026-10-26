@@ -55,11 +55,11 @@ export const TOOLS: ToolDefinition[] = [
   {
     id: "circuit-lab",
     title: "Circuit Lab",
-    description: "Practise wiring a dual EOL detector and check it in every state.",
+    description: "Practise wiring a dual EOL detector, measure it with a virtual multimeter, and find faults.",
     href: "/circuit-lab",
     icon: "lab",
     status: "preview",
-    keywords: ["lab", "practice", "training", "wiring", "exercise", "pir", "dual eol", "learn"],
+    keywords: ["lab", "practice", "training", "wiring", "exercise", "pir", "dual eol", "learn", "multimeter", "meter", "fault finding"],
   },
 ];
 

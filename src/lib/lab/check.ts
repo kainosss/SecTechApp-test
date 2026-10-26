@@ -89,14 +89,15 @@ export interface CheckResult {
   correct: boolean;
 }
 
-function evaluate(components: PlacedComponent[], state: BenchStateKind): number | null {
-  const r = resistanceBetween(zoneNetlist(components, state), ZONE_A, ZONE_B);
+function evaluate(components: PlacedComponent[], state: BenchStateKind, extra: Element[]): number | null {
+  const r = resistanceBetween(zoneNetlist(components, state, extra), ZONE_A, ZONE_B);
   return r.ok ? r.ohms : null;
 }
 
-export function readingsFor(components: PlacedComponent[]): StateReading[] {
+/** Z1–COM readings in every test state. `extra`: undrawn elements (e.g. a hidden training fault). */
+export function readingsFor(components: PlacedComponent[], extra: Element[] = []): StateReading[] {
   return TEST_STATES.map(({ kind, label }) => {
-    const ohms = evaluate(components, kind);
+    const ohms = evaluate(components, kind, extra);
     return { kind, label, ohms, expected: TARGET[kind], matches: ohms !== null && readingMatches(ohms, TARGET[kind]) };
   });
 }
@@ -114,10 +115,12 @@ const CANONICAL = [
 ];
 const key = (c: { kind: string; a: string; b: string; ohms?: number }) => `${c.kind}:${c.ohms ?? 0}:${[c.a, c.b].sort().join("|")}`;
 
-export function checkWiring(components: PlacedComponent[]): CheckResult {
+export function checkWiring(components: PlacedComponent[], extra: Element[] = []): CheckResult {
   const labels = componentLabels(components);
   const findings: Finding[] = [];
-  const readings = readingsFor(components);
+  const readings = readingsFor(components, extra);
+  // Zero-ohm links: drawn wires plus any undrawn ones.
+  const links = [...wiresOnly(components), ...extra.filter((e) => e.kind === "wire")];
   const r = Object.fromEntries(readings.map((x) => [x.kind, x.ohms])) as Record<BenchStateKind, number | null>;
   const name = (id: PointId) => POINTS_BY_ID[id].name;
 
@@ -167,7 +170,7 @@ export function checkWiring(components: PlacedComponent[]): CheckResult {
   const tamper = r.tamper!;
 
   if (sealed === 0) {
-    if (shortedTogether(wiresOnly(components), ZONE_A, ZONE_B)) {
+    if (shortedTogether(links, ZONE_A, ZONE_B)) {
       findings.push({
         code: "direct-short",
         severity: "error",
@@ -205,7 +208,7 @@ export function checkWiring(components: PlacedComponent[]): CheckResult {
   if (Number.isFinite(sealed) && sealed > 0) {
     // Tamper must open the loop.
     if (Number.isFinite(tamper)) {
-      const bypassed = shortedTogether(wiresOnly(components), TAMPER_CONTACT.a, TAMPER_CONTACT.b);
+      const bypassed = shortedTogether(links, TAMPER_CONTACT.a, TAMPER_CONTACT.b);
       findings.push(
         bypassed
           ? {
@@ -227,7 +230,7 @@ export function checkWiring(components: PlacedComponent[]): CheckResult {
 
     // Alarm must change the reading, to the alarm value.
     if (alarm !== null && alarm === sealed) {
-      const bypassed = shortedTogether(wiresOnly(components), ALARM_CONTACT.a, ALARM_CONTACT.b);
+      const bypassed = shortedTogether(links, ALARM_CONTACT.a, ALARM_CONTACT.b);
       findings.push({
         code: "alarm-not-in-loop",
         severity: "error",
@@ -286,7 +289,7 @@ export function checkWiring(components: PlacedComponent[]): CheckResult {
   const noEffect = components.filter((c) => {
     if (POWER_POINTS.includes(c.a) || POWER_POINTS.includes(c.b)) return false;
     const without = components.filter((x) => x.id !== c.id);
-    const other = readingsFor(without);
+    const other = readingsFor(without, extra);
     return readings.every((x, i) => x.ohms === other[i]!.ohms);
   });
   if (noEffect.length > 0) {

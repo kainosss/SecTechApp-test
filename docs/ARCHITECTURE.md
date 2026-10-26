@@ -140,6 +140,19 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
   fix), and the target schematic reusing `CircuitDiagram` with the generic DEOL record. Progress is
   saved per device in `localStorage` (`fieldwise:lab:pir-deol:v1`).
 
+### v0.4.1 — virtual multimeter and fault training
+
+- **`src/lib/lab/meter.ts`** — `measure(components, probes, state, extra)`: resistance between the two probe
+  nodes on the assembled graph (`zoneNetlist` + `resistanceBetween`) in the sealed / alarm / tamper state.
+  4-digit auto-range display with OL above 40 MΩ. Simulated de-energised: power isolated, zone disconnected
+  from the panel (panel input not modelled). Probes can't go on supply terminals; wiring on detector power
+  gives no reading because the detector electronics aren't modelled.
+- **`src/lib/lab/faults.ts`** — beginner scenarios (missing EOL, bypassed tamper, shorted joint). Faults can be
+  hidden (`extra` elements, undrawn) so they must be found by measurement. Diagnosis = fault type + location;
+  the exercise completes when the repaired circuit passes `checkWiring` in every state.
+- **UI** — `BenchWorkspace` (tray, bench, meter, edit controls) is shared by `CircuitLab` (build) and
+  `FaultLab` (`/circuit-lab/faults/[id]`); `LabExerciseNav` switches exercises.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -157,5 +170,6 @@ browser.
 | v0.3 ✅ | Evidence model, fail-safe verification, real device identification, library journey, summary pages, ESLint |
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
+| v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
 | Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
 | Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |

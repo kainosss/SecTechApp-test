@@ -2,6 +2,7 @@
 
 import { BENCH_POINTS, POWER_POINTS, TRAY, componentLabels, type PlacedComponent, type PointId } from "@/lib/lab/bench";
 import { resistorCode } from "@/lib/eol/engine";
+import { isSupplyPoint, type Probes } from "@/lib/lab/meter";
 
 /* Same palette as the EOL diagrams. */
 const C = {
@@ -88,6 +89,12 @@ export interface WiringBenchProps {
   selectedPoint: PointId | null;
   /** Components flagged by the latest wiring check. */
   flagged: Set<string>;
+  /** Detector contact positions to draw (default: both closed). */
+  contacts?: { alarm: "open" | "closed"; tamper: "open" | "closed" };
+  /** Multimeter probe positions. */
+  probes?: Probes;
+  /** Placing a probe: supply terminals aren't valid targets. */
+  probeMode?: boolean;
   onPoint: (id: PointId) => void;
   onComponent: (id: string) => void;
 }
@@ -99,6 +106,8 @@ export interface WiringBenchProps {
  */
 export function WiringBench(props: WiringBenchProps) {
   const { components, pending, armed, selectedComponent, selectedPoint, flagged } = props;
+  const contacts = props.contacts ?? { alarm: "closed", tamper: "closed" };
+  const probes = props.probes ?? { red: null, black: null };
   const labels = componentLabels(components);
   const pairCount = new Map<string, number>();
   const placed = components.map((c) => {
@@ -160,13 +169,13 @@ export function WiringBench(props: WiringBenchProps) {
       <line x1="150" y1="406" x2="222" y2="406" stroke={C.amber} strokeWidth="0.75" strokeOpacity="0.6" />
       <line x1="258" y1="406" x2="330" y2="406" stroke={C.fault} strokeWidth="0.75" strokeOpacity="0.6" />
 
-      {/* Internal contacts, drawn closed (sealed / cover on). */}
+      {/* Internal contacts in the selected detector state. */}
       {(
         [
-          ["alm-com", "alm-nc", C.amber, "relay"],
-          ["tmp-com", "tmp-nc", C.fault, "switch"],
+          ["alm-com", "alm-nc", C.amber, "relay", contacts.alarm === "open"],
+          ["tmp-com", "tmp-nc", C.fault, "switch", contacts.tamper === "open"],
         ] as const
-      ).map(([a, b, color, name]) => {
+      ).map(([a, b, color, name, open]) => {
         const pa = POINT_XY[a];
         const pb = POINT_XY[b];
         const y = 466;
@@ -175,9 +184,9 @@ export function WiringBench(props: WiringBenchProps) {
             <path d={`M${pa.x} ${pa.y + 12} V${y} H${pa.x + 14} M${pb.x - 14} ${y} H${pb.x} V${pb.y + 12}`} fill="none" stroke={color} strokeWidth="1.5" strokeOpacity="0.8" />
             <circle cx={pa.x + 14} cy={y} r="2.2" fill={color} />
             <circle cx={pb.x - 14} cy={y} r="2.2" fill={color} />
-            <line x1={pa.x + 14} y1={y} x2={pb.x - 15} y2={y - 2} stroke={color} strokeWidth="2" />
+            <line x1={pa.x + 14} y1={y} x2={pb.x - 15} y2={open ? y - 11 : y - 2} stroke={color} strokeWidth="2" data-contact={a} data-open={open} />
             <text x={(pa.x + pb.x) / 2} y={y + 18} textAnchor="middle" fill={C.muted} fontSize="8">
-              {name} closed
+              {name} {open ? "OPEN" : "closed"}
             </text>
           </g>
         );
@@ -252,7 +261,7 @@ export function WiringBench(props: WiringBenchProps) {
       {BENCH_POINTS.map((p) => {
         const { x, y } = POINT_XY[p.id];
         const isPending = pending === p.id;
-        const isTarget = armed && p.connectable && !isPending;
+        const isTarget = armed && p.connectable && !isPending && !(props.probeMode && isSupplyPoint(p.id));
         const isSelected = selectedPoint === p.id;
         const isEnd = endpoints.has(p.id);
         const labelY = p.group === "joint" ? y + 20 : y - 16;
@@ -262,7 +271,9 @@ export function WiringBench(props: WiringBenchProps) {
             key={p.id}
             role="button"
             tabIndex={0}
-            aria-label={`${p.name}${isPending ? " (start point selected)" : ""}${p.connectable ? "" : " (pre-wired, not available)"}`}
+            aria-label={`${p.name}${isPending ? " (start point selected)" : ""}${p.connectable ? "" : " (pre-wired, not available)"}${
+              probes.red === p.id ? " (red probe)" : ""
+            }${probes.black === p.id ? " (black probe)" : ""}`}
             aria-pressed={isPending || isSelected}
             onClick={() => props.onPoint(p.id)}
             onKeyDown={keyActivate(() => props.onPoint(p.id))}
@@ -283,6 +294,30 @@ export function WiringBench(props: WiringBenchProps) {
                 START
               </text>
             )}
+          </g>
+        );
+      })}
+
+      {/* Meter probe tips: red (V Ω) marked "+", black (COM) marked "−". Not interactive, so taps reach the terminal. */}
+      {(
+        [
+          ["red", probes.red, -14, "#ef4444", "#fecaca", "+"],
+          ["black", probes.black, 14, "#111827", "#e5e7eb", "−"],
+        ] as const
+      ).map(([color, at, dx, fill, stroke, mark]) => {
+        if (!at) return null;
+        const { x, y } = POINT_XY[at];
+        // Fan out when both probes are on the same terminal.
+        const tx = probes.red === probes.black ? x + dx : x;
+        const ty = y + 20;
+        return (
+          <g key={color} pointerEvents="none" aria-hidden="true" data-probe={color}>
+            <line x1={x} y1={y} x2={tx} y2={ty} stroke={fill} strokeWidth="3" />
+            <line x1={x} y1={y} x2={tx} y2={ty} stroke={stroke} strokeWidth="1" />
+            <circle cx={tx} cy={ty} r="8" fill={fill} stroke={stroke} strokeWidth="1.5" />
+            <text x={tx} y={ty + 4} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">
+              {mark}
+            </text>
           </g>
         );
       })}

@@ -39,12 +39,12 @@ describe("Circuit Lab bench interaction", () => {
     const ui = setup();
     ui.tap("panel-com");
     expect(ui.point("panel-com")).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByTestId("bench-status")).toHaveTextContent("Start: COM");
+    expect(screen.getByTestId("bench-status")).toHaveTextContent("Start: panel COM");
     expect(ui.placed()).toHaveLength(0);
     ui.tap("tmp-nc");
     expect(ui.placed()).toHaveLength(1);
     expect(ui.point("panel-com")).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByTestId("bench-status")).toHaveTextContent("Placed W1 from COM to TAMPER NC");
+    expect(screen.getByTestId("bench-status")).toHaveTextContent("Placed W1 from panel COM to TAMPER NC");
   });
 
   it("works from the keyboard", () => {

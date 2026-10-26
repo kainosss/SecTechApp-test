@@ -157,12 +157,17 @@ export type BenchStateKind = "sealed" | "alarm" | "tamper" | "cable-open" | "cab
 /**
  * The zone circuit as a netlist for one test state. Detector power terminals
  * belong to a separate circuit (pre-wired to the panel AUX supply) and are
- * not part of the zone measurement.
+ * not part of the zone measurement. `extra` adds undrawn elements such as a
+ * training fault.
  */
-export function zoneNetlist(components: PlacedComponent[], state: BenchStateKind): Element[] {
-  let user: Element[] = components.map((c) =>
-    c.kind === "wire" ? { kind: "wire" as const, a: c.a, b: c.b, id: c.id } : { kind: "resistor" as const, a: c.a, b: c.b, ohms: c.ohms!, id: c.id },
-  );
+export function zoneNetlist(components: PlacedComponent[], state: BenchStateKind, extra: Element[] = []): Element[] {
+  let user: Element[] = [
+    ...components.map((c) =>
+      c.kind === "wire" ? { kind: "wire" as const, a: c.a, b: c.b, id: c.id } : { kind: "resistor" as const, a: c.a, b: c.b, ohms: c.ohms!, id: c.id },
+    ),
+    // Hidden wiring (e.g. a fault inside a joint) that isn't drawn on the bench.
+    ...extra,
+  ];
   // Cable open: the zone input conductor is cut at the panel.
   if (state === "cable-open") user = user.filter((e) => e.a !== ZONE_A && e.b !== ZONE_A);
   const contacts: Element[] = [

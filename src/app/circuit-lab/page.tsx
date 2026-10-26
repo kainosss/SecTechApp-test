@@ -4,6 +4,7 @@ import { bannerFor } from "@/lib/eol/classification";
 import { formatOhms } from "@/lib/eol/engine";
 import { TARGET } from "@/lib/lab/check";
 import { CircuitLab, type LabSchematic } from "@/components/lab/CircuitLab";
+import { LabExerciseNav } from "@/components/lab/LabExerciseNav";
 
 export const metadata: Metadata = { title: "Circuit Lab" };
 
@@ -47,6 +48,8 @@ export default async function CircuitLabPage() {
           any manufacturer&apos;s layout.
         </p>
       </header>
+
+      <LabExerciseNav current="/circuit-lab" />
 
       <details className="mb-4 rounded-2xl border border-line bg-ink-900 px-4 py-3 text-sm" open>
         <summary className="cursor-pointer font-medium text-fg">Circuit specification</summary>
