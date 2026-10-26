@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDevice, listDeviceIds, type CitedSource, type DeviceDetail, type RelatedRecord } from "@/lib/content/repository";
-import { STATUS_LABELS, type Specification } from "@/lib/content/schema";
+import type { Specification } from "@/lib/content/schema";
 import { BackToLibrary } from "@/components/devices/BackToLibrary";
 import { ClaimMeta, SectionEvidence, sharedStatus } from "@/components/devices/ClaimMeta";
 import { sharedSources } from "@/components/devices/Citation";
 import { DeviceSection, SectionNav, type SectionLink } from "@/components/devices/DeviceSection";
+import { DOC_TYPE_LABELS, DocumentList } from "@/components/devices/DocumentList";
 import { FavouriteButton } from "@/components/devices/FavouriteButton";
 import { RecordView } from "@/components/devices/RecordView";
 import { Icon } from "@/components/ui/Icon";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { VerificationBadge } from "@/components/ui/VerificationBadge";
 
 type Props = { params: Promise<{ id: string }> };
@@ -31,16 +33,6 @@ const SPEC_GROUP_LABELS: Record<Specification["group"], string> = {
   other: "Other",
 };
 
-const DOC_TYPE_LABELS: Record<CitedSource["documentType"], string> = {
-  "product-page": "Product page",
-  datasheet: "Datasheet",
-  "installation-manual": "Installation manual",
-  "programming-manual": "Programming manual",
-  "wiring-guide": "Wiring guide",
-  "technical-bulletin": "Technical bulletin",
-  standard: "Standard",
-  other: "Document",
-};
 
 /** Preference order for the one-tap "open manufacturer document" button. */
 const DOC_PRIORITY: CitedSource["documentType"][] = ["installation-manual", "datasheet", "wiring-guide", "programming-manual", "product-page"];
@@ -162,29 +154,13 @@ export default async function DevicePage({ params }: Props) {
         </div>
       </header>
 
-      <div
-        role="note"
-        aria-label={`Verification status: ${STATUS_LABELS[device.status]}`}
-        className={`rounded-xl border px-4 py-3 text-sm leading-relaxed ${
-          device.status === "verified"
-            ? "border-verified/30 bg-verified/5"
-            : device.status === "demonstration"
-              ? "border-example/30 bg-example/[0.07]"
-              : "border-unverified/30 bg-unverified/5"
-        }`}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          <VerificationBadge status={device.status} />
-          <span className="text-xs text-fg-subtle">Updated {device.updatedAt}</span>
-        </div>
-        <p className="mt-2 text-fg">{STATUS_EXPLANATION[device.status]}</p>
-        {device.review && (
-          <p className="mt-1 text-xs text-fg-muted">
-            Reviewed by {device.review.reviewedBy} on {device.review.reviewedAt}
-          </p>
-        )}
-        {device.statusNotes && <p className="mt-1 text-fg-muted">{device.statusNotes}</p>}
-      </div>
+      <StatusPanel
+        status={device.status}
+        explanation={STATUS_EXPLANATION[device.status]}
+        updatedAt={device.updatedAt}
+        review={device.review}
+        notes={device.statusNotes}
+      />
 
       <SectionNav links={sections} />
 
@@ -351,52 +327,18 @@ export default async function DevicePage({ params }: Props) {
         <section aria-label="Not yet documented" className="rounded-2xl border border-dashed border-line-strong px-4 py-4 text-sm leading-relaxed text-fg-muted">
           <p className="font-medium text-fg">Not yet documented in Fieldwise</p>
           <p className="mt-1">
-            We haven&apos;t added verified {missing.join(", ")} for this device yet. Use the manufacturer&apos;s documentation
-            below — never guess terminal assignments or supply requirements.
+            We haven&apos;t added verified {missing.join(", ")} for this device yet.{" "}
+            {documents.some((d) => d.url) ? "Use the manufacturer's documentation below" : "Use the manufacturer's current documentation"}{" "}
+            — never guess terminal assignments or supply requirements.
           </p>
         </section>
       )}
 
       <DeviceSection id="documents" title="Manufacturer documentation">
-        {documents.length === 0 ? (
-          <p className="px-4 py-4 text-sm text-fg-muted">
-            No manufacturer documents have been linked yet. Check the manufacturer&apos;s website or partner portal.
-          </p>
-        ) : (
-          <ul className="divide-y divide-line">
-            {documents.map((doc) => (
-              <li key={doc.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
-                <span className="min-w-0 flex-1">
-                  <span className="block font-mono text-[11px] tracking-wider text-fg-subtle uppercase">
-                    {DOC_TYPE_LABELS[doc.documentType]}
-                    {doc.documentNumber && ` · ${doc.documentNumber}`}
-                    {doc.documentRevision && ` · ${doc.documentRevision}`}
-                  </span>
-                  <span className="mt-0.5 block text-[15px] text-fg">{doc.title}</span>
-                  <span className="block text-xs text-fg-muted">
-                    {doc.publisher}
-                    {doc.publishedDate && ` · Published ${doc.publishedDate}`}
-                    {doc.accessedDate && ` · Link checked ${doc.accessedDate}`}
-                  </span>
-                </span>
-                {doc.url ? (
-                  <a
-                    href={doc.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-line-strong px-4 text-sm font-medium text-fg hover:bg-ink-850"
-                  >
-                    Open
-                    <span className="sr-only"> {doc.title}</span>
-                    <Icon name="external" className="size-4" />
-                  </a>
-                ) : (
-                  <span className="shrink-0 text-xs text-fg-subtle">{doc.isDemo ? "Demonstration document — no file" : "No public link"}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+        <DocumentList
+          documents={documents}
+          empty="No manufacturer documents have been linked yet. Check the manufacturer's website or partner portal."
+        />
       </DeviceSection>
 
       <DeviceSection id="related" title="Wiring & troubleshooting">

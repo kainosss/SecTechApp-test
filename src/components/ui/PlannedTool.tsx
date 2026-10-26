@@ -8,6 +8,7 @@ export function PlannedTool({
   description,
   steps,
   safeguards,
+  children,
 }: {
   icon: IconKey;
   title: string;
@@ -15,10 +16,13 @@ export function PlannedTool({
   description: string;
   steps: string[];
   safeguards: string[];
+  /** Content shown between the header and the roadmap panels, e.g. published records. */
+  children?: React.ReactNode;
 }) {
   return (
     <>
-      <PageHeader eyebrow={`Coming soon · ${phase}`} title={title} description={description} />
+      <PageHeader eyebrow={phase} title={title} description={description} />
+      {children}
       <div className="grid gap-4 md:grid-cols-2">
         <section className="rounded-2xl border border-line bg-ink-900 p-5">
           <span className="grid size-11 place-items-center rounded-xl bg-signal-500/10 text-signal-400 ring-1 ring-signal-400/25 ring-inset">

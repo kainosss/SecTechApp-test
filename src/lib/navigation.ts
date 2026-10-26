@@ -36,10 +36,10 @@ export const TOOLS: ToolDefinition[] = [
   {
     id: "eol-assistant",
     title: "EOL Wiring Assistant",
-    description: "Verified end-of-line resistor references by panel and input.",
+    description: "End-of-line resistor references by panel, input and contact arrangement.",
     href: "/eol",
     icon: "eol",
-    status: "planned",
+    status: "preview",
     keywords: ["eol", "end of line", "resistor", "wiring", "zone", "double eol"],
   },
   {
@@ -48,7 +48,7 @@ export const TOOLS: ToolDefinition[] = [
     description: "Step-by-step diagnostics for common site faults.",
     href: "/fault-finder",
     icon: "fault",
-    status: "planned",
+    status: "preview",
     keywords: ["fault", "troubleshoot", "tamper", "diagnose", "trouble"],
   },
 ];

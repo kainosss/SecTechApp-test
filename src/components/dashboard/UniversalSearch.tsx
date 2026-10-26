@@ -1,26 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useId, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useId, useMemo, useState } from "react";
 import { search, type SearchDocument, type SearchResultType } from "@/lib/search/search";
 import { Icon } from "@/components/ui/Icon";
 
-const TYPE_LABEL: Record<SearchResultType, string> = { device: "Device", manufacturer: "Brand", tool: "Tool" };
+const TYPE_LABEL: Record<SearchResultType, string> = {
+  device: "Device",
+  manufacturer: "Brand",
+  wiring: "Wiring",
+  workflow: "Fault",
+  tool: "Tool",
+};
 
-export function UniversalSearch({
-  index,
-  initialQuery = "",
-  autoFocus = false,
-  previewLimit = 6,
-}: {
+type Props = {
   index: SearchDocument[];
   initialQuery?: string;
   autoFocus?: boolean;
   previewLimit?: number;
-}) {
+  /** Mirror the query into ?q= so Back returns to the same results. */
+  syncUrl?: boolean;
+};
+
+/** Reads the starting query from ?q=. Use inside <Suspense>. */
+export function UniversalSearchFromUrl(props: Omit<Props, "initialQuery">) {
+  const q = useSearchParams().get("q") ?? "";
+  return <UniversalSearch {...props} initialQuery={q} autoFocus={props.autoFocus && !q} syncUrl />;
+}
+
+export function UniversalSearch({ index, initialQuery = "", autoFocus = false, previewLimit = 6, syncUrl = false }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    if (!syncUrl) return;
+    const params = new URLSearchParams(window.location.search);
+    if (query.trim()) params.set("q", query.trim());
+    else params.delete("q");
+    const next = `${window.location.pathname}${params.size ? `?${params}` : ""}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(window.history.state, "", next);
+  }, [query, syncUrl]);
   const results = useMemo(() => search(index, query, 50), [index, query]);
   const listId = useId();
   const trimmed = query.trim();
@@ -31,7 +51,10 @@ export function UniversalSearch({
         role="search"
         onSubmit={(e) => {
           e.preventDefault();
-          if (trimmed) router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+          if (!trimmed) return;
+          // On the search page results are already showing: just dismiss the phone keyboard.
+          if (window.location.pathname === "/search") (document.activeElement as HTMLElement | null)?.blur();
+          else router.push(`/search?q=${encodeURIComponent(trimmed)}`);
         }}
         className="group relative"
       >
@@ -46,6 +69,7 @@ export function UniversalSearch({
           id={`${listId}-input`}
           type="search"
           inputMode="search"
+          enterKeyHint="search"
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}

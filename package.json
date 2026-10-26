@@ -13,7 +13,8 @@
     "content:manifest": "node scripts/generate-content-manifest.mjs",
     "predev": "npm run content:manifest --silent",
     "prebuild": "npm run content:manifest --silent",
-    "pretest": "npm run content:manifest --silent"
+    "pretest": "npm run content:manifest --silent",
+    "dev:demo": "npm run content:manifest --silent && node scripts/dev-demo.mjs"
   },
   "dependencies": {
     "next": "^16.4.3",

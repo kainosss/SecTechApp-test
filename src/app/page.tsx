@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { getContentStats, listDevices } from "@/lib/content/repository";
 import { buildSearchIndex } from "@/lib/search/build-index";
 import { TOOLS } from "@/lib/navigation";
-import { UniversalSearch } from "@/components/dashboard/UniversalSearch";
+import { UniversalSearch, UniversalSearchFromUrl } from "@/components/dashboard/UniversalSearch";
 import { ToolCards } from "@/components/dashboard/ToolCards";
 import { DeviceShortlists } from "@/components/dashboard/DeviceShortlists";
 import { DemoNotice } from "@/components/ui/DemoNotice";
@@ -21,7 +22,9 @@ export default async function DashboardPage() {
           </h1>
           <p className="mt-1.5 text-[15px] text-fg-muted">Search by model number, brand or device type.</p>
           <div className="mt-5">
-            <UniversalSearch index={index} />
+            <Suspense fallback={<UniversalSearch index={index} />}>
+              <UniversalSearchFromUrl index={index} />
+            </Suspense>
           </div>
         </div>
       </section>

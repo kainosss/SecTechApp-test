@@ -18,7 +18,9 @@ describe("UniversalSearch", () => {
     render(<UniversalSearch index={await buildSearchIndex()} />);
     const input = screen.getByRole("searchbox");
     await user.type(input, "pir12");
-    expect(screen.getByRole("link", { name: /KS-PIR12/ })).toHaveAttribute("href", "/devices/kestrel-demo-ks-pir12");
+    const links = screen.getAllByRole("link", { name: /KS-PIR12/ });
+    expect(links[0]).toHaveAttribute("href", "/devices/kestrel-demo-ks-pir12");
+    expect(links.map((l) => l.getAttribute("href"))).toContain("/eol/demo-ap8-dual-eol-pir");
     await user.keyboard("{Enter}");
     expect(push).toHaveBeenCalledWith("/search?q=pir12");
   });

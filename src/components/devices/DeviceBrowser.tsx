@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { DeviceListItem, ManufacturerSummary } from "@/lib/content/repository";
 import { CATEGORY_GROUPS } from "@/lib/content/schema";
 import { filterDevices, filterFromSearchParams, filterToSearchParams, groupCounts, type DeviceFilter } from "@/lib/devices/filter";
@@ -42,6 +42,15 @@ export function DeviceBrowser({
 }) {
   const [filter, setFilterState] = useState<DeviceFilter>(initialFilter);
   const [shown, setShown] = useState(initialShown);
+  const chipRow = useRef<HTMLDivElement>(null);
+
+  // Keep the active equipment chip visible in the horizontally scrolling row on phones.
+  useEffect(() => {
+    // Scroll only the chip row horizontally; scrollIntoView could also move the page and lose the restored position.
+    const row = chipRow.current;
+    const chip = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (row && chip) row.scrollLeft = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
+  }, [filter.group]);
 
   const results = useMemo(() => filterDevices(devices, filter), [devices, filter]);
   const counts = useMemo(() => groupCounts(devices, filter), [devices, filter]);
@@ -161,7 +170,7 @@ export function DeviceBrowser({
         </label>
       </div>
 
-      <div role="group" aria-label="Equipment type" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <div ref={chipRow} role="group" aria-label="Equipment type" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {chip("All", undefined)}
         {groups.map((g) => chip(g.label, g.id, counts.get(g.id) ?? 0))}
       </div>

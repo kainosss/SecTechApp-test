@@ -4,7 +4,7 @@
  * when the catalogue grows beyond what is sensible to ship to the browser.
  */
 
-export type SearchResultType = "device" | "manufacturer" | "tool";
+export type SearchResultType = "device" | "manufacturer" | "wiring" | "workflow" | "tool";
 
 export interface SearchDocument {
   id: string;
@@ -29,7 +29,7 @@ function compact(text: string): string {
   return normalise(text).replace(/ /g, "");
 }
 
-const TYPE_WEIGHT: Record<SearchResultType, number> = { device: 3, manufacturer: 2, tool: 1 };
+const TYPE_WEIGHT: Record<SearchResultType, number> = { device: 4, manufacturer: 3, workflow: 2, wiring: 2, tool: 1 };
 
 function scoreDocument(doc: SearchDocument, tokens: string[], compactQuery: string): number {
   const title = normalise(doc.title);
