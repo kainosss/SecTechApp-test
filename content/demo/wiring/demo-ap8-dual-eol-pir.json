@@ -1,0 +1,33 @@
+{
+  "id": "demo-ap8-dual-eol-pir",
+  "title": "AP-8 zone: dual EOL with KS-PIR12",
+  "summary": "Shows how a dual-EOL zone record links a panel input to a detector's alarm and tamper contacts.",
+  "inputType": "double-eol",
+  "contactArrangement": "NC alarm contact and NC tamper contact in one zone",
+  "resistors": [
+    {
+      "role": "alarm",
+      "ohms": 2200
+    },
+    {
+      "role": "end-of-line",
+      "ohms": 4700
+    }
+  ],
+  "appliesToDeviceIds": [
+    "northgate-demo-ap-8",
+    "kestrel-demo-ks-pir12"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration record for development. Not a real panel configuration — never use on site."
+  },
+  "sourceRefs": [
+    {
+      "sourceId": "demo-ng-ap8-install",
+      "locator": "Zone wiring (demo)"
+    }
+  ],
+  "updatedAt": "2026-10-26"
+}

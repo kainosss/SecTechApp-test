@@ -9,13 +9,13 @@ import { UniversalSearch } from "@/components/dashboard/UniversalSearch";
 import { DeviceShortlists } from "@/components/dashboard/DeviceShortlists";
 import { FavouriteButton } from "@/components/devices/FavouriteButton";
 import { buildSearchIndex } from "@/lib/search/build-index";
-import { getDeviceSummaries } from "@/lib/content/repository";
+import { listDevices } from "@/lib/content/repository";
 import { RECENT_KEY } from "@/lib/storage/device-lists";
 
 describe("UniversalSearch", () => {
   it("shows live results and submits to the search page", async () => {
     const user = userEvent.setup();
-    render(<UniversalSearch index={buildSearchIndex()} />);
+    render(<UniversalSearch index={await buildSearchIndex()} />);
     const input = screen.getByRole("searchbox");
     await user.type(input, "pir12");
     expect(screen.getByRole("link", { name: /KS-PIR12/ })).toHaveAttribute("href", "/devices/kestrel-demo-ks-pir12");
@@ -25,7 +25,7 @@ describe("UniversalSearch", () => {
 
   it("explains when nothing matches", async () => {
     const user = userEvent.setup();
-    render(<UniversalSearch index={buildSearchIndex()} />);
+    render(<UniversalSearch index={await buildSearchIndex()} />);
     await user.type(screen.getByRole("searchbox"), "zzzz");
     expect(screen.getByText(/No matches/)).toBeInTheDocument();
   });
@@ -37,7 +37,7 @@ describe("DeviceShortlists", () => {
     window.localStorage.setItem(RECENT_KEY, JSON.stringify(["kestrel-demo-ks-rs1", "unknown-id"]));
     render(
       <>
-        <DeviceShortlists devices={getDeviceSummaries()} />
+        <DeviceShortlists devices={await listDevices()} />
         <FavouriteButton deviceId="northgate-demo-ap-8" />
       </>,
     );

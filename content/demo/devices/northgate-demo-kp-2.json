@@ -4,14 +4,25 @@
   "model": "KP-2",
   "name": "KP-2 LCD Keypad",
   "category": "keypad",
-  "summary": "Demonstration data-bus keypad for the AP-8 panel.",
+  "description": "Demonstration data-bus keypad for the AP-8 panel.",
   "aliases": [
     "KP2",
     "LCD keypad"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "Rev A"
+      "id": "standard",
+      "name": "KP-2",
+      "hardwareRevisions": [
+        {
+          "revision": "Rev A"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ng-kp2-install"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -72,8 +83,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Set a unique keypad address before powering the bus (demonstration note).",
       "sourceRefs": [
         {
@@ -88,7 +100,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

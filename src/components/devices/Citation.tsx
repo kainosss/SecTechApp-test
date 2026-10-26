@@ -1,24 +1,22 @@
-import { getSource } from "@/lib/content/repository";
-import type { SourceRef } from "@/lib/content/schema";
+import type { CitedSource } from "@/lib/content/repository";
+
+function label(s: CitedSource) {
+  return [s.title, s.documentRevision, s.locator].filter(Boolean).join(", ");
+}
 
 /** Inline "Source: …" line. Missing citations are shown, not hidden. */
-export function Citation({ refs, className = "" }: { refs: SourceRef[]; className?: string }) {
+export function Citation({ sources, className = "" }: { sources: CitedSource[]; className?: string }) {
   return (
     <span className={`block text-xs text-fg-subtle ${className}`}>
-      Source:{" "}
-      {refs.length === 0 ? (
-        <span className="text-unverified">none cited</span>
-      ) : (
-        refs.map((r) => [getSource(r.sourceId)?.title ?? r.sourceId, r.locator].filter(Boolean).join(", ")).join("; ")
-      )}
+      Source: {sources.length === 0 ? <span className="text-unverified">none cited</span> : sources.map(label).join("; ")}
     </span>
   );
 }
 
 /** If every item cites exactly the same sources, returns them so a section can cite once. */
-export function sharedRefs(items: { sourceRefs: SourceRef[] }[]): SourceRef[] | null {
-  const key = (refs: SourceRef[]) => JSON.stringify(refs.map((r) => [r.sourceId, r.locator ?? ""]));
+export function sharedSources(items: { sources: CitedSource[] }[]): CitedSource[] | null {
+  const key = (sources: CitedSource[]) => JSON.stringify(sources.map((s) => [s.id, s.locator ?? ""]));
   const first = items[0];
-  if (!first || first.sourceRefs.length === 0) return null;
-  return items.every((i) => key(i.sourceRefs) === key(first.sourceRefs)) ? first.sourceRefs : null;
+  if (!first || first.sources.length === 0) return null;
+  return items.every((i) => key(i.sources) === key(first.sources)) ? first.sources : null;
 }

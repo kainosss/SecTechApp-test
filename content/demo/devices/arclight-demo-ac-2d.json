@@ -4,16 +4,27 @@
   "model": "AC-2D",
   "name": "AC-2D Two-Door Access Controller",
   "category": "access-controller",
-  "summary": "Demonstration two-door access controller with reader, lock relay and door monitoring inputs.",
+  "description": "Demonstration two-door access controller with reader, lock relay and door monitoring inputs.",
   "aliases": [
     "AC2D",
     "door controller",
     "2 door controller"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "Rev 2",
-      "appliesTo": "Firmware 4.x (demo)"
+      "id": "standard",
+      "name": "AC-2D",
+      "hardwareRevisions": [
+        {
+          "revision": "Rev 2",
+          "firmware": "Firmware 4.x (demo)"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ac2-install"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -128,8 +139,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Fit a suppression diode across DC lock coils (demonstration note — confirm against the lock and controller manuals).",
       "severity": "caution",
       "sourceRefs": [
@@ -139,6 +151,7 @@
       ]
     },
     {
+      "kind": "installation",
       "text": "Power locks from a separate supply where the controller supply cannot carry the combined load (demonstration note).",
       "sourceRefs": [
         {
@@ -153,7 +166,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

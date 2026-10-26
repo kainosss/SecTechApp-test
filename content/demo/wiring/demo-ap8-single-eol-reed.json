@@ -1,0 +1,28 @@
+{
+  "id": "demo-ap8-single-eol-reed",
+  "title": "AP-8 zone: single EOL with KS-RS1",
+  "summary": "Shows how a single-EOL zone record links a panel input to a reed switch.",
+  "inputType": "single-eol",
+  "contactArrangement": "NC reed contact",
+  "resistors": [
+    {
+      "role": "end-of-line",
+      "ohms": 2200
+    }
+  ],
+  "appliesToDeviceIds": [
+    "northgate-demo-ap-8",
+    "kestrel-demo-ks-rs1"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration record for development. Not a real panel configuration — never use on site."
+  },
+  "sourceRefs": [
+    {
+      "sourceId": "demo-ng-ap8-install"
+    }
+  ],
+  "updatedAt": "2026-10-26"
+}

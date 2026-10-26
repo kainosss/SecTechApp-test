@@ -1,0 +1,47 @@
+{
+  "id": "demo-controller-comms-failure",
+  "title": "Controller communications failure",
+  "faultArea": "communications",
+  "summary": "A controller, panel or expander has lost communications with the system.",
+  "symptoms": [
+    "Controller or module offline in the software",
+    "Module trouble or comms fault on the keypad",
+    "Intermittent offline and online events"
+  ],
+  "outline": [
+    {
+      "title": "Check power to the device",
+      "detail": "Confirm the module or controller is powered and running."
+    },
+    {
+      "title": "Check the data or network connection",
+      "detail": "For network devices, check link and addressing. For bus devices, check bus wiring and termination."
+    },
+    {
+      "title": "Check addressing",
+      "detail": "Duplicate or wrong addresses commonly cause communication faults."
+    },
+    {
+      "title": "Review recent changes",
+      "detail": "Firmware updates, network changes or new modules often come before comms faults."
+    }
+  ],
+  "appliesToCategories": [
+    "alarm-panel",
+    "alarm-expander",
+    "keypad",
+    "access-controller"
+  ],
+  "appliesToDeviceIds": [
+    "northgate-demo-ap-8",
+    "northgate-demo-kp-2",
+    "arclight-demo-ac-2d"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration workflow outline. General fault-finding order only — follow the manufacturer's documentation and site procedures."
+  },
+  "sourceRefs": [],
+  "updatedAt": "2026-10-26"
+}

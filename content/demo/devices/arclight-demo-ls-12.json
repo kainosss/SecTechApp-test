@@ -3,16 +3,27 @@
   "manufacturerId": "arclight-demo",
   "model": "LS-12",
   "name": "LS-12 Electric Strike",
-  "category": "electric-lock",
-  "summary": "Demonstration 12 V DC electric strike, field-selectable fail-safe or fail-secure.",
+  "category": "electric-strike",
+  "description": "Demonstration 12 V DC electric strike, field-selectable fail-safe or fail-secure.",
   "aliases": [
     "LS12",
     "strike",
     "door strike"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "Rev A"
+      "id": "standard",
+      "name": "LS-12",
+      "hardwareRevisions": [
+        {
+          "revision": "Rev A"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-ls12-install"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -73,8 +84,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Check mode jumper position before installation — fail-safe vs fail-secure must match the site's egress requirements (demonstration note).",
       "severity": "caution",
       "sourceRefs": [
@@ -84,6 +96,7 @@
       ]
     },
     {
+      "kind": "installation",
       "text": "Door pre-load on the keeper can prevent release; check alignment if the strike buzzes but does not open (demonstration note).",
       "sourceRefs": [
         {
@@ -98,7 +111,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

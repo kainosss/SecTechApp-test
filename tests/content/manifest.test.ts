@@ -11,8 +11,8 @@ describe("content manifest", () => {
     ).not.toThrow();
   });
 
-  it("includes one record per device file", () => {
-    const files = readdirSync(path.resolve("content/devices")).filter((f) => f.endsWith(".json"));
-    expect(rawContent.devices).toHaveLength(files.length);
+  it("includes one record per device file, real and demonstration", () => {
+    const count = (dir: string) => readdirSync(path.resolve(dir)).filter((f) => f.endsWith(".json")).length;
+    expect(rawContent.devices).toHaveLength(count("content/devices") + count("content/demo/devices"));
   });
 });

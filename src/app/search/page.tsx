@@ -10,7 +10,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <PageHeader eyebrow="Search" title="Search everything" description="Devices, model numbers, manufacturers and tools." />
-      <UniversalSearch key={q} index={buildSearchIndex()} initialQuery={q} autoFocus={!q} previewLimit={50} />
+      <UniversalSearch key={q} index={await buildSearchIndex()} initialQuery={q} autoFocus={!q} previewLimit={50} />
     </>
   );
 }

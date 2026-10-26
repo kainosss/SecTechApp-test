@@ -1,57 +1,102 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CATEGORY_LABELS, type DeviceCategory } from "@/lib/content/schema";
-import {
-  categoryCounts,
-  filterDevices,
-  filterToSearchParams,
-  type DeviceFilter,
-  type DeviceListItem,
-} from "@/lib/devices/filter";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import type { DeviceListItem, ManufacturerSummary } from "@/lib/content/repository";
+import { CATEGORY_GROUPS } from "@/lib/content/schema";
+import { filterDevices, filterFromSearchParams, filterToSearchParams, groupCounts, type DeviceFilter } from "@/lib/devices/filter";
+import { readLibraryState, writeLibraryState } from "@/lib/storage/library-state";
 import { DeviceRow } from "./DeviceRow";
 import { Icon } from "@/components/ui/Icon";
 
-const PAGE_SIZE = 40;
+export const PAGE_SIZE = 30;
+
+function parseShown(value: string | null | undefined): number {
+  const n = Number(value);
+  return Number.isInteger(n) && n > PAGE_SIZE ? n : PAGE_SIZE;
+}
+
+/** Reads the initial filter, page size and scroll position from the URL. Use inside <Suspense>. */
+export function DeviceBrowserFromUrl(props: { devices: DeviceListItem[]; manufacturers: ManufacturerSummary[] }) {
+  const params = useSearchParams();
+  const initialFilter = filterFromSearchParams({
+    q: params.get("q") ?? undefined,
+    group: params.get("group") ?? undefined,
+    manufacturer: params.get("manufacturer") ?? undefined,
+  });
+  return <DeviceBrowser {...props} initialFilter={initialFilter} initialShown={parseShown(params.get("shown"))} restoreScroll />;
+}
 
 export function DeviceBrowser({
   devices,
   manufacturers,
   initialFilter,
+  initialShown = PAGE_SIZE,
+  restoreScroll = false,
 }: {
   devices: DeviceListItem[];
-  manufacturers: { id: string; name: string }[];
+  manufacturers: ManufacturerSummary[];
   initialFilter: DeviceFilter;
+  initialShown?: number;
+  restoreScroll?: boolean;
 }) {
   const [filter, setFilterState] = useState<DeviceFilter>(initialFilter);
-  const [limit, setLimit] = useState(PAGE_SIZE);
+  const [shown, setShown] = useState(initialShown);
 
   const results = useMemo(() => filterDevices(devices, filter), [devices, filter]);
-  const counts = useMemo(() => categoryCounts(devices, filter), [devices, filter]);
-  const categories = useMemo(
-    () => [...new Set(devices.map((d) => d.category))].sort((a, b) => CATEGORY_LABELS[a].localeCompare(CATEGORY_LABELS[b])),
-    [devices],
-  );
-  const active = Boolean(filter.query?.trim() || filter.category || filter.manufacturerId);
+  const counts = useMemo(() => groupCounts(devices, filter), [devices, filter]);
+  const groups = CATEGORY_GROUPS.filter((g) => g.id !== "other" || counts.has("other"));
+  const active = Boolean(filter.query?.trim() || filter.group || filter.manufacturerId);
+
+  // Captured before the save effect below can overwrite it.
+  const [savedPosition] = useState(() => (restoreScroll && typeof window !== "undefined" ? readLibraryState() : null));
+
+  // Returning to the exact same list: put the technician back where they were.
+  useEffect(() => {
+    const saved = savedPosition;
+    if (saved && saved.url === `${window.location.pathname}${window.location.search}` && saved.scrollY > 0) {
+      requestAnimationFrame(() => window.scrollTo(0, saved.scrollY));
+    }
+  }, [savedPosition]);
+
+  // Keep the URL (shareable, Back-button safe) and the per-tab saved position in sync.
+  useEffect(() => {
+    const url = `/devices${filterToSearchParams(filter, { shown: shown > PAGE_SIZE ? String(shown) : undefined })}`;
+    if (`${window.location.pathname}${window.location.search}` !== url) window.history.replaceState(window.history.state, "", url);
+
+    const save = () => writeLibraryState({ url, scrollY: window.scrollY });
+    save();
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(save);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [filter, shown]);
 
   function setFilter(next: DeviceFilter) {
     setFilterState(next);
-    setLimit(PAGE_SIZE);
-    // Keep the URL shareable and Back-button friendly without a server round trip.
-    window.history.replaceState(null, "", `${window.location.pathname}${filterToSearchParams(next)}`);
+    setShown(PAGE_SIZE);
   }
 
-  const chip = (label: string, value: DeviceCategory | undefined, count?: number) => {
-    const selected = filter.category === value;
+  const chip = (label: string, value: DeviceFilter["group"], count?: number) => {
+    const selected = filter.group === value;
     return (
       <button
         key={label}
         type="button"
         aria-pressed={selected}
-        onClick={() => setFilter({ ...filter, category: value })}
-        disabled={count === 0 && !selected}
-        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors disabled:opacity-40 ${
-          selected ? "border-signal-500/60 bg-signal-500/15 text-signal-300" : "border-line-strong text-fg-muted hover:text-fg"
+        onClick={() => setFilter({ ...filter, group: value })}
+        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors ${
+          selected
+            ? "border-signal-500/60 bg-signal-500/15 text-signal-300"
+            : count === 0
+              ? "border-line text-fg-subtle"
+              : "border-line-strong text-fg-muted hover:text-fg"
         }`}
       >
         {label}
@@ -60,12 +105,14 @@ export function DeviceBrowser({
     );
   };
 
+  const selectedGroup = CATEGORY_GROUPS.find((g) => g.id === filter.group);
+
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="group relative flex-1">
           <label htmlFor="device-query" className="sr-only">
-            Search devices by model, manufacturer or type
+            Search by model, part number, manufacturer or keyword
           </label>
           <Icon
             name="search"
@@ -75,12 +122,14 @@ export function DeviceBrowser({
             id="device-query"
             type="search"
             inputMode="search"
+            enterKeyHint="search"
             autoComplete="off"
             autoCapitalize="off"
             spellCheck={false}
             value={filter.query ?? ""}
             onChange={(e) => setFilter({ ...filter, query: e.target.value })}
-            placeholder="Model or manufacturer"
+            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+            placeholder="Model, part number or keyword"
             className="h-12 w-full rounded-xl border border-line-strong bg-ink-850 pr-11 pl-11 text-base text-fg placeholder:text-fg-subtle focus:border-signal-500 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           {filter.query && (
@@ -112,9 +161,9 @@ export function DeviceBrowser({
         </label>
       </div>
 
-      <div role="group" aria-label="Category" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <div role="group" aria-label="Equipment type" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {chip("All", undefined)}
-        {categories.map((c) => chip(CATEGORY_LABELS[c], c, counts.get(c) ?? 0))}
+        {groups.map((g) => chip(g.label, g.id, counts.get(g.id) ?? 0))}
       </div>
 
       <div className="mt-4 mb-2 flex h-8 items-center justify-between text-sm">
@@ -129,25 +178,37 @@ export function DeviceBrowser({
       </div>
 
       {results.length === 0 ? (
-        <p className="rounded-2xl border border-line bg-ink-900 px-4 py-6 text-sm leading-relaxed text-fg-muted">
-          No devices match. Check the model number, or clear the filters to see the full library.
-        </p>
+        <div className="rounded-2xl border border-line bg-ink-900 px-4 py-6 text-sm leading-relaxed text-fg-muted">
+          {selectedGroup && !filter.query?.trim() && !filter.manufacturerId ? (
+            <p>
+              No {selectedGroup.label.toLowerCase()} are in the library yet. Records are added once their manufacturer
+              documentation has been sourced.
+            </p>
+          ) : (
+            <p>No devices match. Check the model number or part number, or clear the filters to see the full library.</p>
+          )}
+          {active && (
+            <button type="button" onClick={() => setFilter({})} className="mt-3 h-10 font-medium text-signal-400">
+              Clear filters
+            </button>
+          )}
+        </div>
       ) : (
         <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-ink-900">
-          {results.slice(0, limit).map((d) => (
+          {results.slice(0, shown).map((d) => (
             <li key={d.id}>
               <DeviceRow device={d} />
             </li>
           ))}
         </ul>
       )}
-      {results.length > limit && (
+      {results.length > shown && (
         <button
           type="button"
-          onClick={() => setLimit(limit + PAGE_SIZE)}
+          onClick={() => setShown(shown + PAGE_SIZE)}
           className="mt-3 h-12 w-full rounded-xl border border-line-strong text-sm font-medium text-fg-muted hover:text-fg"
         >
-          Show more ({results.length - limit} remaining)
+          Show more ({results.length - shown} remaining)
         </button>
       )}
     </div>

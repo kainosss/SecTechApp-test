@@ -1,6 +1,6 @@
 "use client";
 
-import type { DeviceSummary } from "@/lib/content/repository";
+import type { DeviceListItem as DeviceSummary } from "@/lib/content/repository";
 import { useFavouriteDevices, useRecentDevices } from "@/lib/storage/use-device-lists";
 import { DeviceRow } from "@/components/devices/DeviceRow";
 import { Icon, type IconKey } from "@/components/ui/Icon";

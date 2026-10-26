@@ -1,0 +1,43 @@
+{
+  "id": "demo-detector-false-alarms",
+  "title": "Detector causing false alarms",
+  "faultArea": "intrusion",
+  "summary": "A detector triggers alarms with no apparent intrusion.",
+  "symptoms": [
+    "Repeated alarms from one detector",
+    "Alarms at similar times of day",
+    "Alarms during weather changes"
+  ],
+  "outline": [
+    {
+      "title": "Review the event history",
+      "detail": "Look for a pattern in time, weather or building activity."
+    },
+    {
+      "title": "Inspect the detection area",
+      "detail": "Look for heat sources, moving objects, pets, drafts or direct sunlight."
+    },
+    {
+      "title": "Check mounting and settings",
+      "detail": "Compare mounting height, orientation and sensitivity with the manufacturer's guidance."
+    },
+    {
+      "title": "Check wiring and supply voltage",
+      "detail": "Low or noisy supply voltage and poor terminations can cause false triggers."
+    }
+  ],
+  "appliesToCategories": [
+    "motion-detector",
+    "glass-break-detector"
+  ],
+  "appliesToDeviceIds": [
+    "kestrel-demo-ks-pir12"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration workflow outline. General fault-finding order only — follow the manufacturer's documentation and site procedures."
+  },
+  "sourceRefs": [],
+  "updatedAt": "2026-10-26"
+}

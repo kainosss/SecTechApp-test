@@ -1,23 +1,20 @@
+import { listDevices, listManufacturers } from "@/lib/content/repository";
 import { CATEGORY_LABELS } from "@/lib/content/schema";
-import { getDevices, getManufacturer, getManufacturers } from "@/lib/content/repository";
 import { TOOLS } from "@/lib/navigation";
 import type { SearchDocument } from "./search";
 
-/** Builds the search index from content. Server-only; the result is serialisable. */
-export function buildSearchIndex(): SearchDocument[] {
-  const devices: SearchDocument[] = getDevices().map((d) => {
-    const manufacturer = getManufacturer(d.manufacturerId);
-    return {
-      id: d.id,
-      type: "device",
-      title: d.name.includes(d.model) ? d.name : `${d.model} ${d.name}`,
-      subtitle: `${manufacturer?.name ?? ""} · ${CATEGORY_LABELS[d.category]}`,
-      href: `/devices/${d.id}`,
-      keywords: [d.model, ...d.aliases, CATEGORY_LABELS[d.category], manufacturer?.name ?? ""],
-    };
-  });
+/** Builds the universal search index from visible content. Server-only; the result is serialisable. */
+export async function buildSearchIndex(): Promise<SearchDocument[]> {
+  const devices: SearchDocument[] = (await listDevices()).map((d) => ({
+    id: d.id,
+    type: "device",
+    title: d.name.includes(d.model) ? d.name : `${d.model} ${d.name}`,
+    subtitle: `${d.manufacturerName} · ${CATEGORY_LABELS[d.category]}`,
+    href: `/devices/${d.id}`,
+    keywords: [d.model, d.manufacturerName, ...d.keywords],
+  }));
 
-  const manufacturers: SearchDocument[] = getManufacturers().map((m) => ({
+  const manufacturers: SearchDocument[] = (await listManufacturers()).map((m) => ({
     id: m.id,
     type: "manufacturer",
     title: m.name,

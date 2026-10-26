@@ -4,15 +4,26 @@
   "model": "KS-SR20",
   "name": "KS-SR20 External Siren & Strobe",
   "category": "siren",
-  "summary": "Demonstration self-powered external siren with strobe.",
+  "description": "Demonstration self-powered external siren with strobe.",
   "aliases": [
     "SR20",
     "external siren",
     "bell box"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "Rev B"
+      "id": "standard",
+      "name": "KS-SR20",
+      "hardwareRevisions": [
+        {
+          "revision": "Rev B"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-sr20-install"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -87,8 +98,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Fit the internal battery last; the siren may sound when the tamper is open (demonstration note).",
       "severity": "caution",
       "sourceRefs": [
@@ -104,7 +116,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

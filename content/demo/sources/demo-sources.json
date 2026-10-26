@@ -5,7 +5,8 @@
     "publisher": "Northgate (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "Rev A (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "northgate-demo"
   },
   {
     "id": "demo-ng-kp2-install",
@@ -13,7 +14,8 @@
     "publisher": "Northgate (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "Rev A (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "northgate-demo"
   },
   {
     "id": "demo-ks-pir-datasheet",
@@ -21,7 +23,8 @@
     "publisher": "Kestrel Systems (Demo)",
     "documentType": "datasheet",
     "documentRevision": "v1.0 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "kestrel-demo"
   },
   {
     "id": "demo-ks-rs1-datasheet",
@@ -29,7 +32,8 @@
     "publisher": "Kestrel Systems (Demo)",
     "documentType": "datasheet",
     "documentRevision": "v1.0 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "kestrel-demo"
   },
   {
     "id": "demo-ks-sr20-install",
@@ -37,7 +41,8 @@
     "publisher": "Kestrel Systems (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "Rev B (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "kestrel-demo"
   },
   {
     "id": "demo-ar-ac2-install",
@@ -45,7 +50,8 @@
     "publisher": "Arclight Access (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "Rev 2 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "arclight-demo"
   },
   {
     "id": "demo-ar-rd10-datasheet",
@@ -53,7 +59,8 @@
     "publisher": "Arclight Access (Demo)",
     "documentType": "datasheet",
     "documentRevision": "v1.2 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "arclight-demo"
   },
   {
     "id": "demo-ar-ls12-install",
@@ -61,7 +68,8 @@
     "publisher": "Arclight Access (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "Rev A (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "arclight-demo"
   },
   {
     "id": "demo-hv-hc4d-guide",
@@ -69,7 +77,8 @@
     "publisher": "Halden Vision (Demo)",
     "documentType": "installation-manual",
     "documentRevision": "v3 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "halden-demo"
   },
   {
     "id": "demo-hv-nv8-manual",
@@ -77,6 +86,7 @@
     "publisher": "Halden Vision (Demo)",
     "documentType": "programming-manual",
     "documentRevision": "v2.1 (demo)",
-    "isDemo": true
+    "isDemo": true,
+    "manufacturerId": "halden-demo"
   }
 ]

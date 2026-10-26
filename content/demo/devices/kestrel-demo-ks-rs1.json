@@ -4,15 +4,26 @@
   "model": "KS-RS1",
   "name": "KS-RS1 Surface Reed Switch",
   "category": "reed-switch",
-  "summary": "Demonstration surface-mount magnetic door contact.",
+  "description": "Demonstration surface-mount magnetic door contact.",
   "aliases": [
     "RS1",
     "door contact",
     "reed"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "v1"
+      "id": "standard",
+      "name": "KS-RS1",
+      "hardwareRevisions": [
+        {
+          "revision": "v1"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-rs1-datasheet"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -56,8 +67,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Align the magnet with the marked reference line (demonstration note).",
       "sourceRefs": [
         {
@@ -72,7 +84,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

@@ -32,8 +32,8 @@ describe("search", () => {
     expect(search(docs, "resistor")[0]?.id).toBe("c");
   });
 
-  it("indexes shipped devices, manufacturers and tools", () => {
-    const index = buildSearchIndex();
+  it("indexes shipped devices, manufacturers and tools", async () => {
+    const index = await buildSearchIndex();
     expect(new Set(index.map((d) => d.type))).toEqual(new Set(["device", "manufacturer", "tool"]));
     expect(search(index, "SR20")[0]?.href).toBe("/devices/kestrel-demo-ks-sr20");
   });

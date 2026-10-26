@@ -1,0 +1,47 @@
+{
+  "id": "demo-zone-permanently-open",
+  "title": "Alarm zone permanently open",
+  "faultArea": "intrusion",
+  "summary": "A zone shows open or in alarm and will not seal.",
+  "symptoms": [
+    "Zone shows open with the area secure",
+    "Cannot arm because a zone is unsealed",
+    "Zone stays in alarm after reset"
+  ],
+  "outline": [
+    {
+      "title": "Check the detector or contact itself",
+      "detail": "Confirm the door is closed and aligned, or that the detector has finished warming up."
+    },
+    {
+      "title": "Isolate the field wiring",
+      "detail": "Measure the zone loop at the panel with the field wiring disconnected."
+    },
+    {
+      "title": "Compare with the panel's expected EOL values",
+      "detail": "Use the panel documentation for the configured EOL type."
+    },
+    {
+      "title": "Look for damaged cable or poor terminations",
+      "detail": "Check joins, junction boxes and terminals along the run."
+    }
+  ],
+  "appliesToCategories": [
+    "alarm-panel",
+    "alarm-expander",
+    "motion-detector",
+    "reed-switch"
+  ],
+  "appliesToDeviceIds": [
+    "northgate-demo-ap-8",
+    "kestrel-demo-ks-pir12",
+    "kestrel-demo-ks-rs1"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration workflow outline. General fault-finding order only — follow the manufacturer's documentation and site procedures."
+  },
+  "sourceRefs": [],
+  "updatedAt": "2026-10-26"
+}

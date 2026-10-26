@@ -4,20 +4,31 @@
   "model": "KS-PIR12",
   "name": "KS-PIR12 Passive Infrared Detector",
   "category": "motion-detector",
-  "summary": "Demonstration wired PIR detector with alarm and tamper contacts.",
+  "description": "Demonstration wired PIR detector with alarm and tamper contacts.",
   "aliases": [
     "PIR12",
     "KSPIR12",
     "motion sensor"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "v1",
-      "notes": "Original release (demo)"
-    },
-    {
-      "revision": "v2",
-      "notes": "Revised lens (demo)"
+      "id": "standard",
+      "name": "KS-PIR12",
+      "hardwareRevisions": [
+        {
+          "revision": "v1",
+          "notes": "Original release (demo)"
+        },
+        {
+          "revision": "v2",
+          "notes": "Revised lens (demo)"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ks-pir-datasheet"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -97,8 +108,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Mount at the height specified in the datasheet and avoid pointing at heat sources (demonstration note).",
       "sourceRefs": [
         {
@@ -113,7 +125,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

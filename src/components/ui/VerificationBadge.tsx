@@ -1,20 +1,17 @@
-import type { VerificationStatus } from "@/lib/content/schema";
+import { STATUS_LABELS, type VerificationStatus } from "@/lib/content/schema";
 
-const STYLES: Record<VerificationStatus, { label: string; className: string; title: string }> = {
+const STYLES: Record<VerificationStatus, { className: string; title: string }> = {
   verified: {
-    label: "Verified",
     className: "text-verified border-verified/40 bg-verified/10",
-    title: "Checked against the cited manufacturer documentation",
+    title: "Checked by a named reviewer against the cited manufacturer document",
   },
-  unverified: {
-    label: "Unverified",
+  "needs-verification": {
     className: "text-unverified border-unverified/40 bg-unverified/10",
-    title: "Not yet checked against a manufacturer source — confirm before use",
+    title: "Not yet verified against manufacturer documentation — confirm before relying on it",
   },
-  example: {
-    label: "Example data",
+  demonstration: {
     className: "text-example border-example/40 bg-example/10",
-    title: "Fictional demonstration content — do not use on site",
+    title: "Fictional demonstration content — never use on site",
   },
 };
 
@@ -23,10 +20,10 @@ export function VerificationBadge({ status, className = "" }: { status: Verifica
   return (
     <span
       title={style.title}
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide uppercase ${style.className} ${className}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[11px] font-medium tracking-wide whitespace-nowrap uppercase ${style.className} ${className}`}
     >
       <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
-      {style.label}
+      {STATUS_LABELS[status]}
     </span>
   );
 }

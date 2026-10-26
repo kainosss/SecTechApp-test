@@ -1,0 +1,49 @@
+{
+  "id": "demo-camera-offline",
+  "title": "Camera offline",
+  "faultArea": "cctv",
+  "summary": "Camera shows as offline or no video in the recorder or VMS.",
+  "symptoms": [
+    "No live video from one camera",
+    "Camera shows offline in the NVR or VMS",
+    "Camera not found on the network"
+  ],
+  "outline": [
+    {
+      "title": "Check whether one camera or several are affected",
+      "detail": "Several cameras offline together points to a switch, NVR or network fault rather than the camera."
+    },
+    {
+      "title": "Confirm the camera is powered",
+      "detail": "Check the PoE status on the switch or NVR port, or the DC supply if used."
+    },
+    {
+      "title": "Check the network link",
+      "detail": "Check the port link light, then patch leads and cable termination."
+    },
+    {
+      "title": "Confirm the camera's network settings",
+      "detail": "Compare the camera's IP settings with what the recorder expects."
+    },
+    {
+      "title": "Check recorder configuration and credentials",
+      "detail": "A changed camera password or IP address will stop the recorder connecting."
+    }
+  ],
+  "appliesToCategories": [
+    "ip-camera",
+    "network-video-recorder",
+    "network-switch"
+  ],
+  "appliesToDeviceIds": [
+    "halden-demo-hc-4d",
+    "halden-demo-nv-8"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration workflow outline. General fault-finding order only — follow the manufacturer's documentation and site procedures."
+  },
+  "sourceRefs": [],
+  "updatedAt": "2026-10-26"
+}

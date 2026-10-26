@@ -4,15 +4,26 @@
   "model": "RD-10",
   "name": "RD-10 Proximity Card Reader",
   "category": "card-reader",
-  "summary": "Demonstration Wiegand proximity reader for use with the AC-2D controller.",
+  "description": "Demonstration Wiegand proximity reader for use with the AC-2D controller.",
   "aliases": [
     "RD10",
     "prox reader",
     "card reader"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "v1.2"
+      "id": "standard",
+      "name": "RD-10",
+      "hardwareRevisions": [
+        {
+          "revision": "v1.2"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-ar-rd10-datasheet"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -110,8 +121,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Use shielded cable and terminate the shield at the controller end only (demonstration note).",
       "sourceRefs": [
         {
@@ -126,7 +138,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

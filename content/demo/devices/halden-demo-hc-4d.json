@@ -4,16 +4,27 @@
   "model": "HC-4D",
   "name": "HC-4D 4MP Dome Camera",
   "category": "ip-camera",
-  "summary": "Demonstration PoE dome camera.",
+  "description": "Demonstration PoE dome camera.",
   "aliases": [
     "HC4D",
     "dome camera",
     "4mp dome"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "v3",
-      "appliesTo": "Firmware 3.x (demo)"
+      "id": "standard",
+      "name": "HC-4D",
+      "hardwareRevisions": [
+        {
+          "revision": "v3",
+          "firmware": "Firmware 3.x (demo)"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-hc4d-guide"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -82,8 +93,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Do not apply PoE and DC power at the same time (demonstration note).",
       "severity": "caution",
       "sourceRefs": [
@@ -99,7 +111,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

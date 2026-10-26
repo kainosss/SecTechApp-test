@@ -9,15 +9,24 @@ import path from "node:path";
 const root = path.resolve(import.meta.dirname, "..", "content");
 const out = path.join(root, "index.ts");
 
-/** Each collection is a folder of JSON files; each file holds one record or an array of records. */
-const COLLECTIONS = ["manufacturers", "sources", "devices"];
+/**
+ * Each collection is a folder of JSON files; each file holds one record or
+ * an array of records. Demonstration content lives under content/demo/ in the
+ * same folder layout, so it is physically separate from real content.
+ */
+const COLLECTIONS = ["manufacturers", "sources", "devices", "wiring", "workflows"];
+const ROOTS = ["", "demo"];
 
-function filesIn(dir) {
-  const full = path.join(root, dir);
-  if (!existsSync(full)) return [];
-  return readdirSync(full)
-    .filter((f) => f.endsWith(".json"))
-    .sort();
+function filesIn(collection) {
+  return ROOTS.flatMap((base) => {
+    const dir = path.join(base, collection);
+    const full = path.join(root, dir);
+    if (!existsSync(full)) return [];
+    return readdirSync(full)
+      .filter((f) => f.endsWith(".json"))
+      .sort()
+      .map((f) => path.posix.join(...dir.split(path.sep), f));
+  });
 }
 
 function identifier(collection, file, i) {
@@ -30,7 +39,7 @@ export function renderManifest() {
   for (const collection of COLLECTIONS) {
     const ids = filesIn(collection).map((file, i) => {
       const id = identifier(collection, file, i);
-      imports.push(`import ${id} from "./${collection}/${file}";`);
+      imports.push(`import ${id} from "./${file}";`);
       return id;
     });
     entries.push(`  ${collection}: [${ids.map((id) => `${id}`).join(", ")}].flat() as unknown[],`);

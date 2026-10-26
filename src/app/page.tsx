@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getContentStats, getDeviceSummaries } from "@/lib/content/repository";
+import { getContentStats, listDevices } from "@/lib/content/repository";
 import { buildSearchIndex } from "@/lib/search/build-index";
 import { TOOLS } from "@/lib/navigation";
 import { UniversalSearch } from "@/components/dashboard/UniversalSearch";
@@ -7,10 +7,8 @@ import { ToolCards } from "@/components/dashboard/ToolCards";
 import { DeviceShortlists } from "@/components/dashboard/DeviceShortlists";
 import { DemoNotice } from "@/components/ui/DemoNotice";
 
-export default function DashboardPage() {
-  const index = buildSearchIndex();
-  const devices = getDeviceSummaries();
-  const stats = getContentStats();
+export default async function DashboardPage() {
+  const [index, devices, stats] = await Promise.all([buildSearchIndex(), listDevices(), getContentStats()]);
 
   return (
     <div className="flex flex-col gap-8 lg:gap-10">
@@ -53,7 +51,7 @@ export default function DashboardPage() {
             ["Devices", stats.devices],
             ["Manufacturers", stats.manufacturers],
             ["Verified", stats.verified],
-            ["Example only", stats.example],
+            ["Needs verification", stats.needsVerification],
           ].map(([label, value]) => (
             <div key={label} className="bg-ink-850 px-4 py-3">
               <dt className="text-xs text-fg-muted">{label}</dt>

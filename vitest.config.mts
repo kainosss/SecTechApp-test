@@ -14,6 +14,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./tests/setup.ts"],
+    // Fictional demonstration records exist for development and tests.
+    env: { FIELDWISE_DEMO_MODE: "true" },
     include: ["tests/**/*.test.{ts,tsx}"],
   },
 });

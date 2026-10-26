@@ -1,0 +1,47 @@
+{
+  "id": "demo-reader-grants-door-locked",
+  "title": "Card reader grants access but door stays locked",
+  "faultArea": "access-control",
+  "summary": "The reader shows access granted, but the door does not release.",
+  "symptoms": [
+    "Reader beeps or shows green on a valid card",
+    "Door does not unlock",
+    "Access granted events appear in the software"
+  ],
+  "outline": [
+    {
+      "title": "Confirm the controller operates the lock output",
+      "detail": "Listen for the relay and check the output indicator on the controller, if fitted."
+    },
+    {
+      "title": "Measure the lock supply at the lock",
+      "detail": "Check the voltage at the lock terminals while access is granted."
+    },
+    {
+      "title": "Check the lock type and wiring match",
+      "detail": "Fail-safe and fail-secure locks are wired to opposite relay contacts."
+    },
+    {
+      "title": "Check for mechanical binding",
+      "detail": "Door pressure on a strike keeper, or misalignment, can stop release."
+    }
+  ],
+  "appliesToCategories": [
+    "access-controller",
+    "card-reader",
+    "electric-strike",
+    "magnetic-lock"
+  ],
+  "appliesToDeviceIds": [
+    "arclight-demo-ac-2d",
+    "arclight-demo-rd-10",
+    "arclight-demo-ls-12"
+  ],
+  "isDemo": true,
+  "verification": {
+    "status": "demonstration",
+    "notes": "Demonstration workflow outline. General fault-finding order only — follow the manufacturer's documentation and site procedures."
+  },
+  "sourceRefs": [],
+  "updatedAt": "2026-10-26"
+}

@@ -4,15 +4,26 @@
   "model": "NV-8",
   "name": "NV-8 8-Channel NVR",
   "category": "network-video-recorder",
-  "summary": "Demonstration 8-channel network video recorder with built-in PoE ports.",
+  "description": "Demonstration 8-channel network video recorder with built-in PoE ports.",
   "aliases": [
     "NV8",
     "nvr",
     "recorder"
   ],
-  "modelRevisions": [
+  "variants": [
     {
-      "revision": "v2.1"
+      "id": "standard",
+      "name": "NV-8",
+      "hardwareRevisions": [
+        {
+          "revision": "v2.1"
+        }
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "demo-hv-nv8-manual"
+        }
+      ]
     }
   ],
   "terminals": [
@@ -80,8 +91,9 @@
       ]
     }
   ],
-  "installationNotes": [
+  "notes": [
     {
+      "kind": "installation",
       "text": "Check the total PoE budget when adding cameras with heaters or IR (demonstration note).",
       "sourceRefs": [
         {
@@ -96,7 +108,7 @@
     }
   ],
   "verification": {
-    "status": "example",
+    "status": "demonstration",
     "notes": "Fictional demonstration device. Terminal, specification and installation details are illustrative only and do not describe any real product."
   },
   "updatedAt": "2026-10-26"

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { DeviceSummary } from "@/lib/content/repository";
+import type { DeviceListItem as DeviceSummary } from "@/lib/content/repository";
 import { CATEGORY_LABELS } from "@/lib/content/schema";
 import { Icon } from "@/components/ui/Icon";
 import { VerificationBadge } from "@/components/ui/VerificationBadge";

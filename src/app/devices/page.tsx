@@ -1,40 +1,28 @@
 import type { Metadata } from "next";
-import { getDeviceListItems, getManufacturer, getManufacturers } from "@/lib/content/repository";
-import { deviceCategorySchema } from "@/lib/content/schema";
-import { DeviceBrowser } from "@/components/devices/DeviceBrowser";
+import { Suspense } from "react";
+import { listDevices, listManufacturers } from "@/lib/content/repository";
+import { DeviceBrowser, DeviceBrowserFromUrl } from "@/components/devices/DeviceBrowser";
 import { DemoNotice } from "@/components/ui/DemoNotice";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = { title: "Device Library" };
 
-export default async function DevicesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string; category?: string; manufacturer?: string }>;
-}) {
-  const params = await searchParams;
-  const category = deviceCategorySchema.safeParse(params.category);
-  const manufacturer = params.manufacturer ? getManufacturer(params.manufacturer) : undefined;
-
+export default async function DevicesPage() {
+  const [devices, manufacturers] = await Promise.all([listDevices(), listManufacturers()]);
   return (
     <>
       <PageHeader
         eyebrow="Device Library"
         title="Device Library"
-        description="Terminals, electrical specifications, installation notes and the manufacturer documents behind them."
+        description="Find a device by model, part number or manufacturer, then check its terminals, power and manufacturer documents."
       />
       <div className="mb-5">
         <DemoNotice compact />
       </div>
-      <DeviceBrowser
-        devices={getDeviceListItems()}
-        manufacturers={getManufacturers().map(({ id, name }) => ({ id, name }))}
-        initialFilter={{
-          query: params.q ?? "",
-          category: category.success ? category.data : undefined,
-          manufacturerId: manufacturer?.id,
-        }}
-      />
+      {/* Static shell renders the full list; the URL-aware browser takes over on the client. */}
+      <Suspense fallback={<DeviceBrowser devices={devices} manufacturers={manufacturers} initialFilter={{}} />}>
+        <DeviceBrowserFromUrl devices={devices} manufacturers={manufacturers} />
+      </Suspense>
     </>
   );
 }
