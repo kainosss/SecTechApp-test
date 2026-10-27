@@ -16,24 +16,25 @@ function build(inputs: ({ answer: string } | { value: string })[]): Session {
 
 describe("saved diagnostic sessions", () => {
   it("round-trips a session, including an OL reading", () => {
-    const s = build([{ answer: "2k2" }, { answer: "new" }, { value: "OL" }]);
+    const s = build([{ answer: "2k2-2k2" }, { answer: "new" }, { value: "OL" }]);
     saveSession(s);
     const loaded = loadSession(wf);
     expect(loaded.status).toBe("restored");
     expect(loaded.session.steps).toEqual(s.steps);
     expect(loaded.session.steps[2]!.value).toBe(Infinity);
-    expect(savedProgress(window.localStorage.getItem(SESSIONS_KEY))).toEqual({ [wf.id]: 3 });
+    expect(savedProgress(window.localStorage.getItem(SESSIONS_KEY), [wf])).toEqual({ [wf.id]: 3 });
+    expect(savedProgress(window.localStorage.getItem(SESSIONS_KEY), [{ id: wf.id, version: wf.version + 1 }])).toEqual({});
   });
 
   it("discards sessions saved against an older version of the guide", () => {
-    window.localStorage.setItem(SESSIONS_KEY, JSON.stringify({ version: 1, sessions: { [wf.id]: { version: 99, steps: [{ node: "eol", answer: "2k2" }], updatedAt: "x" } } }));
+    window.localStorage.setItem(SESSIONS_KEY, JSON.stringify({ version: 1, sessions: { [wf.id]: { version: 99, steps: [{ node: "eol", answer: "2k2-2k2" }], updatedAt: "x" } } }));
     expect(loadSession(wf)).toMatchObject({ status: "outdated", session: { steps: [] } });
   });
 
   it("trims steps that no longer fit the guide", () => {
     window.localStorage.setItem(
       SESSIONS_KEY,
-      JSON.stringify({ version: 1, sessions: { [wf.id]: { version: wf.version, steps: [{ node: "eol", answer: "2k2" }, { node: "history", answer: "removed" }], updatedAt: "x" } } }),
+      JSON.stringify({ version: 1, sessions: { [wf.id]: { version: wf.version, steps: [{ node: "eol", answer: "2k2-2k2" }, { node: "history", answer: "removed" }], updatedAt: "x" } } }),
     );
     const loaded = loadSession(wf);
     expect(loaded.status).toBe("trimmed");
@@ -41,14 +42,14 @@ describe("saved diagnostic sessions", () => {
   });
 
   it("ignores invalid saved data", () => {
-    for (const raw of ["{bad", JSON.stringify({ version: 2 }), JSON.stringify({ version: 1, sessions: { x: { steps: "nope" } } }), JSON.stringify({ version: 1, sessions: { [wf.id]: { version: 1, steps: [{ node: "eol", answer: "2k2", value: -4 }], updatedAt: "x" } } })]) {
+    for (const raw of ["{bad", JSON.stringify({ version: 2 }), JSON.stringify({ version: 1, sessions: { x: { steps: "nope" } } }), JSON.stringify({ version: 1, sessions: { [wf.id]: { version: 1, steps: [{ node: "eol", answer: "2k2-2k2", value: -4 }], updatedAt: "x" } } })]) {
       expect(parseSaved(raw).sessions).toEqual({});
       expect(loadSession(wf, raw).status).toBe("none");
     }
   });
 
   it("clears one session without touching others", () => {
-    saveSession(build([{ answer: "2k2" }]));
+    saveSession(build([{ answer: "2k2-2k2" }]));
     const door = getDiagnosticWorkflow("door-not-unlocking")!;
     const r = answer(door, startSession(door), { answer: "denied" });
     if (r.ok) saveSession(r.session);

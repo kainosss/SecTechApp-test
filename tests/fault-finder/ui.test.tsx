@@ -23,17 +23,25 @@ describe("guided diagnosis screen", () => {
   it("shows safety checks first, then walks a measurement-based path to a hedged result", () => {
     render(<Diagnosis workflowId="zone-permanently-open" />);
     expect(screen.getByTestId("safety")).toHaveTextContent("Only measure resistance on an isolated circuit");
+    expect(screen.getByTestId("verification")).toHaveTextContent("Generic guidance — not manufacturer verified");
+    expect(screen.getByTestId("verification")).toHaveTextContent("Not yet reviewed by an experienced technician");
     start();
-    expect(question()).toBe("What EOL values is this zone set up for?");
+    expect(question()).toBe("Which EOL resistors does this zone use?");
     expect(screen.getByTestId("progress-label")).toHaveTextContent("Question 1 of up to");
-    pick(/^2k2 \/ 2k2/);
+    pick(/^R1 2k2 \+ R2 2k2/);
     pick(/It worked, and nothing has changed/);
     expect(screen.getByTestId("test-procedure")).toHaveTextContent("disconnect both zone conductors");
+    expect(screen.getByTestId("test-kind")).toHaveTextContent("Resistance test · circuit isolated and de-energised");
+    expect(screen.getByTestId("test-procedure")).toHaveTextContent("About the sealed reading for the resistors you chose (2.2 kΩ)");
+    expect(screen.getByTestId("bands")).toHaveTextContent("sealed 2.2 kΩ, alarm 4.4 kΩ");
     enter("OL");
     enter("2k2");
     const result = screen.getByTestId("diagnosis-result");
     expect(result).toHaveTextContent("The open is in the cable or joints");
     expect(result).toHaveTextContent("not a confirmed diagnosis");
+    expect(screen.getByTestId("confidence")).toHaveTextContent("Likely — your measurements point here");
+    expect(within(screen.getByTestId("measured")).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(result).getByText("Likely cause")).toBeInTheDocument();
     expect(within(result).getByRole("region", { name: "Verify before acting" })).toBeInTheDocument();
     expect(within(result).getByRole("region", { name: "When to escalate" })).toBeInTheDocument();
     expect(result.querySelector("[data-cause]")).toHaveAttribute("data-cause", "cable-damage");
@@ -41,10 +49,32 @@ describe("guided diagnosis screen", () => {
     expect(screen.getByTestId("progress-label")).toHaveTextContent("Diagnosis complete");
   });
 
+  it("accepts custom resistor values with a live preview, and rejects ambiguous ones", () => {
+    render(<Diagnosis workflowId="zone-permanently-open" />);
+    start();
+    const form = screen.getByRole("form", { name: "Other resistor values" });
+    fireEvent.change(within(form).getByLabelText(/R1 — EOL resistor/), { target: { value: "10k" } });
+    fireEvent.change(within(form).getByLabelText(/R2 — alarm resistor/), { target: { value: "470" } });
+    expect(screen.getByTestId("eol-preview")).toHaveTextContent("can't reliably tell them apart");
+    fireEvent.click(within(form).getByRole("button", { name: "Use these values" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("tell them apart");
+    expect(question()).toBe("Which EOL resistors does this zone use?");
+    fireEvent.change(within(form).getByLabelText(/R1 — EOL resistor/), { target: { value: "4k7" } });
+    fireEvent.change(within(form).getByLabelText(/R2 — alarm resistor/), { target: { value: "2k2" } });
+    expect(screen.getByTestId("eol-preview")).toHaveTextContent("sealed 4.7 kΩ, alarm 6.9 kΩ");
+    fireEvent.click(within(form).getByRole("button", { name: "Use these values" }));
+    expect(screen.getByTestId("findings")).toHaveTextContent("R1 4.7 kΩ (in series), R2 2.2 kΩ");
+    pick(/New installation/);
+    enter("6.9k");
+    expect(question()).toBe("What is the supply voltage at the detector?");
+    expect(screen.getByTestId("test-kind")).toHaveTextContent("Voltage test · live, DC volts range");
+    expect(screen.getByTestId("review-flag")).toHaveTextContent("Needs verification");
+  });
+
   it("rejects an unreadable measurement and keeps the question", () => {
     render(<Diagnosis workflowId="zone-permanently-open" />);
     start();
-    pick(/^10k \/ 10k/);
+    pick(/^R1 10k \+ R2 10k/);
     pick(/New installation/);
     enter("lots");
     expect(screen.getByRole("alert")).toHaveTextContent("Enter a resistance like");
@@ -73,7 +103,7 @@ describe("guided diagnosis screen", () => {
   it("links to the related guide when the evidence points elsewhere", () => {
     render(<Diagnosis workflowId="zone-permanently-open" />);
     start();
-    pick(/^2k2 \/ 2k2/);
+    pick(/^R1 2k2 \+ R2 2k2/);
     pick(/New installation/);
     enter("0.2");
     expect(screen.getByRole("link", { name: /Continue with: Alarm zone permanently shorted/ })).toHaveAttribute("href", "/fault-finder/diagnose/zone-permanently-shorted");
@@ -105,7 +135,7 @@ describe("guided diagnosis screen", () => {
 
 describe("fault finder landing and integration", () => {
   it("lists the five guided diagnoses with resume badges", () => {
-    window.localStorage.setItem(SESSIONS_KEY, JSON.stringify({ version: 1, sessions: { "pir-not-activating": { version: 1, steps: [{ node: "led", answer: "no" }], updatedAt: "x" } } }));
+    window.localStorage.setItem(SESSIONS_KEY, JSON.stringify({ version: 1, sessions: { "pir-not-activating": { version: 2, steps: [{ node: "led", answer: "no" }], updatedAt: "x" } } }));
     const { container } = render(<GuideList />);
     expect(container.querySelectorAll("[data-guide]")).toHaveLength(5);
     expect(container.querySelector('[data-guide="door-not-unlocking"]')).toHaveAttribute("href", "/fault-finder/diagnose/door-not-unlocking");

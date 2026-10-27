@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useSyncExternalStore } from "react";
 import { readSavedRaw, savedProgress, subscribeSessions } from "@/lib/fault-finder/sessions";
+import { VERIFICATION_LABELS } from "@/lib/fault-finder/schema";
 import { WORKFLOWS } from "@/lib/fault-finder/workflows";
 import { Icon } from "@/components/ui/Icon";
 
@@ -11,7 +12,7 @@ const AREA = { intrusion: "Intrusion alarm", access: "Access control" } as const
 /** The guided diagnostic workflows, with a Resume badge where a session is saved on this device. */
 export function GuideList() {
   const raw = useSyncExternalStore(subscribeSessions, () => readSavedRaw() ?? "", () => "");
-  const progress = useMemo(() => savedProgress(raw || null), [raw]);
+  const progress = useMemo(() => savedProgress(raw || null, WORKFLOWS), [raw]);
   return (
     <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Guided diagnoses">
       {WORKFLOWS.map((w) => {
@@ -37,6 +38,9 @@ export function GuideList() {
                 </span>
                 <span className="text-[15px] font-semibold text-fg">{w.title}</span>
                 <span className="text-[13px] leading-snug text-fg-muted">{w.summary}</span>
+                <span className="text-[11px] font-medium text-unverified" data-testid="guide-verification">
+                  {VERIFICATION_LABELS[w.verification.status]}
+                </span>
               </span>
               <Icon name="chevron-right" className="size-5 shrink-0 self-center text-fg-subtle group-hover:text-fg" />
             </Link>

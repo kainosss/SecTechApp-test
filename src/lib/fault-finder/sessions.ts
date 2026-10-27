@@ -15,6 +15,9 @@ const stepSchema = z.object({
   answer: z.string().min(1).max(100),
   // JSON can't hold Infinity, so an OL reading is stored as null.
   value: z.number().nonnegative().nullable().optional(),
+  // Entered EOL resistor values (custom configuration).
+  r1: z.number().positive().optional(),
+  r2: z.number().positive().optional(),
 });
 
 const savedSchema = z.object({
@@ -69,7 +72,13 @@ export function loadSession(wf: Workflow, raw: string | null = readSavedRaw()): 
   const entry = parseSaved(raw).sessions[wf.id];
   if (!entry) return { session: startSession(wf), status: "none" };
   if (entry.version !== wf.version) return { session: startSession(wf), status: "outdated" };
-  const steps = entry.steps.map((s) => ({ node: s.node, answer: s.answer, ...(s.value === undefined ? {} : { value: s.value ?? Number.POSITIVE_INFINITY }) }));
+  const steps = entry.steps.map((s) => ({
+    node: s.node,
+    answer: s.answer,
+    ...(s.value === undefined ? {} : { value: s.value ?? Number.POSITIVE_INFINITY }),
+    ...(s.r1 === undefined ? {} : { r1: s.r1 }),
+    ...(s.r2 === undefined ? {} : { r2: s.r2 }),
+  }));
   const session: Session = { workflowId: wf.id, version: wf.version, steps };
   const { validSteps } = evaluate(wf, session);
   if (validSteps < steps.length) return { session: { ...session, steps: steps.slice(0, validSteps) }, status: "trimmed" };
@@ -78,7 +87,12 @@ export function loadSession(wf: Workflow, raw: string | null = readSavedRaw()): 
 
 export function saveSession(session: Session) {
   const saved = parseSaved(readSavedRaw());
-  const steps = session.steps.map((s) => ({ node: s.node, answer: s.answer, ...(s.value === undefined ? {} : { value: Number.isFinite(s.value) ? s.value : null }) }));
+  const steps = session.steps.map((s) => ({
+    node: s.node,
+    answer: s.answer,
+    ...(s.value === undefined ? {} : { value: Number.isFinite(s.value) ? s.value : null }),
+    ...(s.r1 === undefined ? {} : { r1: s.r1, r2: s.r2 }),
+  }));
   write({
     ...saved,
     current: session.workflowId,
@@ -92,9 +106,10 @@ export function clearSession(workflowId: string) {
   write({ ...saved, current: saved.current === workflowId ? undefined : saved.current, sessions: rest });
 }
 
-/** Number of saved answers per workflow (for "Resume" badges). */
-export function savedProgress(raw: string | null): Record<string, number> {
-  return Object.fromEntries(Object.entries(parseSaved(raw).sessions).map(([id, s]) => [id, s.steps.length]));
+/** Number of saved answers per workflow (for "Resume" badges); sessions saved against another version don't count. */
+export function savedProgress(raw: string | null, workflows: Pick<Workflow, "id" | "version">[]): Record<string, number> {
+  const sessions = parseSaved(raw).sessions;
+  return Object.fromEntries(workflows.filter((w) => sessions[w.id]?.version === w.version).map((w) => [w.id, sessions[w.id]!.steps.length]));
 }
 
 export function subscribeSessions(cb: () => void) {

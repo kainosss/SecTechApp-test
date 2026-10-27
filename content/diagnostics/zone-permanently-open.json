@@ -1,6 +1,6 @@
 {
   "id": "zone-permanently-open",
-  "version": 1,
+  "version": 2,
   "title": "Alarm zone permanently open",
   "summary": "The zone never seals: the panel shows it open, in alarm, tamper or trouble all the time.",
   "area": "intrusion",
@@ -14,21 +14,51 @@
     "Tell the monitoring centre and the site contact before testing, and put the system or zone into test/service mode under site procedure, to avoid false dispatches.",
     "Photograph or label terminations before disconnecting anything.",
     "Only measure resistance on an isolated circuit: disconnect the zone conductors from the panel first (and power down where the manufacturer requires). Never use the Ω range on live terminals.",
-    "Voltage checks are taken live on the DC volts range with the probes on the terminals only. Never bridge or short a supply output."
+    "Voltage checks are taken live on the DC volts range with the probes on the terminals only. Never bridge or short a supply output.",
+    "Backup batteries can deliver very high fault currents: never short battery leads or terminals, and isolate the battery as well as mains before working inside a panel or power supply.",
+    "Mains (230 V) wiring is restricted electrical work — only a licensed electrician may work on it. Apprentices should do these tests under supervision and within their licence conditions; follow site procedures and the manufacturer's documentation."
   ],
   "start": "eol",
   "nodes": [
     {
-      "kind": "question",
+      "kind": "eol-config",
       "id": "eol",
-      "style": "choice",
-      "text": "What EOL values is this zone set up for?",
-      "help": "These are generic examples, not a manufacturer's values. The measurement steps assume equal seal and alarm resistors (alarm = twice the seal value).",
-      "answers": [
-        { "id": "2k2", "label": "2k2 / 2k2 dual EOL (2.2 kΩ sealed, 4.4 kΩ alarm)", "next": "history", "finding": "Zone uses 2k2 / 2k2 dual EOL (expect 2.2 kΩ sealed).", "set": { "seal": 2200 } },
-        { "id": "10k", "label": "10k / 10k dual EOL (10 kΩ sealed, 20 kΩ alarm)", "next": "history", "finding": "Zone uses 10k / 10k dual EOL (expect 10 kΩ sealed).", "set": { "seal": 10000 } },
-        { "id": "unknown", "label": "Other values, or not sure", "next": "r-eol-unknown", "finding": "Zone EOL values not known." }
-      ]
+      "text": "Which EOL resistors does this zone use?",
+      "help": "Generic dual EOL wiring: R1, the EOL resistor, in series with the loop; R2, the alarm resistor, across the detector's NC alarm contact; the tamper contact in series. Expected readings are calculated from the values you choose. These are examples, not values for any particular panel — and not every installation uses this wiring. If yours differs, choose 'Different wiring or not sure'.",
+      "next": "history",
+      "presets": [
+        {
+          "id": "2k2-2k2",
+          "label": "R1 2k2 + R2 2k2 (sealed 2.2 kΩ, alarm 4.4 kΩ)",
+          "r1": 2200,
+          "r2": 2200
+        },
+        {
+          "id": "10k-10k",
+          "label": "R1 10k + R2 10k (sealed 10 kΩ, alarm 20 kΩ)",
+          "r1": 10000,
+          "r2": 10000
+        },
+        {
+          "id": "4k7-2k2",
+          "label": "R1 4k7 + R2 2k2 (sealed 4.7 kΩ, alarm 6.9 kΩ)",
+          "r1": 4700,
+          "r2": 2200
+        },
+        {
+          "id": "2k2-4k7",
+          "label": "R1 2k2 + R2 4k7 (sealed 2.2 kΩ, alarm 6.9 kΩ)",
+          "r1": 2200,
+          "r2": 4700
+        }
+      ],
+      "allowCustom": true,
+      "unsupported": {
+        "id": "unknown",
+        "label": "Different wiring (e.g. tamper resistor, triple EOL) or not sure",
+        "next": "r-eol-unknown",
+        "finding": "EOL wiring not known or not the generic dual EOL topology."
+      }
     },
     {
       "kind": "question",
@@ -36,9 +66,37 @@
       "style": "choice",
       "text": "What's the history of this zone?",
       "answers": [
-        { "id": "recent-work", "label": "It worked, and there's been recent work on site (renovation, ceiling or cabling work, detector replaced)", "next": "panel-measure", "finding": "Zone worked before; recent work on site.", "evidence": { "cable-damage": 2, "wrong-termination": 1 } },
-        { "id": "no-change", "label": "It worked, and nothing has changed that I know of", "next": "panel-measure", "finding": "Zone worked before; no known changes.", "evidence": { "detector-alarm": 1, "no-power": 1, "cable-damage": 1 } },
-        { "id": "new", "label": "New installation, or the panel was recently programmed", "next": "panel-measure", "finding": "New installation or recent programming.", "evidence": { "config": 2, "wrong-termination": 2 } }
+        {
+          "id": "recent-work",
+          "label": "It worked, and there's been recent work on site (renovation, ceiling or cabling work, detector replaced)",
+          "next": "panel-measure",
+          "finding": "Zone worked before; recent work on site.",
+          "evidence": {
+            "cable-damage": 2,
+            "wrong-termination": 1
+          }
+        },
+        {
+          "id": "no-change",
+          "label": "It worked, and nothing has changed that I know of",
+          "next": "panel-measure",
+          "finding": "Zone worked before; no known changes.",
+          "evidence": {
+            "detector-alarm": 1,
+            "no-power": 1,
+            "cable-damage": 1
+          }
+        },
+        {
+          "id": "new",
+          "label": "New installation, or the panel was recently programmed",
+          "next": "panel-measure",
+          "finding": "New installation or recent programming.",
+          "evidence": {
+            "config": 2,
+            "wrong-termination": 2
+          }
+        }
       ]
     },
     {
@@ -46,41 +104,156 @@
       "id": "panel-measure",
       "text": "What does the zone loop measure at the panel?",
       "unit": "ohm",
-      "relativeTo": "seal",
       "test": {
         "procedure": "Isolate the zone: disconnect both zone conductors from the panel terminals. With the detector sealed (cover on, nobody moving in view), measure across the two conductors on the Ω range.",
-        "expected": "About the seal value: 2.2 kΩ for 2k2 / 2k2, or 10 kΩ for 10k / 10k."
+        "expected": "About the sealed reading for the resistors you chose ({sealed}). R1 alone sets it; R2 only adds when the alarm contact opens."
       },
       "safety": "Resistance range only on the disconnected conductors — never across live panel terminals.",
       "ranges": [
-        { "id": "short", "label": "Near 0 Ω", "max": 0.023, "next": "r-actually-short", "finding": "Loop reads {value} at the panel: effectively a short, not open." },
-        { "id": "low", "label": "Below the seal value", "min": 0.023, "max": 0.9, "next": "r-wrong-value", "finding": "Loop reads {value} at the panel: lower than the seal value.", "evidence": { "wrong-resistor": 2 } },
-        { "id": "seal", "label": "About the seal value", "min": 0.9, "max": 1.1, "next": "r-panel-side", "finding": "Loop reads {value} at the panel: about the seal value — the field wiring looks healthy when isolated." },
-        { "id": "between", "label": "Between seal and alarm values", "min": 1.1, "max": 1.9, "next": "r-wrong-value", "finding": "Loop reads {value}: between the seal and alarm values.", "evidence": { "hr-joint": 1, "wrong-resistor": 1 } },
-        { "id": "alarm", "label": "About the alarm value", "min": 1.9, "max": 2.1, "next": "det-power", "finding": "Loop reads {value}: the alarm value — the detector is reporting alarm continuously." },
-        { "id": "high", "label": "Well above the alarm value", "min": 2.1, "max": 200, "next": "r-wrong-value", "finding": "Loop reads {value}: well above the alarm value.", "evidence": { "hr-joint": 2, "wrong-resistor": 1 } },
-        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "detector-measure", "finding": "Loop reads {value} at the panel: open circuit." }
+        {
+          "id": "short",
+          "label": "Near 0 Ω",
+          "next": "r-actually-short",
+          "finding": "Loop reads {value} at the panel: effectively a short, not open.",
+          "bands": [
+            "short"
+          ]
+        },
+        {
+          "id": "low",
+          "label": "Below the sealed reading",
+          "next": "r-wrong-value",
+          "finding": "Loop reads {value} at the panel: lower than the sealed reading.",
+          "evidence": {
+            "wrong-resistor": 2
+          },
+          "bands": [
+            "low"
+          ]
+        },
+        {
+          "id": "seal",
+          "label": "About the sealed reading",
+          "next": "r-panel-side",
+          "finding": "Loop reads {value} at the panel: about the sealed reading — the field wiring looks healthy when isolated.",
+          "bands": [
+            "sealed"
+          ]
+        },
+        {
+          "id": "between",
+          "label": "Between the sealed and alarm readings",
+          "next": "r-wrong-value",
+          "finding": "Loop reads {value}: between the seal and alarm values.",
+          "evidence": {
+            "hr-joint": 1,
+            "wrong-resistor": 1
+          },
+          "bands": [
+            "between"
+          ]
+        },
+        {
+          "id": "alarm",
+          "label": "About the alarm reading",
+          "next": "det-power",
+          "finding": "Loop reads {value}: the alarm value — the detector is reporting alarm continuously.",
+          "bands": [
+            "alarm"
+          ]
+        },
+        {
+          "id": "high",
+          "label": "Well above the alarm reading",
+          "next": "r-wrong-value",
+          "finding": "Loop reads {value}: well above the alarm value.",
+          "evidence": {
+            "hr-joint": 2,
+            "wrong-resistor": 1
+          },
+          "bands": [
+            "high"
+          ]
+        },
+        {
+          "id": "open",
+          "label": "OL / open circuit",
+          "next": "detector-measure",
+          "finding": "Loop reads {value} at the panel: open circuit.",
+          "bands": [
+            "open"
+          ]
+        }
       ],
-      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-no-meter", "finding": "Loop resistance not measured." }
+      "skip": {
+        "id": "no-meter",
+        "label": "I can't take this reading",
+        "next": "r-no-meter",
+        "finding": "Loop resistance not measured."
+      },
+      "scale": "zone"
     },
     {
       "kind": "measure",
       "id": "detector-measure",
       "text": "What does the detector's own EOL network measure?",
       "unit": "ohm",
-      "relativeTo": "seal",
       "test": {
         "procedure": "Leave the zone isolated. At the detector, disconnect the zone cable from the detector's terminals and measure across the detector's zone terminals (cover on, sealed). This splits the circuit into detector and cable.",
-        "expected": "About the seal value. If it is, the open is in the cable or joints."
+        "expected": "About the sealed reading ({sealed}). If it is, the open is in the cable or joints."
       },
       "safety": "The zone stays disconnected at the panel while you measure.",
       "ranges": [
-        { "id": "low", "label": "Below the seal value", "max": 0.9, "next": "r-detector-wiring", "finding": "Detector side reads {value}: not the expected value." },
-        { "id": "seal", "label": "About the seal value", "min": 0.9, "max": 1.1, "next": "r-cable-open", "finding": "Detector side reads {value}: healthy — the open is in the cable or joints.", "evidence": { "cable-damage": 2 } },
-        { "id": "other", "label": "Above the seal value but not open", "min": 1.1, "max": 200, "next": "r-detector-wiring", "finding": "Detector side reads {value}: not the expected value." },
-        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "r-detector-open", "finding": "Detector side reads {value}: open — the fault is at the detector." }
+        {
+          "id": "low",
+          "label": "Below the sealed reading",
+          "next": "r-detector-wiring",
+          "finding": "Detector side reads {value}: not the expected value.",
+          "bands": [
+            "short",
+            "low"
+          ]
+        },
+        {
+          "id": "seal",
+          "label": "About the sealed reading",
+          "next": "r-cable-open",
+          "finding": "Detector side reads {value}: healthy — the open is in the cable or joints.",
+          "evidence": {
+            "cable-damage": 2
+          },
+          "bands": [
+            "sealed"
+          ]
+        },
+        {
+          "id": "other",
+          "label": "Above the sealed reading but not open",
+          "next": "r-detector-wiring",
+          "finding": "Detector side reads {value}: not the expected value.",
+          "bands": [
+            "between",
+            "alarm",
+            "high"
+          ]
+        },
+        {
+          "id": "open",
+          "label": "OL / open circuit",
+          "next": "r-detector-open",
+          "finding": "Detector side reads {value}: open — the fault is at the detector.",
+          "bands": [
+            "open"
+          ]
+        }
       ],
-      "skip": { "id": "no-access", "label": "I can't get to the detector", "next": "r-cable-or-detector", "finding": "Detector end not measured." }
+      "skip": {
+        "id": "no-access",
+        "label": "I can't get to the detector",
+        "next": "r-cable-or-detector",
+        "finding": "Detector end not measured."
+      },
+      "scale": "zone"
     },
     {
       "kind": "measure",
@@ -88,17 +261,55 @@
       "text": "What is the supply voltage at the detector?",
       "unit": "volt",
       "test": {
-        "procedure": "Reconnect the zone. Live test on the DC volts range: measure across the detector's + and − supply terminals with the detector connected and powered.",
+        "procedure": "The detector's supply stays connected (the zone conductors can stay disconnected at the panel). Live test on the DC volts range: measure across the detector's + and − supply terminals.",
         "expected": "Within the detector's rated range. For a nominal 12 V detector this is typically about 10.5–14.5 V; check the detector's datasheet."
       },
       "safety": "Probes on the supply terminals only. Never bridge or short the supply.",
       "ranges": [
-        { "id": "none", "label": "Below 1 V (no supply)", "max": 1, "next": "r-no-power", "finding": "Detector supply reads {value}: no supply.", "evidence": { "no-power": 3 } },
-        { "id": "low", "label": "1–10.5 V (low)", "min": 1, "max": 10.5, "next": "r-low-power", "finding": "Detector supply reads {value}: low." },
-        { "id": "ok", "label": "10.5–14.6 V (normal for 12 V)", "min": 10.5, "max": 14.6, "next": "det-clear", "finding": "Detector supply reads {value}: normal for a 12 V detector." },
-        { "id": "high", "label": "Above 14.6 V", "min": 14.6, "next": "r-high-voltage", "finding": "Detector supply reads {value}: higher than a 12 V detector expects." }
+        {
+          "id": "none",
+          "label": "Below 1 V (no supply)",
+          "max": 1,
+          "next": "r-no-power",
+          "finding": "Detector supply reads {value}: no supply.",
+          "evidence": {
+            "no-power": 3
+          }
+        },
+        {
+          "id": "low",
+          "label": "1–10.5 V (low)",
+          "min": 1,
+          "max": 10.5,
+          "next": "r-low-power",
+          "finding": "Detector supply reads {value}: low."
+        },
+        {
+          "id": "ok",
+          "label": "10.5–14.6 V (normal for 12 V)",
+          "min": 10.5,
+          "max": 14.6,
+          "next": "det-clear",
+          "finding": "Detector supply reads {value}: normal for a 12 V detector."
+        },
+        {
+          "id": "high",
+          "label": "Above 14.6 V",
+          "min": 14.6,
+          "next": "r-high-voltage",
+          "finding": "Detector supply reads {value}: higher than a 12 V detector expects."
+        }
       ],
-      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-detector-alarm", "finding": "Detector supply not measured." }
+      "skip": {
+        "id": "no-meter",
+        "label": "I can't take this reading",
+        "next": "r-detector-alarm",
+        "finding": "Detector supply not measured."
+      },
+      "review": {
+        "status": "requires-verification",
+        "note": "Minimum operating voltage varies by detector (often around 9–10.5 V for a nominal 12 V detector). The 10.5 V 'low' boundary used here needs confirming against the detector's datasheet."
+      }
     },
     {
       "kind": "question",
@@ -107,43 +318,79 @@
       "text": "With the area cleared and nobody moving in view for a minute, does the zone stay in alarm?",
       "help": "Watch the detector's alarm LED (if enabled) and the zone status on the panel or keypad.",
       "answers": [
-        { "id": "yes", "label": "Yes, still in alarm", "next": "r-detector-alarm", "finding": "Zone stays in alarm with the area clear.", "evidence": { "detector-alarm": 2 } },
-        { "id": "no", "label": "No, it sealed", "next": "r-intermittent", "finding": "Zone sealed once the area was clear." }
+        {
+          "id": "yes",
+          "label": "Yes, still in alarm",
+          "next": "r-detector-alarm",
+          "finding": "Zone stays in alarm with the area clear.",
+          "evidence": {
+            "detector-alarm": 2
+          }
+        },
+        {
+          "id": "no",
+          "label": "No, it sealed",
+          "next": "r-intermittent",
+          "finding": "Zone sealed once the area was clear."
+        }
       ]
     },
     {
       "kind": "result",
       "id": "r-eol-unknown",
       "title": "Confirm the zone's EOL values first",
-      "summary": "A reading can only be judged against the values this zone is meant to use.",
-      "causes": ["config"],
+      "summary": "This guide can only judge readings for the generic dual EOL wiring with known resistor values.",
+      "causes": [
+        "config"
+      ],
       "verify": [
         "Check the zone's EOL type and values in the panel programming.",
         "Check installation records or as-built documentation.",
         "With the zone isolated and the detector disconnected, measure each EOL resistor on its own."
       ],
-      "actions": ["Restart this guide once you know the expected sealed and alarm values."],
-      "escalate": ["If the site has no records and the panel programming isn't accessible, contact the installing company or the panel manufacturer's support."],
-      "notes": ["Panels use many combinations (e.g. 2k2/2k2, 4k7/2k2, 10k/10k). None is universally correct; the panel's documentation and programming decide."]
+      "actions": [
+        "Restart this guide once you know the expected sealed and alarm values."
+      ],
+      "escalate": [
+        "If the site has no records and the panel programming isn't accessible, contact the installing company or the panel manufacturer's support."
+      ],
+      "notes": [
+        "Panels use many combinations (e.g. 2k2/2k2, 4k7/2k2, 10k/10k) and some use other wiring (tamper resistors, triple EOL). None is universally correct; the panel's documentation and programming decide."
+      ],
+      "confidence": "verify"
     },
     {
       "kind": "result",
       "id": "r-actually-short",
       "title": "The loop is shorted, not open",
       "summary": "Isolated, the loop reads near 0 Ω. Some panels report a short as tamper or trouble rather than 'short', which can look like an open zone.",
-      "causes": ["cable-short", "config"],
-      "verify": ["Follow the 'Alarm zone permanently shorted' guide to locate the short."],
-      "actions": ["Locate and repair the short before changing any programming."],
+      "causes": [
+        "cable-short",
+        "config"
+      ],
+      "verify": [
+        "Follow the 'Alarm zone permanently shorted' guide to locate the short."
+      ],
+      "actions": [
+        "Locate and repair the short before changing any programming."
+      ],
       "escalate": [],
-      "notes": ["How a panel reports open, short and tamper depends on the manufacturer and the zone's programming."],
-      "seeAlso": "zone-permanently-shorted"
+      "notes": [
+        "How a panel reports open, short and tamper depends on the manufacturer and the zone's programming."
+      ],
+      "seeAlso": "zone-permanently-shorted",
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-wrong-value",
       "title": "The loop reads an unexpected value",
       "summary": "The isolated loop is neither sealed, alarm nor open. A wrong resistor or a poor joint is likely, but confirm by measuring the parts on their own.",
-      "causes": ["wrong-resistor", "hr-joint", "config"],
+      "causes": [
+        "wrong-resistor",
+        "hr-joint",
+        "config"
+      ],
       "verify": [
         "With the zone isolated and the detector disconnected, measure each EOL resistor on its own. Trust the meter over the colour bands.",
         "Check every joint and termination for corrosion, loose screws or nicked conductors.",
@@ -152,35 +399,49 @@
       "actions": [
         "Replace any resistor that doesn't measure the intended value.",
         "Remake poor joints with suitable connectors.",
-        "Re-measure the loop (expect the seal value) before reconnecting."
+        "Re-measure the loop (expect the sealed reading) before reconnecting."
       ],
-      "escalate": ["If the readings drift or change when cables are moved, the fault may be intermittent — check the full cable run."],
-      "notes": []
+      "escalate": [
+        "If the readings drift or change when cables are moved, the fault may be intermittent — check the full cable run."
+      ],
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-panel-side",
       "title": "Field wiring looks healthy — check the panel end",
       "summary": "Isolated, the loop reads sealed, yet the panel reports the zone open. The likely cause is at the panel end, but verify before changing anything.",
-      "causes": ["wrong-termination", "config", "panel-input"],
+      "causes": [
+        "wrong-termination",
+        "config",
+        "panel-input"
+      ],
       "verify": [
         "Reconnect the conductors firmly on the correct zone terminals and re-check the zone status.",
         "Check the zone's EOL type and values, zone type and zone number in the panel programming.",
-        "As a comparison, fit a known-good resistor of the seal value directly on the zone input (zone conductors disconnected) and see whether the panel shows it sealed."
+        "As a comparison, fit a known-good resistor equal to R1 (the sealed reading) directly on the zone input, with the zone conductors disconnected, and see whether the panel shows it sealed."
       ],
       "actions": [
         "Correct terminations or programming as found.",
         "If a known-good resistor on the input also shows open, move the zone to a spare input where the system design allows, and report the faulty input."
       ],
-      "escalate": ["A zone input or expander that reads a known-good resistor incorrectly may be faulty — contact the manufacturer's technical support with the model and firmware version."],
-      "notes": []
+      "escalate": [
+        "A zone input or expander that reads a known-good resistor incorrectly may be faulty — contact the manufacturer's technical support with the model and firmware version."
+      ],
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-detector-open",
       "title": "The open is at the detector",
       "summary": "The detector's own EOL network reads open, so the fault is most likely at the detector end.",
-      "causes": ["tamper-open", "resistor-failed", "wrong-termination"],
+      "causes": [
+        "tamper-open",
+        "resistor-failed",
+        "wrong-termination"
+      ],
       "verify": [
         "Check the detector cover is fully seated and the tamper switch is actuated.",
         "With the cover off and the detector isolated, check the tamper switch for continuity when pressed.",
@@ -191,144 +452,267 @@
         "Replace an open resistor; re-terminate any loose conductor.",
         "Re-measure at the detector, then at the panel, before reconnecting."
       ],
-      "escalate": ["If the detector's internal contacts measure open with the detector powered and sealed, the detector may be faulty — replace it or contact the manufacturer."],
-      "notes": ["Many PIR alarm relays open when the detector is unpowered — measure with the detector powered if you suspect the relay."]
+      "escalate": [
+        "If the detector's internal contacts measure open with the detector powered and sealed, the detector may be faulty — replace it or contact the manufacturer."
+      ],
+      "notes": [
+        "Many PIR alarm relays open when the detector is unpowered — measure with the detector powered if you suspect the relay."
+      ],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-detector-wiring",
       "title": "The detector's EOL network reads the wrong value",
-      "summary": "Measured on its own, the detector end isn't the seal value. Its wiring or resistors are likely wrong, but confirm part by part.",
-      "causes": ["wrong-termination", "wrong-resistor", "resistor-failed"],
+      "summary": "Measured on its own, the detector end isn't the sealed reading. Its wiring or resistors are likely wrong, but confirm part by part.",
+      "causes": [
+        "wrong-termination",
+        "wrong-resistor",
+        "resistor-failed"
+      ],
       "verify": [
         "Compare the detector wiring with the panel's and detector's wiring diagrams.",
         "With the detector isolated, measure each EOL resistor on its own.",
         "Check the tamper and alarm contacts are in the positions the diagram shows."
       ],
-      "actions": ["Correct the wiring or replace the wrong resistor, then re-measure the detector end (expect the seal value)."],
+      "actions": [
+        "Correct the wiring or replace the wrong resistor, then re-measure the detector end (expect the sealed reading)."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-cable-open",
       "title": "The open is in the cable or joints",
       "summary": "The detector end reads healthy but the loop is open at the panel, so a conductor or joint in between is likely open.",
-      "causes": ["cable-damage", "wrong-termination"],
+      "causes": [
+        "cable-damage",
+        "wrong-termination"
+      ],
       "verify": [
         "With the cable disconnected at both ends, join two cores at one end and measure the loop at the other: a good pair reads close to 0 Ω. Repeat for each core.",
         "Inspect joints, junction boxes and any area where recent work was done."
       ],
-      "actions": ["Repair or replace the faulty section; use a spare core only where it is sound and the change is recorded."],
-      "escalate": ["If the cable can't be traced or replaced safely (e.g. concealed in walls), quote a recable and record the temporary arrangement."],
-      "notes": []
+      "actions": [
+        "Repair or replace the faulty section; use a spare core only where it is sound and the change is recorded."
+      ],
+      "escalate": [
+        "If the cable can't be traced or replaced safely (e.g. concealed in walls), quote a recable and record the temporary arrangement."
+      ],
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-cable-or-detector",
       "title": "Open circuit between the panel and the detector",
       "summary": "The loop is open, but without testing at the detector the fault can't be placed in the cable or the detector.",
-      "causes": ["cable-damage", "tamper-open", "wrong-termination", "resistor-failed"],
-      "verify": ["Get access to the detector and measure its EOL network with the cable disconnected.", "Check continuity of each conductor end to end."],
-      "actions": ["Repair the faulty section once located."],
+      "causes": [
+        "cable-damage",
+        "tamper-open",
+        "wrong-termination",
+        "resistor-failed"
+      ],
+      "verify": [
+        "Get access to the detector and measure its EOL network with the cable disconnected.",
+        "Check continuity of each conductor end to end."
+      ],
+      "actions": [
+        "Repair the faulty section once located."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-no-power",
       "title": "The detector has no supply",
       "summary": "With no supply, many detectors hold their alarm relay open, so the zone reads alarm/open permanently.",
-      "causes": ["no-power", "supply-fault", "cable-damage"],
+      "causes": [
+        "no-power",
+        "supply-fault",
+        "cable-damage"
+      ],
       "verify": [
         "Measure the panel's AUX / detector supply output (DC volts, live) at the panel.",
         "If the panel output is present, the supply conductors to the detector are likely open — check continuity with the cable isolated.",
         "Check fuses or electronic protection on the AUX output and the total AUX load."
       ],
-      "actions": ["Restore the supply (repair conductor, replace fuse, reduce overload) and re-test the zone."],
-      "escalate": ["Mains supply faults inside the panel must be handled by a licensed electrician where mains wiring is involved."],
-      "notes": []
+      "actions": [
+        "Restore the supply (repair conductor, replace fuse, reduce overload) and re-test the zone."
+      ],
+      "escalate": [
+        "Mains supply faults inside the panel must be handled by a licensed electrician where mains wiring is involved."
+      ],
+      "notes": [],
+      "confidence": "likely",
+      "review": {
+        "status": "requires-verification",
+        "note": "That an unpowered detector's alarm relay reads open is typical but model-specific — confirm in the detector's documentation."
+      }
     },
     {
       "kind": "result",
       "id": "r-low-power",
       "title": "The detector supply is low",
       "summary": "A low supply can make detectors hold alarm or behave erratically.",
-      "causes": ["supply-fault", "hr-joint", "cable-damage"],
+      "causes": [
+        "supply-fault",
+        "hr-joint",
+        "cable-damage"
+      ],
       "verify": [
         "Compare the voltage at the panel AUX output with the voltage at the detector: a large difference points to voltage drop in the cable or joints.",
         "Check the battery and charger, and the total AUX load against the panel's rating."
       ],
-      "actions": ["Fix poor joints, use a heavier or doubled conductor for long runs, or add a supervised power supply where the load needs it."],
+      "actions": [
+        "Fix poor joints, use a heavier or doubled conductor for long runs, or add a supervised power supply where the load needs it."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-high-voltage",
       "title": "The detector supply is higher than expected",
       "summary": "The supply is above the usual range for a 12 V detector. Check the detector's rating before going further.",
-      "causes": ["wrong-supply"],
-      "verify": ["Check the detector's datasheet for its supply range.", "Check which supply output the detector is connected to."],
-      "actions": ["Connect the detector to a supply within its rating; replace it if it has been damaged."],
+      "causes": [
+        "wrong-supply"
+      ],
+      "verify": [
+        "Check the detector's datasheet for its supply range.",
+        "Check which supply output the detector is connected to."
+      ],
+      "actions": [
+        "Connect the detector to a supply within its rating; replace it if it has been damaged."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-detector-alarm",
       "title": "The detector is holding alarm",
       "summary": "The loop reads the alarm value and the detector doesn't reset with the area clear. The detector, or something in its view, is the likely cause.",
-      "causes": ["detector-alarm", "no-power"],
+      "causes": [
+        "detector-alarm",
+        "no-power"
+      ],
       "verify": [
         "Look for heat sources, moving objects, insects or masking in the detector's field of view.",
         "Check the detector's settings (sensitivity, anti-mask) against its manual.",
         "Swap in a known-good detector to confirm."
       ],
-      "actions": ["Remove the cause, re-site the detector or replace it if faulty."],
-      "escalate": ["If an anti-mask detector keeps reporting masking with a clear view, contact the manufacturer."],
-      "notes": []
+      "actions": [
+        "Remove the cause, re-site the detector or replace it if faulty."
+      ],
+      "escalate": [
+        "If an anti-mask detector keeps reporting masking with a clear view, contact the manufacturer."
+      ],
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-intermittent",
       "title": "The fault isn't present now",
       "summary": "The zone sealed once the area was clear, so the detector was seeing movement. If the open returns, treat it as intermittent.",
-      "causes": ["detector-alarm", "hr-joint"],
+      "causes": [
+        "detector-alarm",
+        "hr-joint"
+      ],
       "verify": [
         "Review the panel's event log for when the zone opens and closes.",
         "Flex cables and joints gently while watching the zone status to find an intermittent connection."
       ],
-      "actions": ["Remove false-alarm sources from the detector's view and remake any suspect joint."],
+      "actions": [
+        "Remove false-alarm sources from the detector's view and remake any suspect joint."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-no-meter",
       "title": "Measurements needed",
       "summary": "Without measurements the possible causes can't be narrowed down safely.",
-      "causes": ["cable-damage", "wrong-termination", "detector-alarm", "config"],
-      "verify": ["Get a multimeter: the next steps rely on isolated resistance and live voltage measurements.", "Meanwhile, check the detector cover, LED and visible terminations."],
-      "actions": ["Return to this guide with a meter."],
+      "causes": [
+        "cable-damage",
+        "wrong-termination",
+        "detector-alarm",
+        "config"
+      ],
+      "verify": [
+        "Get a multimeter: the next steps rely on isolated resistance and live voltage measurements.",
+        "Meanwhile, check the detector cover, LED and visible terminations."
+      ],
+      "actions": [
+        "Return to this guide with a meter."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "verify"
     }
   ],
   "causes": {
-    "cable-damage": { "title": "Damaged or broken cable", "detail": "A conductor cut, crushed or broken — by a staple, ceiling work or rodents — or a failed joint." },
-    "cable-short": { "title": "Short in the cable", "detail": "Conductors touching through damaged insulation, a staple or a poor joint." },
-    "wrong-termination": { "title": "Loose or incorrect terminations", "detail": "A conductor not clamped, on the wrong terminal, or a joint that has come apart." },
-    "detector-alarm": { "title": "Detector stuck in alarm", "detail": "The detector's alarm relay stays open: movement or heat sources in view, masking, or a faulty detector." },
-    "no-power": { "title": "Detector not powered", "detail": "Many detectors' alarm relays open when unpowered, so a lost supply looks like a permanent alarm or open." },
-    "supply-fault": { "title": "Supply fault", "detail": "Blown fuse or tripped protection, overloaded AUX output, flat battery or mains failure, or a broken power conductor." },
-    "wrong-supply": { "title": "Wrong supply voltage", "detail": "The detector is connected to a supply outside its rating (e.g. 24 V on a 12 V detector)." },
-    "tamper-open": { "title": "Tamper switch open", "detail": "Cover not seated or tamper switch faulty. In dual EOL the tamper is usually in series, so it opens the whole loop." },
-    "resistor-failed": { "title": "EOL resistor open or missing", "detail": "A resistor broken, burnt or not fitted where the wiring needs it." },
-    "wrong-resistor": { "title": "Wrong resistor value", "detail": "A resistor of the wrong value fitted, so the loop reads outside the panel's expected bands." },
-    "hr-joint": { "title": "High-resistance joint", "detail": "A corroded or poorly made joint adding resistance to the loop." },
-    "config": { "title": "Programming doesn't match the wiring", "detail": "The zone's EOL type or values, zone type or zone number in the panel don't match what's installed." },
-    "panel-input": { "title": "Panel zone input or expander fault", "detail": "The input itself misreads a healthy loop." }
+    "cable-damage": {
+      "title": "Damaged or broken cable",
+      "detail": "A conductor cut, crushed or broken — by a staple, ceiling work or rodents — or a failed joint."
+    },
+    "cable-short": {
+      "title": "Short in the cable",
+      "detail": "Conductors touching through damaged insulation, a staple or a poor joint."
+    },
+    "wrong-termination": {
+      "title": "Loose or incorrect terminations",
+      "detail": "A conductor not clamped, on the wrong terminal, or a joint that has come apart."
+    },
+    "detector-alarm": {
+      "title": "Detector stuck in alarm",
+      "detail": "The detector's alarm relay stays open: movement or heat sources in view, masking, or a faulty detector."
+    },
+    "no-power": {
+      "title": "Detector not powered",
+      "detail": "Many detectors' alarm relays open when unpowered, so a lost supply looks like a permanent alarm or open."
+    },
+    "supply-fault": {
+      "title": "Supply fault",
+      "detail": "Blown fuse or tripped protection, overloaded AUX output, flat battery or mains failure, or a broken power conductor."
+    },
+    "wrong-supply": {
+      "title": "Wrong supply voltage",
+      "detail": "The detector is connected to a supply outside its rating (e.g. 24 V on a 12 V detector)."
+    },
+    "tamper-open": {
+      "title": "Tamper switch open",
+      "detail": "Cover not seated or tamper switch faulty. In dual EOL the tamper is usually in series, so it opens the whole loop."
+    },
+    "resistor-failed": {
+      "title": "EOL resistor open or missing",
+      "detail": "A resistor broken, burnt or not fitted where the wiring needs it."
+    },
+    "wrong-resistor": {
+      "title": "Wrong resistor value",
+      "detail": "A resistor of the wrong value fitted, so the loop reads outside the panel's expected bands."
+    },
+    "hr-joint": {
+      "title": "High-resistance joint",
+      "detail": "A corroded or poorly made joint adding resistance to the loop."
+    },
+    "config": {
+      "title": "Programming doesn't match the wiring",
+      "detail": "The zone's EOL type or values, zone type or zone number in the panel don't match what's installed."
+    },
+    "panel-input": {
+      "title": "Panel zone input or expander fault",
+      "detail": "The input itself misreads a healthy loop."
+    }
   },
   "escalation": [
     "Escalate to a senior technician or the manufacturer's technical support when a known-good resistor on the input doesn't read sealed, or readings are inconsistent.",
@@ -340,7 +724,23 @@
     "Resistance is only meaningful on an isolated circuit; a live zone input can give misleading Ω readings and can damage the meter."
   ],
   "related": [
-    { "href": "/eol", "label": "EOL Wiring Assistant — see how DEOL readings change" },
-    { "href": "/circuit-lab/faults/open-circuit", "label": "Circuit Lab — practise finding an open circuit" }
-  ]
+    {
+      "href": "/eol",
+      "label": "EOL Wiring Assistant — see how DEOL readings change"
+    },
+    {
+      "href": "/circuit-lab/faults/open-circuit",
+      "label": "Circuit Lab — practise finding an open circuit"
+    }
+  ],
+  "verification": {
+    "status": "generic",
+    "pending": [
+      "The ±10 % band used to call a reading 'about' the expected value allows for 5 % resistors, cable resistance and meter accuracy. It is a diagnostic aid, not any panel's alarm threshold — confirm it suits long cable runs.",
+      "Expected readings assume the generic dual EOL topology (R1 in series, R2 across the NC alarm contact, tamper in series). Confirm against the panel's and detector's wiring diagrams.",
+      "Minimum operating voltage varies by detector (often around 9–10.5 V for a nominal 12 V detector). The 10.5 V 'low' boundary used here needs confirming against the detector's datasheet.",
+      "How the panel reports an open loop (alarm, tamper or trouble) is panel-specific."
+    ]
+  },
+  "sources": []
 }

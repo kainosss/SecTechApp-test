@@ -1,6 +1,6 @@
 {
   "id": "door-not-unlocking",
-  "version": 1,
+  "version": 2,
   "title": "Access-controlled door not unlocking",
   "summary": "A valid credential, REX or software command doesn't release the door.",
   "area": "access",
@@ -14,7 +14,9 @@
     "Fire and egress doors must always allow free exit. Don't disable or bypass emergency release, fire-alarm release or egress devices without the site's approval and alternative measures in place — and never as a permanent fix.",
     "Isolate the lock power before changing lock wiring. Never short a lock or power output to test it.",
     "Live voltage checks are taken on the DC volts range with the probes on the terminals only.",
-    "Work on mains wiring in power supplies must be done by a licensed electrician."
+    "Backup batteries can deliver very high fault currents: never short battery leads or terminals, and isolate the battery as well as mains before working inside a panel or power supply.",
+    "Work on mains wiring in power supplies must be done by a licensed electrician.",
+    "Apprentices should do these tests under supervision and within their licence conditions; follow site procedures and the manufacturer's documentation."
   ],
   "start": "response",
   "nodes": [
@@ -24,9 +26,24 @@
       "style": "choice",
       "text": "What does the reader do when a valid credential is presented?",
       "answers": [
-        { "id": "granted", "label": "Shows access granted (e.g. green LED / beep) but the door stays locked", "next": "manual", "finding": "Reader shows access granted; door stays locked." },
-        { "id": "denied", "label": "Shows access denied", "next": "r-denied", "finding": "Reader shows access denied." },
-        { "id": "nothing", "label": "No response at all", "next": "reader-power", "finding": "Reader doesn't respond." }
+        {
+          "id": "granted",
+          "label": "Shows access granted (e.g. green LED / beep) but the door stays locked",
+          "next": "manual",
+          "finding": "Reader shows access granted; door stays locked."
+        },
+        {
+          "id": "denied",
+          "label": "Shows access denied",
+          "next": "r-denied",
+          "finding": "Reader shows access denied."
+        },
+        {
+          "id": "nothing",
+          "label": "No response at all",
+          "next": "reader-power",
+          "finding": "Reader doesn't respond."
+        }
       ]
     },
     {
@@ -40,11 +57,56 @@
       },
       "safety": "Probes on the supply terminals only. Never short reader or controller outputs.",
       "ranges": [
-        { "id": "none", "label": "Below 1 V (no supply)", "max": 1, "next": "r-reader-power", "finding": "Reader supply reads {value}: no supply.", "evidence": { "reader-power": 3 } },
-        { "id": "low", "label": "1–10.5 V (low)", "min": 1, "max": 10.5, "next": "r-reader-power", "finding": "Reader supply reads {value}: low.", "evidence": { "reader-power": 2 } },
-        { "id": "ok", "label": "10.5 V or more", "min": 10.5, "next": "r-reader-comms", "finding": "Reader supply reads {value}: present (check it's within the reader's rating)." }
+        {
+          "id": "none",
+          "label": "Below 1 V (no supply)",
+          "max": 1,
+          "next": "r-reader-power",
+          "finding": "Reader supply reads {value}: no supply.",
+          "evidence": {
+            "reader-power": 3
+          }
+        },
+        {
+          "id": "low",
+          "label": "1–10.5 V (low)",
+          "min": 1,
+          "max": 10.5,
+          "next": "r-reader-power",
+          "finding": "Reader supply reads {value}: low.",
+          "evidence": {
+            "reader-power": 2
+          }
+        },
+        {
+          "id": "ok",
+          "label": "10.5–14.6 V (normal for a 12 V reader)",
+          "min": 10.5,
+          "next": "r-reader-comms",
+          "finding": "Reader supply reads {value}: normal for a 12 V reader.",
+          "max": 14.6
+        },
+        {
+          "id": "high",
+          "label": "Above 14.6 V",
+          "min": 14.6,
+          "next": "r-reader-voltage",
+          "finding": "Reader supply reads {value}: above a 12 V reader's usual range."
+        }
       ],
-      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-reader-comms", "finding": "Reader supply not measured.", "evidence": { "reader-power": 1 } }
+      "skip": {
+        "id": "no-meter",
+        "label": "I can't take this reading",
+        "next": "r-reader-comms",
+        "finding": "Reader supply not measured.",
+        "evidence": {
+          "reader-power": 1
+        }
+      },
+      "review": {
+        "status": "requires-verification",
+        "note": "Reader supply ranges vary (12 V nominal, or 12–24 V); confirm against the reader's datasheet."
+      }
     },
     {
       "kind": "question",
@@ -53,8 +115,18 @@
       "text": "Does the door release when you press the request-to-exit (REX) button, or send a momentary unlock from the access software?",
       "help": "This tells you whether the lock output and lock work on their own.",
       "answers": [
-        { "id": "yes", "label": "Yes, it releases", "next": "r-config", "finding": "Door releases on REX / software unlock: lock and output work." },
-        { "id": "no", "label": "No, it stays locked", "next": "lock-type", "finding": "Door doesn't release on REX / software unlock." }
+        {
+          "id": "yes",
+          "label": "Yes, it releases",
+          "next": "r-config",
+          "finding": "Door releases on REX / software unlock: lock and output work."
+        },
+        {
+          "id": "no",
+          "label": "No, it stays locked",
+          "next": "lock-type",
+          "finding": "Door doesn't release on REX / software unlock."
+        }
       ]
     },
     {
@@ -63,9 +135,24 @@
       "style": "choice",
       "text": "What type of lock is fitted?",
       "answers": [
-        { "id": "fail-secure", "label": "Fail-secure — unlocks when powered (e.g. fail-secure electric strike)", "next": "rated-secure", "finding": "Fail-secure lock (power to unlock)." },
-        { "id": "fail-safe", "label": "Fail-safe — locked while powered (e.g. magnetic lock, fail-safe strike)", "next": "rated-safe", "finding": "Fail-safe lock (power to lock)." },
-        { "id": "unknown", "label": "Not sure", "next": "r-identify-lock", "finding": "Lock type not known." }
+        {
+          "id": "fail-secure",
+          "label": "Fail-secure — unlocks when powered (e.g. fail-secure electric strike)",
+          "next": "rated-secure",
+          "finding": "Fail-secure lock (power to unlock)."
+        },
+        {
+          "id": "fail-safe",
+          "label": "Fail-safe — locked while powered (e.g. magnetic lock, fail-safe strike)",
+          "next": "rated-safe",
+          "finding": "Fail-safe lock (power to lock)."
+        },
+        {
+          "id": "unknown",
+          "label": "Not sure",
+          "next": "r-identify-lock",
+          "finding": "Lock type not known."
+        }
       ]
     },
     {
@@ -75,8 +162,24 @@
       "text": "What is the lock's rated voltage?",
       "help": "Check the label on the lock or its datasheet. Some locks are dual-voltage and set by a jumper.",
       "answers": [
-        { "id": "12", "label": "12 V DC", "next": "measure-secure", "finding": "Lock rated 12 V DC.", "set": { "rated": 12 } },
-        { "id": "24", "label": "24 V DC", "next": "measure-secure", "finding": "Lock rated 24 V DC.", "set": { "rated": 24 } }
+        {
+          "id": "12",
+          "label": "12 V DC",
+          "next": "measure-secure",
+          "finding": "Lock rated 12 V DC.",
+          "set": {
+            "rated": 12
+          }
+        },
+        {
+          "id": "24",
+          "label": "24 V DC",
+          "next": "measure-secure",
+          "finding": "Lock rated 24 V DC.",
+          "set": {
+            "rated": 24
+          }
+        }
       ]
     },
     {
@@ -86,8 +189,24 @@
       "text": "What is the lock's rated voltage?",
       "help": "Check the label on the lock or its datasheet. Some locks are dual-voltage and set by a jumper.",
       "answers": [
-        { "id": "12", "label": "12 V DC", "next": "measure-safe", "finding": "Lock rated 12 V DC.", "set": { "rated": 12 } },
-        { "id": "24", "label": "24 V DC", "next": "measure-safe", "finding": "Lock rated 24 V DC.", "set": { "rated": 24 } }
+        {
+          "id": "12",
+          "label": "12 V DC",
+          "next": "measure-safe",
+          "finding": "Lock rated 12 V DC.",
+          "set": {
+            "rated": 12
+          }
+        },
+        {
+          "id": "24",
+          "label": "24 V DC",
+          "next": "measure-safe",
+          "finding": "Lock rated 24 V DC.",
+          "set": {
+            "rated": 24
+          }
+        }
       ]
     },
     {
@@ -102,12 +221,47 @@
       },
       "safety": "Probes on the lock terminals only. Don't short the lock output to 'test' it.",
       "ranges": [
-        { "id": "none", "label": "Close to 0 V", "max": 0.1, "next": "r-no-unlock-power", "finding": "Lock receives {value} during unlock: no power reaches it." },
-        { "id": "low", "label": "Well below rated", "min": 0.1, "max": 0.85, "next": "r-low-lock-voltage", "finding": "Lock receives {value} during unlock: low." },
-        { "id": "ok", "label": "About rated", "min": 0.85, "max": 1.25, "next": "r-mechanical-secure", "finding": "Lock receives {value} during unlock: about its rating." },
-        { "id": "high", "label": "Well above rated", "min": 1.25, "next": "r-wrong-voltage", "finding": "Lock receives {value} during unlock: above its rating." }
+        {
+          "id": "none",
+          "label": "Close to 0 V",
+          "max": 0.1,
+          "next": "r-no-unlock-power",
+          "finding": "Lock receives {value} during unlock: no power reaches it."
+        },
+        {
+          "id": "low",
+          "label": "Well below rated",
+          "min": 0.1,
+          "max": 0.85,
+          "next": "r-low-lock-voltage",
+          "finding": "Lock receives {value} during unlock: low."
+        },
+        {
+          "id": "ok",
+          "label": "About rated",
+          "min": 0.85,
+          "max": 1.25,
+          "next": "r-mechanical-secure",
+          "finding": "Lock receives {value} during unlock: about its rating."
+        },
+        {
+          "id": "high",
+          "label": "Well above rated",
+          "min": 1.25,
+          "next": "r-wrong-voltage",
+          "finding": "Lock receives {value} during unlock: above its rating."
+        }
       ],
-      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-lock-path", "finding": "Lock voltage not measured." }
+      "skip": {
+        "id": "no-meter",
+        "label": "I can't take this reading",
+        "next": "r-lock-path",
+        "finding": "Lock voltage not measured."
+      },
+      "review": {
+        "status": "requires-verification",
+        "note": "The 85–125 % of rated 'about rated' band is a diagnostic aid; confirm against the lock's specified operating range."
+      }
     },
     {
       "kind": "measure",
@@ -121,203 +275,397 @@
       },
       "safety": "Probes on the lock terminals only. Don't short the lock output.",
       "ranges": [
-        { "id": "drops", "label": "Drops to close to 0 V", "max": 0.1, "next": "r-mechanical-safe", "finding": "Lock voltage drops to {value} during unlock: power is removed." },
-        { "id": "stays", "label": "Stays well above 0 V", "min": 0.1, "next": "r-power-not-removed", "finding": "Lock voltage stays at {value} during unlock: power isn't removed." }
+        {
+          "id": "drops",
+          "label": "Drops to close to 0 V",
+          "max": 0.1,
+          "next": "r-mechanical-safe",
+          "finding": "Lock voltage drops to {value} during unlock: power is removed."
+        },
+        {
+          "id": "stays",
+          "label": "Stays well above 0 V",
+          "min": 0.1,
+          "next": "r-power-not-removed",
+          "finding": "Lock voltage stays at {value} during unlock: power isn't removed."
+        }
       ],
-      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-lock-path", "finding": "Lock voltage not measured." }
+      "skip": {
+        "id": "no-meter",
+        "label": "I can't take this reading",
+        "next": "r-lock-path",
+        "finding": "Lock voltage not measured."
+      },
+      "review": {
+        "status": "requires-verification",
+        "note": "Some fail-safe locks with built-in electronics may show a small residual voltage when released; the 10 % of rated voltage boundary needs confirming."
+      }
     },
     {
       "kind": "result",
       "id": "r-denied",
       "title": "Access is being denied by the system",
       "summary": "A denied response usually means the system is refusing the credential, not a hardware fault.",
-      "causes": ["access-rights", "credential", "door-mode"],
+      "causes": [
+        "access-rights",
+        "credential",
+        "door-mode"
+      ],
       "verify": [
         "Check the event log for the denial reason (unknown credential, outside schedule, wrong access level, anti-passback, door locked down).",
         "Try a known-good credential with access to this door.",
         "Check the door's current mode and any lockdown or interlock."
       ],
-      "actions": ["Correct the user's access level, schedule or credential, or the door mode, through the site's authorised process."],
-      "escalate": ["Changes to access rights must be authorised by the site's system owner."],
-      "notes": []
+      "actions": [
+        "Correct the user's access level, schedule or credential, or the door mode, through the site's authorised process."
+      ],
+      "escalate": [
+        "Changes to access rights must be authorised by the site's system owner."
+      ],
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-reader-power",
       "title": "The reader isn't properly powered",
       "summary": "No or low supply at the reader stops it responding.",
-      "causes": ["reader-power", "reader-wiring"],
+      "causes": [
+        "reader-power",
+        "reader-wiring"
+      ],
       "verify": [
         "Measure the controller's reader supply output (DC volts, live). If it's present there, check the cable's supply conductors with the cable isolated.",
         "Check fuses or electronic protection on the reader port and the controller's power supply."
       ],
-      "actions": ["Restore the supply: repair the conductor, replace the fuse, or fix the power supply fault."],
-      "escalate": ["Mains work in the power supply must be done by a licensed electrician."],
-      "notes": []
+      "actions": [
+        "Restore the supply: repair the conductor, replace the fuse, or fix the power supply fault."
+      ],
+      "escalate": [
+        "Mains work in the power supply must be done by a licensed electrician."
+      ],
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-reader-comms",
       "title": "Reader communication",
       "summary": "The reader has power but doesn't respond. Data wiring, reader configuration or the controller are likely.",
-      "causes": ["reader-wiring", "reader-config", "controller-offline", "reader-fault"],
+      "causes": [
+        "reader-wiring",
+        "reader-config",
+        "controller-offline",
+        "reader-fault"
+      ],
       "verify": [
         "Check the controller is online in the access software and the reader port is configured for this reader type and protocol.",
         "Check the reader's data conductors and terminations against the reader's and controller's wiring diagrams.",
         "Check the supply is within the reader's rated range.",
         "Swap in a known-good reader of the same type to confirm."
       ],
-      "actions": ["Correct wiring or configuration, or replace a faulty reader."],
-      "escalate": ["Contact the controller or reader manufacturer's support for protocol or firmware issues."],
-      "notes": []
+      "actions": [
+        "Correct wiring or configuration, or replace a faulty reader."
+      ],
+      "escalate": [
+        "Contact the controller or reader manufacturer's support for protocol or firmware issues."
+      ],
+      "notes": [],
+      "confidence": "possible"
     },
     {
       "kind": "result",
       "id": "r-config",
       "title": "Lock hardware works — check the door's configuration",
       "summary": "The door releases on REX or software unlock, so the lock and output are likely fine. The credential isn't triggering the unlock.",
-      "causes": ["door-config", "door-mode", "access-rights"],
+      "causes": [
+        "door-config",
+        "door-mode",
+        "access-rights"
+      ],
       "verify": [
         "Check the reader is assigned to this door and the door's unlock time is set.",
         "Check door mode, schedules and interlocks.",
         "Review the event log for the granted event and what the controller did next."
       ],
-      "actions": ["Correct the door / reader assignment or unlock settings."],
+      "actions": [
+        "Correct the door / reader assignment or unlock settings."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-identify-lock",
       "title": "Identify the lock type first",
       "summary": "Fail-safe and fail-secure locks behave in opposite ways, so the test depends on which is fitted.",
-      "causes": ["relay-wiring", "lock-supply"],
-      "verify": ["Check the lock's label or datasheet.", "A magnetic lock is fail-safe; electric strikes can be either (often set by a jumper or switch)."],
-      "actions": ["Restart this guide once the lock type and rated voltage are known."],
+      "causes": [
+        "relay-wiring",
+        "lock-supply"
+      ],
+      "verify": [
+        "Check the lock's label or datasheet.",
+        "A magnetic lock is fail-safe; electric strikes can be either (often set by a jumper or switch)."
+      ],
+      "actions": [
+        "Restart this guide once the lock type and rated voltage are known."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "verify"
     },
     {
       "kind": "result",
       "id": "r-no-unlock-power",
       "title": "No power reaches the fail-secure lock",
       "summary": "The lock never receives its unlock voltage. The relay wiring, lock supply or cable are likely.",
-      "causes": ["relay-wiring", "lock-supply", "lock-cable"],
+      "causes": [
+        "relay-wiring",
+        "lock-supply",
+        "lock-cable"
+      ],
       "verify": [
         "At the controller, check the lock relay switches (LED or click) on unlock and that its COM is fed from the lock supply.",
         "Check the lock is wired to the relay contact that closes on unlock for a fail-secure lock.",
         "Check the lock supply output and fuse (DC volts, live), then the lock cable's continuity with power isolated."
       ],
-      "actions": ["Correct the relay contact or supply wiring, replace the fuse, or repair the cable."],
+      "actions": [
+        "Correct the relay contact or supply wiring, replace the fuse, or repair the cable."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-low-lock-voltage",
       "title": "The lock receives a low voltage",
       "summary": "Below its rating, a lock may not release — especially under door load.",
-      "causes": ["lock-supply", "voltage-drop", "wrong-lock-voltage"],
+      "causes": [
+        "lock-supply",
+        "voltage-drop",
+        "wrong-lock-voltage"
+      ],
       "verify": [
         "Compare the voltage at the supply with the voltage at the lock during unlock: a big difference means voltage drop in the cable or joints.",
         "Check the lock's voltage setting (some are dual 12 / 24 V by jumper) and the supply's capacity."
       ],
-      "actions": ["Use heavier conductors or a closer supply on long runs, fix poor joints, or correct the voltage setting."],
+      "actions": [
+        "Use heavier conductors or a closer supply on long runs, fix poor joints, or correct the voltage setting."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-mechanical-secure",
       "title": "Power reaches the lock — check the mechanics",
       "summary": "The fail-secure lock gets its rated voltage but doesn't release. Door load or the strike itself are likely.",
-      "causes": ["door-preload", "strike-fault", "wrong-lock-voltage"],
+      "causes": [
+        "door-preload",
+        "strike-fault",
+        "wrong-lock-voltage"
+      ],
       "verify": [
         "Check whether the door is pushing or pulling on the strike keeper (preload) — try the unlock while easing pressure on the door.",
         "Check strike alignment and that the keeper moves freely.",
         "Confirm the strike's voltage setting matches the supply."
       ],
-      "actions": ["Adjust the door, closer or strike alignment, or replace a faulty strike."],
-      "escalate": ["Door hardware and closer adjustment may need a locksmith or door hardware specialist."],
-      "notes": []
+      "actions": [
+        "Adjust the door, closer or strike alignment, or replace a faulty strike."
+      ],
+      "escalate": [
+        "Door hardware and closer adjustment may need a locksmith or door hardware specialist."
+      ],
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-wrong-voltage",
       "title": "The lock receives more than its rating",
       "summary": "Over-voltage can damage locks. Check the supply and the lock's setting before going further.",
-      "causes": ["wrong-lock-voltage"],
-      "verify": ["Check the lock's rated voltage and jumper setting against the supply output."],
-      "actions": ["Supply the lock within its rating; replace it if damaged."],
+      "causes": [
+        "wrong-lock-voltage"
+      ],
+      "verify": [
+        "Check the lock's rated voltage and jumper setting against the supply output."
+      ],
+      "actions": [
+        "Supply the lock within its rating; replace it if damaged."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-mechanical-safe",
       "title": "Power is removed — check what still holds the door",
       "summary": "The fail-safe lock loses power on unlock, yet the door stays shut. Something mechanical or magnetic is still holding it.",
-      "causes": ["maglock-residual", "door-preload", "other-lock"],
+      "causes": [
+        "maglock-residual",
+        "door-preload",
+        "other-lock"
+      ],
       "verify": [
         "Check for residual magnetism or a sticky armature plate on a magnetic lock (clean faces, check the armature's mounting).",
         "Check for door preload or a second lock (mechanical lock, deadbolt) that's also engaged.",
         "Check the door you're testing is the one this output controls."
       ],
-      "actions": ["Clean or re-mount the armature, adjust the door, or disengage the second lock."],
+      "actions": [
+        "Clean or re-mount the armature, adjust the door, or disengage the second lock."
+      ],
       "escalate": [],
-      "notes": []
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-power-not-removed",
       "title": "Power isn't removed from the fail-safe lock",
       "summary": "The voltage stays on during unlock, so the lock stays engaged. Something keeps feeding it.",
-      "causes": ["relay-wiring", "other-feed", "door-config"],
+      "causes": [
+        "relay-wiring",
+        "other-feed",
+        "door-config"
+      ],
       "verify": [
         "Check the lock is wired through the relay contact that opens on unlock for a fail-safe lock.",
         "Check no other device (another output, interface or power supply) also feeds the lock.",
         "Check the relay actually switches on unlock (LED or click)."
       ],
-      "actions": ["Correct the relay contact or remove the second feed, keeping any fire or egress release in the circuit as designed."],
-      "escalate": ["Where a fire alarm interface is part of the lock circuit, involve the fire services contractor before changing it."],
-      "notes": []
+      "actions": [
+        "Correct the relay contact or remove the second feed, keeping any fire or egress release in the circuit as designed."
+      ],
+      "escalate": [
+        "Where a fire alarm interface is part of the lock circuit, involve the fire services contractor before changing it."
+      ],
+      "notes": [],
+      "confidence": "likely"
     },
     {
       "kind": "result",
       "id": "r-lock-path",
       "title": "Check the lock output path",
       "summary": "Without a lock voltage measurement the fault can't be placed in the output, supply, cable or lock.",
-      "causes": ["relay-wiring", "lock-supply", "door-preload"],
+      "causes": [
+        "relay-wiring",
+        "lock-supply",
+        "door-preload"
+      ],
       "verify": [
         "Check the controller's lock relay switches on unlock (LED or click).",
         "Check the lock supply and its fuse.",
         "Check for door preload or misalignment."
       ],
-      "actions": ["Return with a meter to measure the lock voltage during unlock."],
+      "actions": [
+        "Return with a meter to measure the lock voltage during unlock."
+      ],
+      "escalate": [],
+      "notes": [],
+      "confidence": "verify"
+    },
+    {
+      "kind": "result",
+      "id": "r-reader-voltage",
+      "title": "Check the reader's supply rating",
+      "confidence": "possible",
+      "summary": "The reader's supply is higher than a nominal 12 V reader expects. Some readers accept 12–24 V; others can be damaged.",
+      "causes": [
+        "reader-power",
+        "reader-fault",
+        "reader-wiring"
+      ],
+      "verify": [
+        "Check the reader's datasheet for its supply range and which supply output it's connected to."
+      ],
+      "actions": [
+        "Supply the reader within its rating; replace it if damaged. Then re-test, and if it still doesn't respond, check its data wiring and configuration."
+      ],
       "escalate": [],
       "notes": []
     }
   ],
   "causes": {
-    "access-rights": { "title": "Access rights or schedule", "detail": "The credential's access level, schedule or validity doesn't allow this door at this time." },
-    "credential": { "title": "Credential problem", "detail": "Card or fob not enrolled, expired, damaged, or the wrong format for the reader." },
-    "door-mode": { "title": "Door mode or lockdown", "detail": "The door is in a locked-down, secure or interlocked mode." },
-    "reader-power": { "title": "Reader power", "detail": "No or low supply at the reader." },
-    "reader-wiring": { "title": "Reader cable or terminations", "detail": "Open, shorted or swapped data or supply conductors." },
-    "reader-config": { "title": "Reader configuration", "detail": "Reader port set for the wrong reader type, protocol or address." },
-    "reader-fault": { "title": "Faulty reader", "detail": "Reader doesn't work with correct power and wiring." },
-    "controller-offline": { "title": "Controller offline", "detail": "The door controller isn't communicating with the system." },
-    "door-config": { "title": "Door configuration", "detail": "Reader not assigned to the door, unlock time not set, or output assigned to another door." },
-    "relay-wiring": { "title": "Lock relay wiring", "detail": "Lock wired to the wrong relay contact (NO / NC) for its fail-safe / fail-secure type, or the relay COM isn't fed." },
-    "lock-supply": { "title": "Lock power supply", "detail": "No output, blown fuse or overloaded lock supply." },
-    "lock-cable": { "title": "Lock cable", "detail": "Open conductor or poor joint in the door loom or cable." },
-    "voltage-drop": { "title": "Voltage drop", "detail": "Long or thin conductors or poor joints drop too much voltage under the lock's current." },
-    "wrong-lock-voltage": { "title": "Lock voltage setting", "detail": "Lock set for (or rated at) a different voltage than it's supplied with." },
-    "door-preload": { "title": "Door preload or misalignment", "detail": "The door pushes or pulls on the lock, so it can't release." },
-    "strike-fault": { "title": "Faulty strike", "detail": "The strike gets power but its mechanism doesn't release." },
-    "maglock-residual": { "title": "Magnetic lock armature", "detail": "Residual magnetism, a dirty face or a poorly mounted armature holds the door." },
-    "other-lock": { "title": "Another lock engaged", "detail": "A mechanical lock or deadbolt also holds the door." },
-    "other-feed": { "title": "Second power feed", "detail": "Another output or device keeps the fail-safe lock powered." }
+    "access-rights": {
+      "title": "Access rights or schedule",
+      "detail": "The credential's access level, schedule or validity doesn't allow this door at this time."
+    },
+    "credential": {
+      "title": "Credential problem",
+      "detail": "Card or fob not enrolled, expired, damaged, or the wrong format for the reader."
+    },
+    "door-mode": {
+      "title": "Door mode or lockdown",
+      "detail": "The door is in a locked-down, secure or interlocked mode."
+    },
+    "reader-power": {
+      "title": "Reader power",
+      "detail": "No or low supply at the reader."
+    },
+    "reader-wiring": {
+      "title": "Reader cable or terminations",
+      "detail": "Open, shorted or swapped data or supply conductors."
+    },
+    "reader-config": {
+      "title": "Reader configuration",
+      "detail": "Reader port set for the wrong reader type, protocol or address."
+    },
+    "reader-fault": {
+      "title": "Faulty reader",
+      "detail": "Reader doesn't work with correct power and wiring."
+    },
+    "controller-offline": {
+      "title": "Controller offline",
+      "detail": "The door controller isn't communicating with the system."
+    },
+    "door-config": {
+      "title": "Door configuration",
+      "detail": "Reader not assigned to the door, unlock time not set, or output assigned to another door."
+    },
+    "relay-wiring": {
+      "title": "Lock relay wiring",
+      "detail": "Lock wired to the wrong relay contact (NO / NC) for its fail-safe / fail-secure type, or the relay COM isn't fed."
+    },
+    "lock-supply": {
+      "title": "Lock power supply",
+      "detail": "No output, blown fuse or overloaded lock supply."
+    },
+    "lock-cable": {
+      "title": "Lock cable",
+      "detail": "Open conductor or poor joint in the door loom or cable."
+    },
+    "voltage-drop": {
+      "title": "Voltage drop",
+      "detail": "Long or thin conductors or poor joints drop too much voltage under the lock's current."
+    },
+    "wrong-lock-voltage": {
+      "title": "Lock voltage setting",
+      "detail": "Lock set for (or rated at) a different voltage than it's supplied with."
+    },
+    "door-preload": {
+      "title": "Door preload or misalignment",
+      "detail": "The door pushes or pulls on the lock, so it can't release."
+    },
+    "strike-fault": {
+      "title": "Faulty strike",
+      "detail": "The strike gets power but its mechanism doesn't release."
+    },
+    "maglock-residual": {
+      "title": "Magnetic lock armature",
+      "detail": "Residual magnetism, a dirty face or a poorly mounted armature holds the door."
+    },
+    "other-lock": {
+      "title": "Another lock engaged",
+      "detail": "A mechanical lock or deadbolt also holds the door."
+    },
+    "other-feed": {
+      "title": "Second power feed",
+      "detail": "Another output or device keeps the fail-safe lock powered."
+    }
   },
   "escalation": [
     "Escalate to the controller or lock manufacturer's support when the hardware tests correctly but the door still misbehaves.",
@@ -326,7 +674,17 @@
   ],
   "notes": [
     "Fail-safe locks release when power is removed; fail-secure locks need power to release. Wiring a lock to the wrong relay contact reverses its behaviour.",
-    "Egress, fire and building requirements for doors vary by building and jurisdiction; follow the site's approved design and the relevant codes."
+    "Egress, fire and building requirements for doors vary by building and jurisdiction; follow the site's approved design and the relevant codes.",
+    "DC locks generate a voltage spike when switched off; many have suppression built in, others need a diode fitted. Check the lock's documentation."
   ],
-  "related": []
+  "related": [],
+  "verification": {
+    "status": "generic",
+    "pending": [
+      "Lock operating voltage ranges and suppression requirements are manufacturer-specific.",
+      "Egress, fire-door and fire-interface requirements must follow the site's approved design and applicable codes — confirm with the responsible parties.",
+      "Reader supply ranges are manufacturer-specific."
+    ]
+  },
+  "sources": []
 }
