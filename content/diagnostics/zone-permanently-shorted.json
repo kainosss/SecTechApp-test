@@ -1,0 +1,226 @@
+{
+  "id": "zone-permanently-shorted",
+  "version": 1,
+  "title": "Alarm zone permanently shorted",
+  "summary": "The panel reports a short (or tamper / trouble) on the zone that won't clear.",
+  "area": "intrusion",
+  "icon": "eol",
+  "symptoms": [
+    "Zone reports short circuit, or tamper / trouble on panels that treat a short that way.",
+    "The zone never changes when the detector is walk-tested or its cover is removed."
+  ],
+  "safety": [
+    "Tell the monitoring centre and the site contact before testing, and put the system or zone into test/service mode under site procedure.",
+    "Photograph or label terminations before disconnecting anything.",
+    "Only measure resistance on an isolated circuit: disconnect the zone conductors from the panel first. Never use the Ω range on live terminals.",
+    "Never test by shorting supply outputs or zone inputs with a link."
+  ],
+  "start": "eol",
+  "nodes": [
+    {
+      "kind": "question",
+      "id": "eol",
+      "style": "choice",
+      "text": "What EOL values is this zone set up for?",
+      "help": "Generic examples only. The steps assume equal seal and alarm resistors.",
+      "answers": [
+        { "id": "2k2", "label": "2k2 / 2k2 dual EOL (2.2 kΩ sealed, 4.4 kΩ alarm)", "next": "history", "finding": "Zone uses 2k2 / 2k2 dual EOL (expect 2.2 kΩ sealed).", "set": { "seal": 2200 } },
+        { "id": "10k", "label": "10k / 10k dual EOL (10 kΩ sealed, 20 kΩ alarm)", "next": "history", "finding": "Zone uses 10k / 10k dual EOL (expect 10 kΩ sealed).", "set": { "seal": 10000 } },
+        { "id": "unknown", "label": "Other values, or not sure", "next": "r-eol-unknown", "finding": "Zone EOL values not known." }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "history",
+      "style": "choice",
+      "text": "What's the history of this zone?",
+      "answers": [
+        { "id": "recent-work", "label": "It worked, and there's been recent work on site", "next": "panel-measure", "finding": "Zone worked before; recent work on site.", "evidence": { "cable-short": 2 } },
+        { "id": "no-change", "label": "It worked, and nothing has changed that I know of", "next": "panel-measure", "finding": "Zone worked before; no known changes.", "evidence": { "moisture": 1, "cable-short": 1 } },
+        { "id": "new", "label": "New installation, or the panel was recently programmed", "next": "panel-measure", "finding": "New installation or recent programming.", "evidence": { "wiring-error": 2, "config": 2 } }
+      ]
+    },
+    {
+      "kind": "measure",
+      "id": "panel-measure",
+      "text": "What does the zone loop measure at the panel?",
+      "unit": "ohm",
+      "relativeTo": "seal",
+      "test": {
+        "procedure": "Isolate the zone: disconnect both zone conductors from the panel terminals. With the detector sealed, measure across the two conductors on the Ω range.",
+        "expected": "About the seal value: 2.2 kΩ for 2k2 / 2k2, or 10 kΩ for 10k / 10k."
+      },
+      "safety": "Resistance range only on the disconnected conductors.",
+      "ranges": [
+        { "id": "short", "label": "Near 0 Ω", "max": 0.023, "next": "detector-measure", "finding": "Loop reads {value} at the panel: shorted." },
+        { "id": "low", "label": "Below the seal value", "min": 0.023, "max": 0.9, "next": "r-low-value", "finding": "Loop reads {value}: below the seal value.", "evidence": { "wrong-resistor": 2, "moisture": 1 } },
+        { "id": "seal", "label": "About the seal value", "min": 0.9, "max": 1.1, "next": "r-panel-side", "finding": "Loop reads {value}: about the seal value — the field wiring looks healthy when isolated." },
+        { "id": "above", "label": "Above the seal value but not open", "min": 1.1, "max": 200, "next": "r-not-short", "finding": "Loop reads {value}: not a short." },
+        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "r-actually-open", "finding": "Loop reads {value}: open, not shorted." }
+      ],
+      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-no-meter", "finding": "Loop resistance not measured." }
+    },
+    {
+      "kind": "measure",
+      "id": "detector-measure",
+      "text": "With the cable disconnected at the detector, what do the cable conductors measure?",
+      "unit": "ohm",
+      "relativeTo": "seal",
+      "test": {
+        "procedure": "Leave the zone disconnected at the panel. At the detector, disconnect the zone cable. Measure across the two zone conductors at the panel end again: now neither end is connected to anything.",
+        "expected": "OL — two conductors with nothing on either end should be open. A low reading means the cable itself is shorted."
+      },
+      "safety": "Both ends of the cable stay disconnected while you measure.",
+      "ranges": [
+        { "id": "short", "label": "Near 0 Ω (still shorted)", "max": 0.023, "next": "r-cable-short", "finding": "Cable alone reads {value}: the short is in the cable or joints.", "evidence": { "cable-short": 2 } },
+        { "id": "partial", "label": "Some resistance but not open", "min": 0.023, "max": 200, "next": "r-leakage", "finding": "Cable alone reads {value}: partial leakage between conductors.", "evidence": { "moisture": 2 } },
+        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "r-detector-short", "finding": "Cable alone reads {value}: the cable is clear, so the short is at the detector end." }
+      ],
+      "skip": { "id": "no-access", "label": "I can't get to the detector", "next": "r-cable-or-detector", "finding": "Detector end not separated." }
+    },
+    {
+      "kind": "result",
+      "id": "r-eol-unknown",
+      "title": "Confirm the zone's EOL values first",
+      "summary": "A reading can only be judged against the values this zone is meant to use.",
+      "causes": ["config"],
+      "verify": ["Check the zone's EOL type and values in the panel programming.", "Check installation records.", "Measure each EOL resistor on its own with the zone isolated."],
+      "actions": ["Restart this guide once you know the expected values."],
+      "escalate": [],
+      "notes": ["None of the common combinations is universally correct; the panel's documentation and programming decide."]
+    },
+    {
+      "kind": "result",
+      "id": "r-cable-short",
+      "title": "The short is in the cable or joints",
+      "summary": "With both ends disconnected the conductors still read near 0 Ω, so they are touching somewhere along the run.",
+      "causes": ["cable-short", "moisture"],
+      "verify": [
+        "Inspect joints and junction boxes, then any areas of recent work (staples, screws, crushed cable).",
+        "Split the run at an intermediate joint and measure each section to narrow down the faulty part."
+      ],
+      "actions": ["Repair or replace the damaged section and re-measure: the isolated cable should read OL, and with the detector reconnected, the seal value."],
+      "escalate": ["If the cable is concealed and can't be repaired, quote a recable and record any temporary arrangement."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-leakage",
+      "title": "Leakage between conductors",
+      "summary": "The isolated cable reads some resistance instead of OL. Moisture, damaged insulation or a contaminated joint is likely.",
+      "causes": ["moisture", "cable-short"],
+      "verify": ["Check external or underground runs, joints in damp areas and junction boxes for water or corrosion.", "Measure each section separately to find where the leakage is."],
+      "actions": ["Replace the affected section; use cable and joints suited to the environment."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-detector-short",
+      "title": "The short is at the detector end",
+      "summary": "The cable is clear, so the short is likely in the detector's terminations or EOL network.",
+      "causes": ["wiring-error", "link-left", "detector-fault"],
+      "verify": [
+        "Check for a wire link left across the zone terminals, or both EOL resistors bypassed.",
+        "Compare the detector wiring against the panel's and detector's wiring diagrams.",
+        "Measure the detector's EOL network on its own (isolated): it should read the seal value."
+      ],
+      "actions": ["Remove the link or correct the wiring so the loop passes through the contacts and both resistors as designed."],
+      "escalate": [],
+      "notes": ["A link across zone terminals left from commissioning or a previous fault is a common cause on existing sites."]
+    },
+    {
+      "kind": "result",
+      "id": "r-cable-or-detector",
+      "title": "Short between the panel and the detector",
+      "summary": "The loop is shorted, but without separating the detector the fault can't be placed in the cable or at the detector.",
+      "causes": ["cable-short", "wiring-error", "link-left"],
+      "verify": ["Get access to the detector and disconnect the cable there, then re-measure the cable alone."],
+      "actions": ["Repair the faulty section once located."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-low-value",
+      "title": "The loop reads below the seal value",
+      "summary": "Some panels report a reading below their seal band as a short. A wrong resistor or leakage is likely.",
+      "causes": ["wrong-resistor", "moisture", "config"],
+      "verify": ["Measure each EOL resistor on its own with the detector disconnected.", "Check the cable alone for leakage (should read OL).", "Confirm the panel's programmed EOL values."],
+      "actions": ["Replace wrong resistors; repair leakage; correct programming."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-panel-side",
+      "title": "Field wiring looks healthy — check the panel end",
+      "summary": "Isolated, the loop reads sealed, yet the panel reports a short. The cause is likely at the panel end, but verify first.",
+      "causes": ["config", "wiring-error", "panel-input"],
+      "verify": [
+        "Check the zone's EOL type and values in the panel programming (e.g. a zone set for different EOL values can read a healthy loop as short).",
+        "Check nothing else is landed on the same zone terminals.",
+        "Fit a known-good resistor of the seal value directly on the input (zone conductors disconnected) and check the status."
+      ],
+      "actions": ["Correct programming or terminations. If a known-good resistor also reads short, report the input as faulty."],
+      "escalate": ["Contact the manufacturer's technical support if the input misreads a known-good resistor."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-not-short",
+      "title": "The loop isn't shorted when isolated",
+      "summary": "The isolated loop reads above the seal value, not a short. The panel's report doesn't match the field wiring.",
+      "causes": ["config", "wrong-resistor"],
+      "verify": ["Confirm how this panel reports each band (short, sealed, alarm, tamper) for the programmed EOL type.", "Measure each resistor on its own."],
+      "actions": ["Correct the programming or resistors so the readings fall in the panel's bands."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-actually-open",
+      "title": "The loop is open, not shorted",
+      "summary": "The isolated loop reads open. Some panels report this as tamper or trouble.",
+      "causes": ["config"],
+      "verify": ["Follow the 'Alarm zone permanently open' guide."],
+      "actions": ["Locate the open circuit."],
+      "escalate": [],
+      "notes": [],
+      "seeAlso": "zone-permanently-open"
+    },
+    {
+      "kind": "result",
+      "id": "r-no-meter",
+      "title": "Measurements needed",
+      "summary": "Without measurements the possible causes can't be narrowed down safely.",
+      "causes": ["cable-short", "link-left", "wiring-error", "config"],
+      "verify": ["Get a multimeter: the next steps rely on isolated resistance measurements.", "Meanwhile, look for links across terminals and visible cable damage."],
+      "actions": ["Return to this guide with a meter."],
+      "escalate": [],
+      "notes": []
+    }
+  ],
+  "causes": {
+    "cable-short": { "title": "Short in the cable", "detail": "Conductors touching through damaged insulation — staples, screws, crushed cable — or a poorly made joint." },
+    "moisture": { "title": "Moisture or contamination", "detail": "Water or corrosion in joints or damaged cable lets current leak between conductors." },
+    "wiring-error": { "title": "Wiring error at the detector", "detail": "Conductors on the wrong terminals, or resistors wired so they are bypassed." },
+    "link-left": { "title": "Link left across the zone", "detail": "A wire link fitted across the zone or EOL terminals and never removed." },
+    "detector-fault": { "title": "Detector fault", "detail": "A failed detector whose terminals read shorted with the cable removed." },
+    "wrong-resistor": { "title": "Wrong resistor value", "detail": "A lower-value resistor than intended, reading in the panel's short band." },
+    "config": { "title": "Programming doesn't match the wiring", "detail": "EOL type or values, or zone type, in the panel don't match what's installed." },
+    "panel-input": { "title": "Panel zone input or expander fault", "detail": "The input itself misreads a healthy loop." }
+  },
+  "escalation": [
+    "Escalate to a senior technician or the manufacturer's support if a known-good resistor on the input doesn't read sealed.",
+    "If the zone must stay isolated, tell the site contact and monitoring centre, record it, and book the return visit."
+  ],
+  "notes": [
+    "2k2 / 4k4 and 10k / 20k are generic examples. Your panel's EOL values, and how it reports open, short and tamper, depend on the manufacturer, model and programming.",
+    "Resistance is only meaningful on an isolated circuit."
+  ],
+  "related": [
+    { "href": "/eol", "label": "EOL Wiring Assistant — see what a shorted DEOL loop reads" },
+    { "href": "/circuit-lab/faults/shorted-zone-wiring", "label": "Circuit Lab — practise tracing a short" }
+  ]
+}

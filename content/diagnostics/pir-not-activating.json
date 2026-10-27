@@ -1,0 +1,327 @@
+{
+  "id": "pir-not-activating",
+  "version": 1,
+  "title": "PIR detector not activating",
+  "summary": "Walk-testing the detector doesn't put the zone into alarm.",
+  "area": "intrusion",
+  "icon": "pir",
+  "symptoms": [
+    "Walk test shows no activation on the panel for this zone.",
+    "The detector's LED may or may not light."
+  ],
+  "safety": [
+    "Tell the monitoring centre and the site contact before walk-testing, and put the system into test mode under site procedure.",
+    "Use a stable ladder or platform for high-mounted detectors.",
+    "Voltage checks are taken live on the DC volts range with the probes on the terminals only. Never bridge or short a supply output.",
+    "Only measure resistance on an isolated circuit: disconnect the zone conductors from the panel first."
+  ],
+  "start": "led",
+  "nodes": [
+    {
+      "kind": "question",
+      "id": "led",
+      "style": "choice",
+      "text": "Walk across the detector's field of view. Does its alarm LED light?",
+      "help": "Walk across the detection pattern, not straight towards the detector — PIRs are least sensitive to movement directly towards them. Some detectors have the LED disabled in settings.",
+      "answers": [
+        { "id": "yes", "label": "Yes, the LED lights", "next": "panel-sees", "finding": "Detector LED lights on walk test: the detector is detecting." },
+        { "id": "no", "label": "No, the LED stays off", "next": "power", "finding": "Detector LED stays off on walk test." },
+        { "id": "disabled", "label": "LED is disabled, or I can't see it", "next": "panel-sees", "finding": "Detector LED not usable as an indicator.", "evidence": { "detector-fault": 1 } }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "panel-sees",
+      "style": "yes-no",
+      "text": "Does the panel (zone status, keypad or event log) show the zone changing when you walk test?",
+      "help": "Use the panel's walk-test or zone status view. Some zone types only report in certain arming states.",
+      "answers": [
+        { "id": "yes", "label": "Yes, the zone changes", "next": "r-reporting", "finding": "Panel sees the zone change on walk test." },
+        { "id": "no", "label": "No change on the panel", "next": "loop-alarm", "finding": "Panel shows no change on walk test." }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "eol",
+      "style": "choice",
+      "text": "What EOL values is this zone set up for?",
+      "help": "Generic examples only. The steps assume equal seal and alarm resistors.",
+      "answers": [
+        { "id": "2k2", "label": "2k2 / 2k2 dual EOL (2.2 kΩ sealed, 4.4 kΩ alarm)", "next": "loop-measure", "finding": "Zone uses 2k2 / 2k2 dual EOL.", "set": { "seal": 2200 } },
+        { "id": "10k", "label": "10k / 10k dual EOL (10 kΩ sealed, 20 kΩ alarm)", "next": "loop-measure", "finding": "Zone uses 10k / 10k dual EOL.", "set": { "seal": 10000 } },
+        { "id": "unknown", "label": "Other values, or not sure", "next": "r-eol-unknown", "finding": "Zone EOL values not known." }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "loop-alarm",
+      "style": "yes-no",
+      "text": "Can you have someone walk the detector while you measure the zone loop at the panel?",
+      "help": "This checks whether the detector's alarm relay changes the loop resistance. You need a second person, or a long enough walk-test delay.",
+      "answers": [
+        { "id": "yes", "label": "Yes", "next": "eol", "finding": "Loop measured during a walk test." },
+        { "id": "no", "label": "No, I'm on my own", "next": "r-check-path", "finding": "Loop not measured during a walk test." }
+      ]
+    },
+    {
+      "kind": "measure",
+      "id": "loop-measure",
+      "text": "What does the loop read at the panel while the detector is triggered?",
+      "unit": "ohm",
+      "relativeTo": "seal",
+      "test": {
+        "procedure": "Isolate the zone: disconnect both zone conductors from the panel. Keep the detector powered (its supply is separate). Measure across the zone conductors on the Ω range while someone walks the detector and its LED (if enabled) lights.",
+        "expected": "The reading should move from the seal value to the alarm value (e.g. 2.2 kΩ → 4.4 kΩ) each time the detector activates."
+      },
+      "safety": "Resistance range only on the disconnected zone conductors — leave the detector supply connected but don't probe it on Ω.",
+      "ranges": [
+        { "id": "short", "label": "Near 0 Ω", "max": 0.023, "next": "r-short", "finding": "Loop reads {value} during walk test: shorted." },
+        { "id": "low", "label": "Below the seal value", "min": 0.023, "max": 0.9, "next": "r-values", "finding": "Loop reads {value} during walk test: below the seal value." },
+        { "id": "seal", "label": "Stays at the seal value", "min": 0.9, "max": 1.1, "next": "r-relay-path", "finding": "Loop stays at {value} while the detector activates: the alarm change isn't reaching the loop.", "evidence": { "alarm-bypassed": 2 } },
+        { "id": "between", "label": "Between seal and alarm values", "min": 1.1, "max": 1.9, "next": "r-values", "finding": "Loop reads {value} during walk test: between seal and alarm." },
+        { "id": "alarm", "label": "Changes to the alarm value", "min": 1.9, "max": 2.1, "next": "r-panel-config", "finding": "Loop changes to {value} during walk test: detector and wiring work." },
+        { "id": "high", "label": "Above the alarm value", "min": 2.1, "max": 200, "next": "r-values", "finding": "Loop reads {value} during walk test: above the alarm value." },
+        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "r-open", "finding": "Loop reads {value}: open circuit." }
+      ],
+      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-check-path", "finding": "Loop not measured." }
+    },
+    {
+      "kind": "measure",
+      "id": "power",
+      "text": "What is the supply voltage at the detector?",
+      "unit": "volt",
+      "test": {
+        "procedure": "Live test on the DC volts range: measure across the detector's + and − supply terminals with the detector connected.",
+        "expected": "Within the detector's rated range — typically about 10.5–14.5 V for a nominal 12 V detector. Check the datasheet."
+      },
+      "safety": "Probes on the supply terminals only. Never bridge or short the supply.",
+      "ranges": [
+        { "id": "none", "label": "Below 1 V (no supply)", "max": 1, "next": "r-no-power", "finding": "Detector supply reads {value}: no supply." },
+        { "id": "low", "label": "1–10.5 V (low)", "min": 1, "max": 10.5, "next": "r-low-power", "finding": "Detector supply reads {value}: low." },
+        { "id": "ok", "label": "10.5–14.6 V (normal for 12 V)", "min": 10.5, "max": 14.6, "next": "warmup", "finding": "Detector supply reads {value}: normal for a 12 V detector." },
+        { "id": "high", "label": "Above 14.6 V", "min": 14.6, "next": "r-wrong-supply", "finding": "Detector supply reads {value}: higher than a 12 V detector expects." }
+      ],
+      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "warmup", "finding": "Detector supply not measured.", "evidence": { "no-power": 1 } }
+    },
+    {
+      "kind": "question",
+      "id": "warmup",
+      "style": "yes-no",
+      "text": "Has the detector been powered for longer than its warm-up time?",
+      "help": "Many PIRs ignore movement for a short stabilisation period after power-up (often a minute or two — check the manual).",
+      "answers": [
+        { "id": "yes", "label": "Yes", "next": "environment", "finding": "Detector past its warm-up time." },
+        { "id": "no", "label": "No, it was just powered up", "next": "r-warmup", "finding": "Detector was still warming up." }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "environment",
+      "style": "choice",
+      "text": "Which best describes the detector's installation?",
+      "answers": [
+        { "id": "obstructed", "label": "Something blocks its view (shelving, signage, glass, curtains)", "next": "r-siting", "finding": "Detector's view is obstructed.", "evidence": { "siting": 3 } },
+        { "id": "mounting", "label": "Mounting height, angle or lens doesn't match the manual", "next": "r-siting", "finding": "Mounting doesn't match the manual.", "evidence": { "siting": 2, "settings": 1 } },
+        { "id": "fine", "label": "Clear view and mounted as the manual says", "next": "r-detector", "finding": "Clear view and correct mounting." }
+      ]
+    },
+    {
+      "kind": "result",
+      "id": "r-eol-unknown",
+      "title": "Confirm the zone's EOL values first",
+      "summary": "The loop reading can only be judged against the values this zone is meant to use.",
+      "causes": ["config"],
+      "verify": ["Check the zone's EOL type and values in the panel programming or installation records."],
+      "actions": ["Restart this guide once you know the expected values."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-reporting",
+      "title": "Detection reaches the panel",
+      "summary": "The panel sees the zone change, so the detector and wiring are likely working. Check what the panel does with the zone.",
+      "causes": ["config", "zone-isolated"],
+      "verify": [
+        "Check the zone isn't bypassed / isolated or omitted.",
+        "Check the zone type and which areas it belongs to — some zone types only alarm in certain arming states.",
+        "Review the event log during an armed test (under test mode with the monitoring centre informed)."
+      ],
+      "actions": ["Correct the zone programming or remove the isolation."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-panel-config",
+      "title": "Detector and wiring work — check the panel",
+      "summary": "The loop changes to the alarm value when the detector activates, but the panel shows nothing. The panel end is the likely cause.",
+      "causes": ["config", "zone-isolated", "wrong-zone", "panel-input"],
+      "verify": [
+        "Confirm the conductors land on the zone the panel is showing (zone numbering, expander address).",
+        "Check the zone's programming: EOL type and values, zone type, isolation.",
+        "Fit a known-good resistor of the alarm value on the input and check the panel shows alarm."
+      ],
+      "actions": ["Correct terminations or programming; report the input if it misreads known-good resistors."],
+      "escalate": ["Contact the manufacturer's support if the input misreads known-good resistors."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-relay-path",
+      "title": "The alarm change isn't reaching the loop",
+      "summary": "The detector activates but the loop stays at the seal value. The alarm resistor is likely bypassed, or the loop doesn't pass through the alarm contact.",
+      "causes": ["alarm-bypassed", "wrong-terminals", "relay-fault"],
+      "verify": [
+        "Check the alarm (EOL) resistor is across the alarm contact and nothing else shorts it (a link, a stray strand).",
+        "Check the zone conductors use the detector's alarm terminals, not tamper or spare terminals.",
+        "With the detector powered and the zone isolated, measure across the alarm contact terminals while walk-testing: it should switch between closed and open."
+      ],
+      "actions": ["Correct the wiring, or replace the detector if its relay doesn't switch."],
+      "escalate": [],
+      "notes": ["In generic DEOL, the alarm resistor sits across the NC alarm contact, so it only adds to the loop when the contact opens."]
+    },
+    {
+      "kind": "result",
+      "id": "r-values",
+      "title": "The loop reads unexpected values",
+      "summary": "The readings don't match the zone's EOL values, so the panel may not recognise an alarm.",
+      "causes": ["wrong-resistor", "config", "hr-joint"],
+      "verify": ["Measure each EOL resistor on its own with the zone isolated.", "Check joints for corrosion.", "Confirm the panel's programmed EOL values."],
+      "actions": ["Fit the correct resistors, remake poor joints, or correct the programming."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-short",
+      "title": "The loop is shorted",
+      "summary": "A shorted loop can't show an alarm.",
+      "causes": ["wrong-terminals"],
+      "verify": ["Follow the 'Alarm zone permanently shorted' guide."],
+      "actions": ["Locate and clear the short."],
+      "escalate": [],
+      "notes": [],
+      "seeAlso": "zone-permanently-shorted"
+    },
+    {
+      "kind": "result",
+      "id": "r-open",
+      "title": "The loop is open",
+      "summary": "An open loop can't show the detector's alarm.",
+      "causes": ["wrong-terminals"],
+      "verify": ["Follow the 'Alarm zone permanently open' guide."],
+      "actions": ["Locate and repair the open circuit."],
+      "escalate": [],
+      "notes": [],
+      "seeAlso": "zone-permanently-open"
+    },
+    {
+      "kind": "result",
+      "id": "r-check-path",
+      "title": "Check the alarm path from detector to panel",
+      "summary": "Without a loop measurement during activation, the fault can't be placed. Detector, wiring and panel programming are all possible.",
+      "causes": ["alarm-bypassed", "config", "zone-isolated", "relay-fault"],
+      "verify": [
+        "Check the zone isn't isolated or omitted, and its programming matches the wiring.",
+        "Inspect the detector's alarm terminals and EOL resistor placement.",
+        "Return with a second person (or use a long walk-test window) to measure the loop during activation."
+      ],
+      "actions": ["Correct any programming or wiring issue found, then re-test."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-no-power",
+      "title": "The detector has no supply",
+      "summary": "An unpowered detector can't detect.",
+      "causes": ["no-power", "supply-fault"],
+      "verify": ["Measure the panel's AUX output (DC volts, live).", "If present at the panel, check the supply conductors' continuity with the cable isolated.", "Check fuses or AUX protection and the total AUX load."],
+      "actions": ["Restore the supply and re-test after the warm-up time."],
+      "escalate": ["Mains supply work must be done by a licensed electrician."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-low-power",
+      "title": "The detector supply is low",
+      "summary": "Below its rated range a detector may not detect reliably.",
+      "causes": ["supply-fault", "hr-joint"],
+      "verify": ["Compare the voltage at the panel AUX output and at the detector to find voltage drop.", "Check the battery, charger and AUX load."],
+      "actions": ["Fix poor joints, upgrade the supply conductors on long runs, or add a supervised power supply."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-wrong-supply",
+      "title": "The detector supply is higher than expected",
+      "summary": "Check the detector's rating before going further.",
+      "causes": ["supply-fault"],
+      "verify": ["Check the detector's datasheet for its supply range and which output it's connected to."],
+      "actions": ["Connect it to a supply within its rating; replace it if damaged."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-warmup",
+      "title": "Wait for the warm-up period",
+      "summary": "The detector was recently powered and may still be stabilising.",
+      "causes": ["warmup"],
+      "verify": ["Wait for the warm-up time in the manual, then walk test again."],
+      "actions": ["If it still doesn't activate, restart this guide."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-siting",
+      "title": "Detector siting or mounting",
+      "summary": "The detector is powered, but its view or mounting is likely stopping it detecting.",
+      "causes": ["siting", "settings", "detector-fault"],
+      "verify": ["Check mounting height, tilt and lens/coverage against the manual.", "Walk test across the pattern at several distances."],
+      "actions": ["Remove obstructions, re-site or re-angle the detector, and walk test again."],
+      "escalate": [],
+      "notes": ["PIRs don't see through glass and detect best across their field of view."]
+    },
+    {
+      "kind": "result",
+      "id": "r-detector",
+      "title": "Detector settings or detector fault",
+      "summary": "Power, warm-up and siting check out. The detector's settings or the detector itself are the likely cause.",
+      "causes": ["settings", "detector-fault"],
+      "verify": ["Check sensitivity / pulse count and LED settings against the manual.", "Swap in a known-good detector to confirm."],
+      "actions": ["Adjust settings within the manufacturer's guidance, or replace the detector."],
+      "escalate": ["Contact the manufacturer if a new detector of the same model behaves the same way."],
+      "notes": []
+    }
+  ],
+  "causes": {
+    "config": { "title": "Zone programming", "detail": "Zone type, area, EOL settings or zone number in the panel don't match the installation." },
+    "zone-isolated": { "title": "Zone isolated or omitted", "detail": "The zone was bypassed / isolated and not restored." },
+    "wrong-zone": { "title": "Wired to a different zone", "detail": "The conductors land on another zone input or expander than the one being watched." },
+    "panel-input": { "title": "Panel zone input fault", "detail": "The input misreads a healthy loop." },
+    "alarm-bypassed": { "title": "Alarm resistor or contact bypassed", "detail": "A link or wiring error shorts the alarm resistor, so opening the contact doesn't change the loop." },
+    "wrong-terminals": { "title": "Wired to the wrong detector terminals", "detail": "Zone conductors on tamper, spare or power terminals instead of the alarm contact." },
+    "relay-fault": { "title": "Detector relay fault", "detail": "The detector detects (LED) but its alarm relay doesn't switch." },
+    "wrong-resistor": { "title": "Wrong resistor value", "detail": "Resistors that don't match the panel's programmed values." },
+    "hr-joint": { "title": "High-resistance joint", "detail": "A corroded or poorly made joint." },
+    "no-power": { "title": "No supply to the detector", "detail": "Supply conductor open, or no output from the panel." },
+    "supply-fault": { "title": "Supply fault", "detail": "Blown fuse or tripped protection, overloaded AUX output, battery or mains fault, voltage drop on long runs." },
+    "warmup": { "title": "Still warming up", "detail": "Detector inside its stabilisation period after power-up." },
+    "siting": { "title": "Siting or obstruction", "detail": "Wrong height or angle, or something blocking the detector's view." },
+    "settings": { "title": "Detector settings", "detail": "Sensitivity, pulse count or LED settings not suited to the area." },
+    "detector-fault": { "title": "Faulty detector", "detail": "The detector doesn't respond even with power and a clear view." }
+  },
+  "escalation": [
+    "Contact the manufacturer's support if a known-good detector or known-good resistors don't behave as expected on this input.",
+    "If the area must be left without detection, tell the site contact and monitoring centre, record it, and book the return visit."
+  ],
+  "notes": [
+    "2k2 / 4k4 and 10k / 20k are generic examples, not manufacturer specifications.",
+    "Walk across the detection pattern when testing; PIRs are least sensitive to movement straight towards them."
+  ],
+  "related": [{ "href": "/circuit-lab/wiring-bench", "label": "Circuit Lab — wire a dual EOL PIR and see the alarm reading" }]
+}

@@ -1,6 +1,16 @@
 # Development status
 
-**Milestone:** v0.4.2 — Circuit Lab Refinement & Training Expansion — **complete**
+**Milestone:** v0.5.0 — Guided Fault Finder — **in progress** (v0.4.2 complete at 99a4546)
+
+## v0.5.0 progress
+- Done: `src/lib/fault-finder/{schema,engine,workflows}.ts`; five workflows in `content/diagnostics/*.json`
+  (zone open, zone shorted, PIR not activating, tamper won't clear, door not unlocking); tests in
+  `tests/fault-finder/` (structure, branching, measurement parsing, back/restart, invalid/tampered sessions).
+- Remaining: session persistence, UI (landing + `/fault-finder/diagnose/[id]`), search/nav integration,
+  UI tests, browser QA, docs.
+
+## Previous milestone
+v0.4.2 — Circuit Lab Refinement & Training Expansion — complete
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
 ## Completed (v0.4.2)

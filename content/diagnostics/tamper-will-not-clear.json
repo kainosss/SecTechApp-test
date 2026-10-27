@@ -1,0 +1,269 @@
+{
+  "id": "tamper-will-not-clear",
+  "version": 1,
+  "title": "Tamper fault that won't clear",
+  "summary": "The panel keeps reporting a tamper after covers are closed and the system is reset.",
+  "area": "intrusion",
+  "icon": "shield",
+  "symptoms": [
+    "Tamper shown on the keypad and won't clear or keeps returning.",
+    "The system may refuse to arm or need a code to acknowledge."
+  ],
+  "safety": [
+    "Tamper is often monitored 24 hours: tell the monitoring centre and the site contact before opening covers or enclosures.",
+    "External sirens can sound when their cover or tamper is disturbed — follow the manufacturer's service procedure before opening one.",
+    "Only measure resistance on an isolated circuit; disconnect the conductors first and power down where the manufacturer requires.",
+    "Don't leave tamper inputs linked out as a permanent fix."
+  ],
+  "start": "source",
+  "nodes": [
+    {
+      "kind": "question",
+      "id": "source",
+      "style": "choice",
+      "text": "Which tamper is the panel reporting?",
+      "help": "Check the keypad's alarm/trouble view or the event log for the source.",
+      "answers": [
+        { "id": "zone", "label": "A detector or zone tamper", "next": "cover", "finding": "Tamper reported on a zone." },
+        { "id": "enclosure", "label": "The panel or power supply enclosure", "next": "lid", "finding": "Tamper reported on an enclosure." },
+        { "id": "siren", "label": "A siren, strobe or expansion module", "next": "r-module", "finding": "Tamper reported on a siren or module." },
+        { "id": "unknown", "label": "Not sure", "next": "r-find-source", "finding": "Tamper source not identified." }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "lid",
+      "style": "yes-no",
+      "text": "Is the enclosure lid fully closed, with its tamper switch (and any wall/back tamper) pressed in?",
+      "answers": [
+        { "id": "yes", "label": "Yes", "next": "r-enclosure", "finding": "Enclosure closed and tamper switch actuated." },
+        { "id": "no", "label": "No", "next": "r-lid", "finding": "Enclosure lid or tamper switch not seated.", "evidence": { "cover": 3 } }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "cover",
+      "style": "yes-no",
+      "text": "Is the detector's cover fully seated, with the tamper switch pressed?",
+      "help": "Look for a cover not clipped on, a bent tamper spring or plunger, or cable pushing the PCB away from the cover.",
+      "answers": [
+        { "id": "yes", "label": "Yes", "next": "latched", "finding": "Detector cover seated, tamper switch pressed." },
+        { "id": "no", "label": "No", "next": "r-cover", "finding": "Detector cover or tamper switch not seated.", "evidence": { "cover": 3 } }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "latched",
+      "style": "yes-no",
+      "text": "Has the tamper been acknowledged / reset at the keypad since the cover was closed?",
+      "help": "Many panels latch tamper alarms until a user or installer code resets them. Check the panel's manual for which code level is needed.",
+      "answers": [
+        { "id": "yes", "label": "Yes, and it's still there", "next": "eol", "finding": "Tamper reset attempted; still present." },
+        { "id": "no", "label": "No", "next": "r-reset", "finding": "Tamper not yet reset at the keypad.", "evidence": { "latched": 3 } }
+      ]
+    },
+    {
+      "kind": "question",
+      "id": "eol",
+      "style": "choice",
+      "text": "What EOL values is this zone set up for?",
+      "help": "Generic examples only. The steps assume equal seal and alarm resistors.",
+      "answers": [
+        { "id": "2k2", "label": "2k2 / 2k2 dual EOL (2.2 kΩ sealed, 4.4 kΩ alarm)", "next": "measure", "finding": "Zone uses 2k2 / 2k2 dual EOL.", "set": { "seal": 2200 } },
+        { "id": "10k", "label": "10k / 10k dual EOL (10 kΩ sealed, 20 kΩ alarm)", "next": "measure", "finding": "Zone uses 10k / 10k dual EOL.", "set": { "seal": 10000 } },
+        { "id": "unknown", "label": "Other values, or not sure", "next": "r-eol-unknown", "finding": "Zone EOL values not known." }
+      ]
+    },
+    {
+      "kind": "measure",
+      "id": "measure",
+      "text": "What does the zone loop measure at the panel?",
+      "unit": "ohm",
+      "relativeTo": "seal",
+      "test": {
+        "procedure": "Isolate the zone: disconnect both zone conductors from the panel. With the detector sealed and its cover on, measure across the two conductors on the Ω range.",
+        "expected": "About the seal value. In generic DEOL the tamper switch is in series, so an open tamper reads OL."
+      },
+      "safety": "Resistance range only on the disconnected conductors.",
+      "ranges": [
+        { "id": "short", "label": "Near 0 Ω", "max": 0.023, "next": "r-short", "finding": "Loop reads {value}: shorted — some panels report this as tamper." },
+        { "id": "low", "label": "Below the seal value", "min": 0.023, "max": 0.9, "next": "r-values", "finding": "Loop reads {value}: below the seal value." },
+        { "id": "seal", "label": "About the seal value", "min": 0.9, "max": 1.1, "next": "r-panel", "finding": "Loop reads {value}: sealed when isolated." },
+        { "id": "above", "label": "Above the seal value but not open", "min": 1.1, "max": 200, "next": "r-values", "finding": "Loop reads {value}: above the seal value." },
+        { "id": "open", "label": "OL / open circuit", "min": 200, "next": "r-open", "finding": "Loop reads {value}: open — the tamper or loop is open.", "evidence": { "tamper-switch": 2 } }
+      ],
+      "skip": { "id": "no-meter", "label": "I can't take this reading", "next": "r-no-meter", "finding": "Loop resistance not measured." }
+    },
+    {
+      "kind": "result",
+      "id": "r-find-source",
+      "title": "Identify the tamper source first",
+      "summary": "Tamper can come from detectors, enclosures, sirens or modules; each is checked differently.",
+      "causes": ["cover", "latched"],
+      "verify": ["Check the keypad's alarm / trouble view and the event log for the tamper source.", "Walk the site for open covers and lids."],
+      "actions": ["Restart this guide once the source is known."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-lid",
+      "title": "Enclosure tamper not actuated",
+      "summary": "A lid or tamper switch that isn't fully pressed keeps the tamper active.",
+      "causes": ["cover", "tamper-switch"],
+      "verify": ["Close the lid fully and check the tamper switch plunger travels far enough.", "Check any wall / back tamper is pressed against the mounting surface."],
+      "actions": ["Re-seat the lid, adjust or replace the switch bracket, then reset the tamper at the keypad."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-enclosure",
+      "title": "Enclosure tamper circuit",
+      "summary": "The lid and switch look right, but the panel still reports tamper. The switch, its wiring, or a latched alarm are possible.",
+      "causes": ["latched", "tamper-switch", "tamper-wiring"],
+      "verify": [
+        "Reset the tamper at the keypad with the required code level.",
+        "With power isolated as the manufacturer requires and the switch leads disconnected, check the switch reads closed when pressed and open when released.",
+        "Check the tamper input's wiring and plug for loose connections."
+      ],
+      "actions": ["Replace a faulty switch or repair the wiring, then reset."],
+      "escalate": ["Contact the manufacturer's support if the input still reports tamper with a known-good switch."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-module",
+      "title": "Siren or module tamper",
+      "summary": "Siren, strobe and expander tampers have their own switches and loops.",
+      "causes": ["cover", "tamper-wiring", "latched"],
+      "verify": [
+        "Follow the siren's or module's service procedure before opening it.",
+        "Check its cover and tamper switch are seated, and its tamper loop wiring back to the panel.",
+        "For modules, check the event log for which device is reporting."
+      ],
+      "actions": ["Re-seat covers, repair tamper loop wiring, then reset at the keypad."],
+      "escalate": [],
+      "notes": ["External sirens with their own battery can sound when disturbed — warn the site first."]
+    },
+    {
+      "kind": "result",
+      "id": "r-cover",
+      "title": "Detector cover or tamper switch",
+      "summary": "A cover that isn't fully seated keeps the tamper switch open.",
+      "causes": ["cover", "tamper-switch"],
+      "verify": ["Seat the cover fully; check the tamper spring or plunger isn't bent and cable isn't pushing the PCB."],
+      "actions": ["Re-seat the cover, then reset the tamper at the keypad."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-reset",
+      "title": "Reset the latched tamper",
+      "summary": "The cover is closed, but many panels hold a tamper until it's acknowledged.",
+      "causes": ["latched"],
+      "verify": ["Reset / acknowledge the tamper at the keypad with the required code level.", "If it returns straight away, restart this guide and answer 'Yes' to the reset question."],
+      "actions": ["Reset the tamper and confirm the zone shows sealed."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-eol-unknown",
+      "title": "Confirm the zone's EOL values first",
+      "summary": "A reading can only be judged against the values this zone is meant to use.",
+      "causes": ["config"],
+      "verify": ["Check the zone's EOL type and values in the panel programming or installation records."],
+      "actions": ["Restart this guide once you know the expected values."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-open",
+      "title": "The loop is open",
+      "summary": "With the cover closed the loop still reads open. In generic DEOL an open loop is usually reported as tamper.",
+      "causes": ["tamper-switch", "tamper-wiring", "cable"],
+      "verify": [
+        "At the detector, with the zone isolated, measure across the tamper switch terminals with the cover pressed: it should read close to 0 Ω.",
+        "If the switch is fine, follow the 'Alarm zone permanently open' guide to find the open."
+      ],
+      "actions": ["Replace a faulty tamper switch or detector, or repair the open conductor."],
+      "escalate": [],
+      "notes": [],
+      "seeAlso": "zone-permanently-open"
+    },
+    {
+      "kind": "result",
+      "id": "r-short",
+      "title": "The loop is shorted",
+      "summary": "Some panels report a short as tamper.",
+      "causes": ["cable", "config"],
+      "verify": ["Follow the 'Alarm zone permanently shorted' guide."],
+      "actions": ["Locate and clear the short."],
+      "escalate": [],
+      "notes": [],
+      "seeAlso": "zone-permanently-shorted"
+    },
+    {
+      "kind": "result",
+      "id": "r-values",
+      "title": "The loop reads outside the expected bands",
+      "summary": "Some panels report readings outside their sealed and alarm bands as tamper.",
+      "causes": ["wrong-resistor", "config", "cable"],
+      "verify": ["Measure each EOL resistor on its own with the zone isolated.", "Check joints for corrosion.", "Confirm the panel's programmed EOL values and how it reports out-of-band readings."],
+      "actions": ["Fit the correct resistors, remake poor joints or correct programming, then reset."],
+      "escalate": [],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-panel",
+      "title": "Loop is sealed — check the panel",
+      "summary": "Isolated, the loop reads sealed, yet the tamper persists. A latched alarm, programming or the panel input are likely.",
+      "causes": ["latched", "config", "panel-input"],
+      "verify": [
+        "Reconnect the zone and reset the tamper with the correct code level.",
+        "Check the zone's EOL programming matches the wiring.",
+        "Fit a known-good resistor of the seal value on the input and check the status."
+      ],
+      "actions": ["Correct programming; report the input if it misreads a known-good resistor."],
+      "escalate": ["Contact the manufacturer's support if the input misreads a known-good resistor."],
+      "notes": []
+    },
+    {
+      "kind": "result",
+      "id": "r-no-meter",
+      "title": "Measurements needed",
+      "summary": "Without a loop measurement the cause can't be narrowed down safely.",
+      "causes": ["tamper-switch", "tamper-wiring", "config"],
+      "verify": ["Get a multimeter: the next step is an isolated resistance measurement."],
+      "actions": ["Return to this guide with a meter."],
+      "escalate": [],
+      "notes": []
+    }
+  ],
+  "causes": {
+    "cover": { "title": "Cover or lid not seated", "detail": "The tamper switch isn't pressed because the cover, lid or mounting isn't fully home." },
+    "tamper-switch": { "title": "Faulty tamper switch", "detail": "The switch doesn't close when pressed." },
+    "tamper-wiring": { "title": "Tamper wiring fault", "detail": "Open or loose conductor in the tamper loop or plug." },
+    "latched": { "title": "Tamper latched in the panel", "detail": "The panel holds the tamper until it's acknowledged with the right code level." },
+    "cable": { "title": "Cable fault", "detail": "Open or shorted conductor between the panel and the detector." },
+    "wrong-resistor": { "title": "Wrong resistor value", "detail": "Loop reads outside the panel's bands." },
+    "config": { "title": "Programming doesn't match the wiring", "detail": "EOL type or values in the panel don't match what's installed." },
+    "panel-input": { "title": "Panel input fault", "detail": "The input misreads a healthy loop." }
+  },
+  "escalation": [
+    "Contact the manufacturer's support if the input misreads a known-good resistor or switch.",
+    "If a tamper must be left isolated, tell the site contact and monitoring centre, record it, and book the return visit. Never leave it linked out permanently."
+  ],
+  "notes": [
+    "Panels differ in how they report open, short and out-of-band readings — some show them as tamper, others as trouble or alarm. Check the panel's documentation.",
+    "2k2 / 4k4 and 10k / 20k are generic examples, not manufacturer specifications."
+  ],
+  "related": [
+    { "href": "/eol", "label": "EOL Wiring Assistant — see what a tamper does to a DEOL loop" },
+    { "href": "/circuit-lab/faults/bypassed-tamper", "label": "Circuit Lab — practise finding a bypassed tamper" }
+  ]
+}
