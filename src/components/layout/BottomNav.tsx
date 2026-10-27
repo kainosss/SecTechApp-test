@@ -13,7 +13,7 @@ export function BottomNav() {
       className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink-900/95 backdrop-blur lg:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => item.mobile !== false).map((item) => {
           const active = isActivePath(pathname, item.href);
           return (
             <li key={item.href}>

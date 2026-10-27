@@ -1,9 +1,11 @@
-export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "search";
+export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "report" | "search";
 
 export interface NavItem {
   href: string;
   label: string;
   icon: IconName;
+  /** Hidden from the five-slot mobile bottom bar (still in the sidebar and on the dashboard). */
+  mobile?: false;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -11,7 +13,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/devices", label: "Devices", icon: "library" },
   { href: "/eol", label: "EOL", icon: "eol" },
   { href: "/fault-finder", label: "Faults", icon: "fault" },
-  { href: "/circuit-lab", label: "Lab", icon: "lab" },
+  { href: "/reports", label: "Reports", icon: "report" },
+  { href: "/circuit-lab", label: "Lab", icon: "lab", mobile: false },
 ];
 
 export interface ToolDefinition {
@@ -51,6 +54,15 @@ export const TOOLS: ToolDefinition[] = [
     icon: "fault",
     status: "available",
     keywords: ["fault", "troubleshoot", "tamper", "diagnose", "trouble", "zone open", "short", "pir", "door", "lock", "access control"],
+  },
+  {
+    id: "service-reports",
+    title: "Service Reports",
+    description: "Record equipment and findings on site, then generate an editable Excel report in one tap.",
+    href: "/reports",
+    icon: "report",
+    status: "available",
+    keywords: ["report", "service report", "job sheet", "excel", "xlsx", "maintenance", "inspection", "equipment register"],
   },
   {
     id: "circuit-lab",

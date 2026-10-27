@@ -13,7 +13,8 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `/eol` EOL Wiring Assistant (explorer; URL state `?t=<template>&p=<preset>`), `/eol/[id]`
 - `/fault-finder` guided fault finder · `/fault-finder/diagnose/[id]` diagnosis · `/fault-finder/[id]` workflow records
 - `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
-- Navigation: `src/lib/navigation.ts` (NAV_ITEMS, TOOLS → search index)
+- `/reports` Quick Service Report (list, or editor with `?id=`)
+- Navigation: `src/lib/navigation.ts` (NAV_ITEMS — `mobile: false` keeps an item off the 5-slot bottom bar; TOOLS → search index)
 
 ## Content
 - JSON in `/content` (+ `/content/demo`, shown only when `FIELDWISE_DEMO_MODE=true`, except generic circuits).
@@ -34,6 +35,8 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   are classified against bands calculated by `fault-finder/eol.ts` (EOL engine), never fixed values. Never set
   `verification.status` beyond "generic" without a real source or a named technician review (see
   `docs/TECHNICAL_REVIEW.md`); an AI review is not verification.
+- `src/lib/reports/`: report schema (zod), pure edits/derivations (`report.ts`, never invents content), local
+  drafts (`store.ts`), ExcelJS workbook (`excel.ts`, loaded on demand; all user text through `safeText`; no formulas).
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

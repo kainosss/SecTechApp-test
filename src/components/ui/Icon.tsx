@@ -7,6 +7,7 @@ export type IconKey =
   | "fault"
   | "lab"
   | "lock"
+  | "report"
   | "pir"
   | "search"
   | "star"
@@ -46,6 +47,13 @@ const PATHS: Record<IconKey, React.ReactNode> = {
       <circle cx="8" cy="10" r="1.3" />
       <circle cx="16" cy="14" r="1.3" />
       <path d="M8 11.3v1.2a1.5 1.5 0 0 0 1.5 1.5h5.2" />
+    </>
+  ),
+  // Clipboard with lines
+  report: (
+    <>
+      <rect x="5" y="4.5" width="14" height="16" rx="2" />
+      <path d="M9 4.5V3.5h6v1M8.5 10h7M8.5 13.5h7M8.5 17h4" />
     </>
   ),
   // Padlock

@@ -2,7 +2,7 @@
 
 Mobile-first technical reference for Australian electronic security technicians and apprentices.
 
-> **Status: v0.5 beta.** The Device Library, EOL Wiring Assistant, Guided Fault Finder (five generic diagnostic workflows, awaiting technician review — see docs/TECHNICAL_REVIEW.md) and Circuit Lab (a simulated wiring exercise, virtual multimeter and five fault-finding exercises, with progress saved on the device) are functional. All real device records are
+> **Status: v0.6 beta.** The Device Library, EOL Wiring Assistant, Guided Fault Finder (five generic diagnostic workflows, awaiting technician review — see docs/TECHNICAL_REVIEW.md), Circuit Lab (wiring exercise, virtual multimeter and five fault-finding exercises) and Quick Service Report (local drafts, one-tap Excel workbook) are functional. All real device records are
 > identification-only and marked **Needs verification**. See
 > [docs/VERIFICATION_BACKLOG.md](docs/VERIFICATION_BACKLOG.md).
 

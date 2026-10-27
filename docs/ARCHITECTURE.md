@@ -200,6 +200,25 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
   likely and possible causes, and further verification. Findings record how they were established.
 - Review workspace: `docs/TECHNICAL_REVIEW.md`. Workflow versions bumped to 2 (older saved sessions discarded).
 
+## Quick Service Report (v0.6.0)
+
+- **Route:** `/reports` — one client page: start a report (job type), resume / duplicate / delete / re-export drafts;
+  `?id=` opens the editor (history entries, so the phone's Back button works).
+- **Model:** `src/lib/reports/schema.ts` (zod). `report.ts` holds pure edits (add, update, duplicate, move, remove,
+  restore) and derivations: status counts, outstanding actions (Fault / Recommendation items, text only from what
+  was entered, priority blank unless set), a draft summary built from entered text, and non-blocking warnings.
+- **Storage:** `store.ts` — drafts in `localStorage` (`fieldwise:reports:v1`), each validated on read; damaged or
+  outdated entries are skipped and counted. Technician details in `fieldwise:technician:v1`. Autosave on every edit;
+  the "Saved" indicator compares the stored copy with the editor state.
+- **Workbook:** `excel.ts` builds three sheets with ExcelJS (MIT), imported dynamically on Generate so it's not in
+  page bundles: Job Summary (details, totals, summaries), Equipment Register (frozen, filtered headers, status
+  drop-down) and Outstanding Actions. Navy headers, light-blue dividers, thin borders, wrapped text, estimated row
+  heights, A4 print setup with repeated headers. `safeText` strips XML-invalid characters, prefixes formula-like
+  text with an apostrophe and truncates to Excel's cell limit; no formulas are written. Generated in the browser —
+  nothing is uploaded.
+- `npm audit` reports a moderate advisory in `uuid` (a dependency of ExcelJS) affecting v3/v5/v6 calls with a
+  caller-supplied buffer, which ExcelJS doesn't use. Revisit when ExcelJS updates.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -218,6 +237,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.6.0 ✅ | Quick Service Report: on-site entry, local drafts, one-tap Excel workbook |
 | v0.5.1 ✅ | Calculated EOL expectations (unequal pairs), verification metadata, guide audit, review workspace |
 | v0.5.0 ✅ | Guided Fault Finder: five deterministic diagnostic workflows, saved sessions |
 | v0.4.2 ✅ | Tappable contacts, five fault exercises, readable routing, saved progress, exercise picker |

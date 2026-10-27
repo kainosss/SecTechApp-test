@@ -8,7 +8,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 describe("BottomNav", () => {
   it("renders all primary destinations and marks the active section", () => {
     render(<BottomNav />);
-    for (const label of ["Home", "Devices", "EOL", "Faults", "Lab"]) {
+    for (const label of ["Home", "Devices", "EOL", "Faults", "Reports"]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
     expect(screen.getByRole("link", { name: "Devices" })).toHaveAttribute("aria-current", "page");
