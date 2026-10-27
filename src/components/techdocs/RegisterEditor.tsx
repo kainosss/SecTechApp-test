@@ -9,6 +9,7 @@ import { downloadTechWorkbook } from "@/lib/techdocs/download";
 import { applyRegisterEdit, blankEquipment, CATEGORY_LABEL, duplicateEquipment, equipmentLabel, filterEquipment, registerTitle, statusLabel, type EquipmentFilter, type RegisterEdit } from "@/lib/techdocs/register";
 import { CATEGORIES, OP_STATUSES, type Category, type Equipment, type TechRegister } from "@/lib/techdocs/schema";
 import { getRegister, parseRegisters, readRegistersRaw, saveRegister, subscribeRegisters } from "@/lib/techdocs/store";
+import { historyFor, saveWithHistory } from "@/lib/techdocs/history";
 import { duplicateIps } from "@/lib/techdocs/validation";
 import { EquipmentForm, type SaveMode } from "./EquipmentForm";
 
@@ -26,11 +27,16 @@ interface State {
   loaded: boolean;
 }
 
-type Action = { type: "load"; register: TechRegister | null } | { type: "edit"; edit: RegisterEdit };
+type Action =
+  | { type: "load"; register: TechRegister | null }
+  | { type: "edit"; edit: RegisterEdit }
+  /** The form's Save: also records "added" or the changed fields in the equipment history. */
+  | { type: "save"; item: Equipment; after?: string };
 
 function reducer(state: State, action: Action): State {
   if (action.type === "load") return { loaded: true, register: action.register };
   if (!state.register) return state;
+  if (action.type === "save") return { ...state, register: saveWithHistory(state.register, action.item, { after: action.after, technician: state.register.technician.trim() }) };
   return { ...state, register: applyRegisterEdit(state.register, action.edit) };
 }
 
@@ -119,7 +125,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
   const duplicate = (e: Equipment) => openDraft({ item: duplicateEquipment(e), isNew: true, after: e.id, duplicatedFrom: equipmentLabel(register, e) });
 
   function save(item: Equipment, mode: SaveMode) {
-    edit({ type: "save-item", item, after: draft?.isNew ? draft.after : undefined });
+    dispatch({ type: "save", item, after: draft?.isNew ? draft.after : undefined });
     const label = equipmentLabel(register!.equipment.some((e) => e.id === item.id) ? register! : { ...register!, equipment: [...register!.equipment, item] }, item);
     if (mode === "close") {
       closeDraft();
@@ -147,6 +153,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
         )}
         <EquipmentForm
           key={draft.item.id}
+          history={draft.isNew ? [] : historyFor(register, draft.item.id)}
           register={register}
           initial={draft.item}
           isNew={draft.isNew}

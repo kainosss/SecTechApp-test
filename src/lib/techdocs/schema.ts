@@ -94,6 +94,40 @@ export type Equipment = z.infer<typeof equipmentSchema>;
 /** Every editable text field of an equipment entry. */
 export type EquipmentTextField = Exclude<keyof Equipment, "id" | "category" | "status" | "customFields">;
 
+export const HISTORY_TYPES = [
+  { id: "added", label: "Added to register" },
+  { id: "inspection", label: "Service inspection" },
+  { id: "fault", label: "Fault recorded" },
+  { id: "repaired", label: "Repair completed" },
+  { id: "replaced", label: "Equipment replaced" },
+  { id: "firmware", label: "Firmware updated" },
+  { id: "details", label: "Technical details changed" },
+] as const;
+export type HistoryType = (typeof HISTORY_TYPES)[number]["id"];
+
+export const historyChangeSchema = z.object({ field: z.string().max(40), label: text(100), from: text(2000), to: text(2000) });
+export type HistoryChange = z.infer<typeof historyChangeSchema>;
+
+/** A factual event in an equipment entry's history (from a user action or a linked service report). */
+export const historyEventSchema = z.object({
+  id: z.string().min(1).max(200),
+  equipmentId: z.string().min(1).max(64),
+  /** Equipment name at the time, so history stays readable if the entry is renamed or removed. */
+  equipmentName: text(200),
+  reportId: z.string().max(64).default(""),
+  /** Short report description (site · reference) at the time of the event. */
+  reportLabel: text(300),
+  /** When it was recorded (ISO). */
+  at: z.string().max(40),
+  /** Job date for service events (YYYY-MM-DD), or "". */
+  date: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).default(""),
+  technician: text(200),
+  type: z.enum(HISTORY_TYPES.map((t) => t.id) as [HistoryType, ...HistoryType[]]),
+  description: text(5000),
+  changes: z.array(historyChangeSchema).max(100).default([]),
+});
+export type HistoryEvent = z.infer<typeof historyEventSchema>;
+
 export const REGISTER_VERSION = 1;
 
 export const registerSchema = z.object({
@@ -109,5 +143,7 @@ export const registerSchema = z.object({
   technician: short(),
   notes: text(10000),
   equipment: z.array(equipmentSchema).max(2000).default([]),
+  /** Equipment service and change history (optional, so v0.7.0 registers load unchanged). */
+  history: z.array(historyEventSchema).max(20000).default([]),
 });
 export type TechRegister = z.infer<typeof registerSchema>;

@@ -28,6 +28,45 @@ export type Priority = (typeof PRIORITIES)[number];
 /** Generous limits: long notes are fine, but a runaway paste can't fill storage or exceed Excel's cell limit. */
 const text = (max = 5000) => z.string().max(max).default("");
 
+/** One applied change to the site's master equipment record, made from this job (factual record, not exported). */
+export const appliedChangeSchema = z.object({
+  field: z.string().max(40),
+  label: text(100),
+  from: text(2000),
+  to: text(2000),
+  at: z.string().max(40),
+});
+export type AppliedChange = z.infer<typeof appliedChangeSchema>;
+
+/**
+ * Link from a report item to a Technical Docs equipment entry. The register
+ * stays the source of truth; `snapshot` keeps the identifying details as they
+ * were when the item was added, so this report stays accurate if the master
+ * record changes later. Network settings are deliberately not copied.
+ */
+export const itemSourceSchema = z.object({
+  registerId: z.string().min(1).max(64),
+  equipmentId: z.string().min(1).max(64),
+  snapshot: z
+    .object({
+      name: text(200),
+      category: text(100),
+      type: text(200),
+      location: text(200),
+      assetId: text(100),
+      make: text(200),
+      model: text(200),
+      serial: text(100),
+      firmware: text(100),
+      capturedAt: z.string().max(40).default(""),
+    })
+    .default({ name: "", category: "", type: "", location: "", assetId: "", make: "", model: "", serial: "", firmware: "", capturedAt: "" }),
+  /** Only ever set by the technician; used for the equipment's service history. */
+  outcome: z.enum(["", "repaired", "replaced"]).default(""),
+  applied: z.array(appliedChangeSchema).max(200).default([]),
+});
+export type ItemSource = z.infer<typeof itemSourceSchema>;
+
 export const itemSchema = z.object({
   id: z.string().min(1).max(64),
   name: text(200),
@@ -41,6 +80,8 @@ export const itemSchema = z.object({
   notes: text(),
   /** Only ever set by the technician; never inferred. */
   priority: z.enum(PRIORITIES).default(""),
+  /** Set when the item was picked from a site register; manual items have none. */
+  source: itemSourceSchema.nullable().default(null),
 });
 export type ReportItem = z.infer<typeof itemSchema>;
 
@@ -70,6 +111,8 @@ export const reportSchema = z.object({
   /** YYYY-MM-DD, or empty. */
   date: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).default(""),
   description: text(),
+  /** Linked Technical Docs register ("" = standalone report). Optional, so older drafts load unchanged. */
+  registerId: z.string().max(64).default(""),
   equipment: z.array(itemSchema).max(500).default([]),
   summary: summarySchema.default({ workCompleted: "", faults: "", outstanding: "", recommendations: "", parts: "", notes: "" }),
 });

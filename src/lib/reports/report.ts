@@ -34,13 +34,14 @@ export function createReport(jobType: JobType, technician = "", now = new Date()
     reference: "",
     date: today(now),
     description: "",
+    registerId: "",
     equipment: [],
     summary: { workCompleted: "", faults: "", outstanding: "", recommendations: "", parts: "", notes: "" },
   };
 }
 
 export function blankItem(type = ""): ReportItem {
-  return { id: newId(), name: "", type, location: "", makeModel: "", status: "not-tested", findings: "", work: "", recommendations: "", notes: "", priority: "" };
+  return { id: newId(), name: "", type, location: "", makeModel: "", status: "not-tested", findings: "", work: "", recommendations: "", notes: "", priority: "", source: null };
 }
 
 /** Default display name: "Camera 3" when the item has a type but no name. */
@@ -57,6 +58,8 @@ export type ReportEdit =
   | { type: "set"; patch: Partial<Omit<Report, "id" | "version" | "equipment" | "summary">> }
   | { type: "summary"; patch: Partial<ReportSummary> }
   | { type: "add-item"; itemType?: string; after?: string }
+  /** Adds prepared items (e.g. picked from a site register); items whose source equipment is already in the report are skipped. */
+  | { type: "add-items"; items: ReportItem[] }
   | { type: "update-item"; id: string; patch: Partial<Omit<ReportItem, "id">> }
   | { type: "duplicate-item"; id: string }
   | { type: "remove-item"; id: string }
@@ -77,6 +80,17 @@ export function applyEdit(report: Report, edit: ReportEdit, now = new Date()): R
       const item = blankItem(edit.itemType ?? "");
       const i = edit.after ? at(edit.after) : -1;
       return touch({ ...report, equipment: i < 0 ? [...eq, item] : [...eq.slice(0, i + 1), item, ...eq.slice(i + 1)] });
+    }
+    case "add-items": {
+      const linked = new Set(eq.flatMap((i) => (i.source ? [`${i.source.registerId}/${i.source.equipmentId}`] : [])));
+      const fresh = edit.items.filter((i) => {
+        if (!i.source) return true;
+        const key = `${i.source.registerId}/${i.source.equipmentId}`;
+        if (linked.has(key)) return false;
+        linked.add(key);
+        return true;
+      });
+      return fresh.length ? touch({ ...report, equipment: [...eq, ...fresh] }) : report;
     }
     case "update-item": {
       const i = at(edit.id);
@@ -117,7 +131,8 @@ export function duplicateReport(report: Report, now = new Date()): Report {
     createdAt: iso,
     updatedAt: iso,
     reference: report.reference ? `${report.reference} (copy)` : "",
-    equipment: report.equipment.map((i) => ({ ...i, id: newId() })),
+    // Outcomes and applied master-record changes belong to the original job.
+    equipment: report.equipment.map((i) => ({ ...i, id: newId(), source: i.source ? { ...i.source, outcome: "" as const, applied: [] } : null })),
   };
 }
 

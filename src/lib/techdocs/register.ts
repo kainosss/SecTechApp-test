@@ -8,7 +8,7 @@ import { CATEGORIES, OP_STATUSES, REGISTER_VERSION, type Category, type Equipmen
 
 export function createRegister(technician = "", now = new Date()): TechRegister {
   const iso = now.toISOString();
-  return { id: newId(), version: REGISTER_VERSION, createdAt: iso, updatedAt: iso, name: "", siteName: "", customer: "", siteAddress: "", siteReference: "", technician, notes: "", equipment: [] };
+  return { id: newId(), version: REGISTER_VERSION, createdAt: iso, updatedAt: iso, name: "", siteName: "", customer: "", siteAddress: "", siteReference: "", technician, notes: "", equipment: [], history: [] };
 }
 
 const EMPTY_TEXT: Record<EquipmentTextField, string> = {
@@ -97,7 +97,8 @@ export function applyRegisterEdit(register: TechRegister, edit: RegisterEdit, no
 /** A copy of a whole register (new id, " (copy)" name), e.g. to start the next site from a template. */
 export function duplicateRegister(r: TechRegister, now = new Date()): TechRegister {
   const iso = now.toISOString();
-  return { ...structuredClone(r), id: newId(), name: `${registerTitle(r)} (copy)`, createdAt: iso, updatedAt: iso };
+  // History belongs to the original site's equipment, so the copy starts without it.
+  return { ...structuredClone(r), id: newId(), name: `${registerTitle(r)} (copy)`, createdAt: iso, updatedAt: iso, history: [] };
 }
 
 /* ------------------------------------------------------- search, filters */

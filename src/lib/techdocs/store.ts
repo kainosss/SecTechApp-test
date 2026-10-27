@@ -5,6 +5,8 @@
  * and register contents are never logged.
  */
 import { z } from "zod";
+import { readRaw as readReportsRaw, REPORTS_KEY, writeAll as writeReports } from "@/lib/reports/store";
+import type { Report } from "@/lib/reports/schema";
 import { registerSchema, type TechRegister } from "./schema";
 
 export const REGISTERS_KEY = "fieldwise:techdocs:v1";
@@ -47,7 +49,7 @@ export function readRegistersRaw(): string | null {
 }
 
 /** Writes all registers; returns false if storage is unavailable or full. */
-function writeAll(registers: TechRegister[]): boolean {
+export function writeAll(registers: TechRegister[]): boolean {
   let ok = true;
   try {
     window.localStorage.setItem(REGISTERS_KEY, JSON.stringify({ version: 1, registers: Object.fromEntries(registers.map((r) => [r.id, r])) }));
@@ -83,4 +85,43 @@ export function subscribeRegisters(cb: () => void) {
     window.removeEventListener(REGISTERS_EVENT, cb);
     window.removeEventListener("storage", cb);
   };
+}
+
+function restoreRaw(key: string, raw: string | null) {
+  try {
+    if (raw === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, raw);
+  } catch {
+    // Storage unavailable: nothing more can be done.
+  }
+}
+
+/**
+ * Stores the result of a confirmed import: registers, then reports. If either
+ * write fails (e.g. storage full), both are put back exactly as they were.
+ */
+export function commitImport(registers: TechRegister[], reports: Report[]): boolean {
+  const prevRegisters = readRegistersRaw();
+  const prevReports = readReportsRaw();
+  if (!writeAll(registers)) {
+    restoreRaw(REGISTERS_KEY, prevRegisters);
+    window.dispatchEvent(new Event(REGISTERS_EVENT));
+    return false;
+  }
+  if (!writeReports(reports)) {
+    restoreRaw(REGISTERS_KEY, prevRegisters);
+    restoreRaw(REPORTS_KEY, prevReports);
+    window.dispatchEvent(new Event(REGISTERS_EVENT));
+    return false;
+  }
+  return true;
+}
+
+/** Saves a register only if it changed (used when service reports update history). */
+export function updateRegister(id: string, fn: (r: TechRegister) => TechRegister): TechRegister | null {
+  const current = getRegister(id);
+  if (!current) return null;
+  const next = fn(current);
+  if (next !== current) saveRegister(next);
+  return next;
 }

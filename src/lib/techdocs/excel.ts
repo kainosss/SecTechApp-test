@@ -17,6 +17,7 @@
 import type { Workbook as WorkbookType, Worksheet } from "exceljs";
 import { displayDate, finalizeXlsx, headerFooterText, MAX_ROW_HEIGHT, rowHeight, safeText, splitText, textHeight } from "@/lib/reports/xlsx-layout";
 import { SECTIONS, NETWORK_CATEGORIES, FIELD_LABEL } from "./fields";
+import { eventDay, HISTORY_LABEL, sortHistory } from "./history";
 import { CATEGORY_LABEL, equipmentLabel, hasNetworkConfig, registerTitle, statusLabel } from "./register";
 import { CATEGORIES, OP_STATUSES, type Equipment, type TechRegister } from "./schema";
 
@@ -259,6 +260,7 @@ export function buildTechWorkbook(register: TechRegister, excel: ExcelModule, ge
 
   for (const ws of [reg, net, acc]) footer(ws, register);
   detailsSheet(wb, register, all, label);
+  if (register.history.length) historySheet(wb, register);
   siteSheet(wb, register, updated);
   wb.views = [{ x: 0, y: 0, width: 20000, height: 12000, firstSheet: 0, activeTab: 0, visibility: "visible" }];
   return wb;
@@ -317,6 +319,48 @@ function detailsSheet(wb: WorkbookType, register: TechRegister, all: { e: Equipm
   ws.views = [{ state: "frozen", ySplit: TABLE_ROW, xSplit: 2, topLeftCell: `C${TABLE_ROW + 1}` }];
   print(ws, `A1:E${last}`);
   footer(ws, register);
+}
+
+/** Equipment history, newest first: one row per event, with previous → new values where recorded. */
+function historySheet(wb: WorkbookType, r: TechRegister) {
+  const ws = wb.addWorksheet("Equipment History");
+  titleBlock(ws, "Equipment History", r, `${r.history.length} event${r.history.length === 1 ? "" : "s"}, newest first — recorded from changes in Fieldwise and linked service reports`);
+  const columns = [
+    { header: "Date", width: 12 },
+    { header: "Equipment", width: 20 },
+    { header: "Event", width: 20 },
+    { header: "Description", width: 50 },
+    { header: "Previous → new values", width: 40 },
+    { header: "Service report", width: 26 },
+    { header: "Technician", width: 16 },
+  ];
+  ws.columns = columns.map((c) => ({ width: c.width }));
+  headerRow(ws, columns.map((c) => c.header));
+  const names = new Map(r.equipment.map((e) => [e.id, equipmentLabel(r, e)]));
+  let row = TABLE_ROW + 1;
+  for (const h of sortHistory(r.history)) {
+    const changes = h.changes.map((c) => `${c.label}: ${c.from || "(blank)"} → ${c.to || "(cleared)"}`).join("\n");
+    const values = [eventDay(h), names.get(h.equipmentId) ?? h.equipmentName, HISTORY_LABEL[h.type], h.description, changes, h.reportLabel, h.technician];
+    // Long text continues on further rows (date and equipment repeated so filters still work); nothing is cut.
+    const pieces = values.map((v, i) => splitText(v, columns[i]!.width - 1, SIZE, MAX_ROW_HEIGHT - 10));
+    const lines = Math.max(...pieces.map((p) => p.length));
+    for (let k = 0; k < lines; k++) {
+      const x = ws.getRow(row++);
+      const texts = pieces.map((p, i) => ({ text: i < 2 ? p[0]! : (p[k] ?? ""), width: columns[i]!.width - 1 }));
+      texts.forEach(({ text }, i) => {
+        const cell = x.getCell(i + 1);
+        if (text) cell.value = safeText(text);
+        cell.font = font(i === 1 ? { bold: true } : i === 0 ? { color: { argb: COLOURS.muted } } : {});
+        cell.alignment = { vertical: "top", wrapText: true };
+        cell.border = { bottom: { style: "hair", color: { argb: COLOURS.rule } } };
+      });
+      x.height = rowHeight(texts, SIZE, 16);
+    }
+  }
+  ws.autoFilter = { from: { row: TABLE_ROW, column: 1 }, to: { row: row - 1, column: columns.length } };
+  ws.views = [{ state: "frozen", ySplit: TABLE_ROW, xSplit: 2, topLeftCell: `C${TABLE_ROW + 1}` }];
+  print(ws, `A1:G${row - 1}`);
+  footer(ws, r);
 }
 
 /** Register details and general site notes as Field / Value rows. */

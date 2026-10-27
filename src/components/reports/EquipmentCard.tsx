@@ -37,6 +37,7 @@ export function EquipmentCard({
   onToggle,
   edit,
   onRemove,
+  linked,
 }: {
   report: Report;
   item: ReportItem;
@@ -45,6 +46,8 @@ export function EquipmentCard({
   onToggle: () => void;
   edit: (e: ReportEdit) => void;
   onRemove: () => void;
+  /** Site equipment panel for items picked from a linked site register. */
+  linked?: React.ReactNode;
 }) {
   const label = itemLabel(report, item);
   const set = (patch: Partial<ReportItem>) => edit({ type: "update-item", id: item.id, patch });
@@ -57,7 +60,12 @@ export function EquipmentCard({
         <span className="font-mono text-xs text-fg-subtle">{index + 1}</span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[15px] font-semibold text-fg">{label}</span>
-          {(item.location || item.type) && <span className="block truncate text-xs text-fg-muted">{[item.type, item.location].filter(Boolean).join(" · ")}</span>}
+          {(item.location || item.type || item.source) && (
+            <span className="block truncate text-xs text-fg-muted">
+              {item.source && <span className="font-medium text-signal-400">Site · </span>}
+              {[item.type, item.location].filter(Boolean).join(" · ")}
+            </span>
+          )}
         </span>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLE[item.status].pill}`} data-status={item.status}>
           <span aria-hidden="true">{STATUS_STYLE[item.status].mark} </span>
@@ -68,6 +76,8 @@ export function EquipmentCard({
 
       {open && (
         <div className="flex flex-col gap-3 border-t border-line px-4 py-3">
+          {linked}
+          {linked && <p className="-mb-1 text-xs font-semibold tracking-wide text-fg-muted uppercase">Service findings</p>}
           <div role="group" aria-label="Status" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {STATUSES.map((st) => (
               <button

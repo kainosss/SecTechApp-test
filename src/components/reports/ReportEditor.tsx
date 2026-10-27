@@ -7,7 +7,11 @@ import { EQUIPMENT_PRESETS } from "@/lib/reports/presets";
 import { JOB_TYPES, STATUSES, type Report, type ReportItem, type ReportSummary } from "@/lib/reports/schema";
 import { getReport, loadTechnician, parseReports, readRaw, saveReport, saveTechnician, subscribeReports } from "@/lib/reports/store";
 import { Icon } from "@/components/ui/Icon";
+import { applyEquipmentUpdate, linkReport, syncReportHistory, unlinkReport } from "@/lib/sites/link";
+import type { HistoryChange, TechRegister } from "@/lib/techdocs/schema";
+import { parseRegisters, readRegistersRaw, subscribeRegisters, updateRegister } from "@/lib/techdocs/store";
 import { areaClass, EquipmentCard, Field, inputClass, STATUS_STYLE } from "./EquipmentCard";
+import { EquipmentPicker, LinkedItemPanel, SiteLinkCard } from "./SiteLink";
 
 interface State {
   report: Report | null;
@@ -16,10 +20,11 @@ interface State {
   undo: { item: ReportItem; index: number } | null;
 }
 
-type Action = { type: "load"; report: Report | null } | { type: "edit"; edit: ReportEdit } | { type: "open"; id: string | null } | { type: "remove"; id: string } | { type: "undo" };
+type Action = { type: "load"; report: Report | null } | { type: "replace"; report: Report } | { type: "edit"; edit: ReportEdit } | { type: "open"; id: string | null } | { type: "remove"; id: string } | { type: "undo" };
 
 function reducer(state: State, action: Action): State {
   if (action.type === "load") return { ...state, loaded: true, report: action.report };
+  if (action.type === "replace") return { ...state, report: action.report };
   if (!state.report) return state;
   switch (action.type) {
     case "open":
@@ -73,6 +78,9 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
   const [profileSaved, setProfileSaved] = useState(false);
   const raw = useSyncExternalStore(subscribeReports, () => readRaw() ?? "", () => "");
   const stored = useMemo(() => parseReports(raw || null).reports.find((r) => r.id === id), [raw, id]);
+  const registersRaw = useSyncExternalStore(subscribeRegisters, () => readRegistersRaw() ?? "", () => "");
+  const registers = useMemo(() => parseRegisters(registersRaw || null).registers, [registersRaw]);
+  const [picking, setPicking] = useState(false);
 
   useEffect(() => {
     dispatch({ type: "load", report: getReport(id) });
@@ -81,6 +89,13 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
   // Autosave: every change goes straight to this device's storage.
   useEffect(() => {
     if (report) saveReport(report);
+  }, [report]);
+
+  // Linked reports keep the site's equipment history current. Events have fixed ids, so this never duplicates.
+  useEffect(() => {
+    if (!report?.registerId) return;
+    const t = setTimeout(() => updateRegister(report.registerId, (r) => syncReportHistory(r, report)), 400);
+    return () => clearTimeout(t);
   }, [report]);
 
   if (!loaded) return <p className="text-sm text-fg-muted">Loading report…</p>;
@@ -103,6 +118,16 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
   const { warnings } = checkReport(report);
   const fill = fillEmptySummary(report);
   const presets = EQUIPMENT_PRESETS[report.jobType];
+  const site: TechRegister | null = report.registerId ? (registers.find((r) => r.id === report.registerId) ?? null) : null;
+  const applyUpdate = (equipmentId: string, changes: HistoryChange[]) => {
+    let result = { applied: [] as HistoryChange[], conflicts: changes };
+    updateRegister(report.registerId, (r) => {
+      const res = applyEquipmentUpdate(r, equipmentId, changes, report);
+      result = res;
+      return res.register;
+    });
+    return result;
+  };
 
   async function generate() {
     setBusy(true);
@@ -143,6 +168,20 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
           </button>
         ))}
       </div>
+
+      <SiteLinkCard
+        report={report}
+        registers={registers}
+        site={site}
+        onLink={(r, replace) => dispatch({ type: "replace", report: linkReport(report, r, replace) })}
+        onUnlink={() => {
+          // Remove this job's service entries from the site history, then unlink.
+          updateRegister(report.registerId, (r) => syncReportHistory(r, { ...report, equipment: [] }));
+          dispatch({ type: "replace", report: unlinkReport(report) });
+          setPicking(false);
+        }}
+        onPick={() => setPicking(true)}
+      />
 
       <Card title="Job details">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -223,6 +262,23 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
           </button>
         </div>
 
+        {site && !picking && (
+          <button type="button" onClick={() => setPicking(true)} className="mt-2 h-11 rounded-full border border-signal-400/60 px-3.5 text-sm font-semibold text-signal-300 hover:bg-signal-500/10">
+            + From site register
+          </button>
+        )}
+        {site && picking && (
+          <EquipmentPicker
+            report={report}
+            site={site}
+            onAdd={(items) => {
+              edit({ type: "add-items", items });
+              setPicking(false);
+            }}
+            onClose={() => setPicking(false)}
+          />
+        )}
+
         {report.equipment.length > 0 && (
           <ol className="mt-3 flex flex-col gap-2" aria-label="Equipment entries">
             {report.equipment.map((item, i) => (
@@ -235,6 +291,11 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
                 onToggle={() => dispatch({ type: "open", id: openId === item.id ? null : item.id })}
                 edit={edit}
                 onRemove={() => dispatch({ type: "remove", id: item.id })}
+                linked={
+                  item.source ? (
+                    <LinkedItemPanel item={item} site={item.source.registerId === report.registerId ? site : null} edit={edit} onApply={(changes) => applyUpdate(item.source!.equipmentId, changes)} />
+                  ) : undefined
+                }
               />
             ))}
           </ol>

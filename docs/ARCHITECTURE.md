@@ -278,6 +278,34 @@ documentation system (client handover documents come later).
   150 pt show a preview pointing to Full Equipment Details. All user text via `safeText`; no formulas or links; blank
   fields stay empty cells.
 
+## Site integration, equipment history & backup (v0.7.1)
+
+- **One master record.** Technical Docs registers are the source of truth for equipment configuration. A report links to
+  a register with `report.registerId` ("" = standalone); a picked item carries `item.source` = `{registerId, equipmentId,
+  snapshot, outcome, applied}`. The snapshot (name, category, type, location, asset ID, make, model, serial, firmware —
+  never network settings) keeps old reports accurate after the master record changes. Both fields are optional with
+  defaults, so v0.6/v0.7.0 data loads unchanged (`REPORT_VERSION`/`REGISTER_VERSION` stay 1).
+- **Linking** (`src/lib/sites/link.ts`): `sitePopulation` → fills empty site name/customer/address; differing values need
+  explicit "Link and replace" (`linkReport(report, register, replace)`). `unlinkReport` keeps items. Picker adds items via
+  report edit `add-items`, which skips equipment already linked (`registerId/equipmentId` key). Manual items stay possible.
+- **Proposed updates:** `proposedChanges` (non-blank, changed values among `UPDATABLE_FIELDS`) → review table with the
+  original values and per-field ticks → `applyEquipmentUpdate` writes only ticked fields, only where the master value
+  still equals the reviewed original (else reported as a conflict), and records history. Nothing is changed automatically.
+- **History** (`register.history`, `src/lib/techdocs/history.ts`): events `{id, equipmentId, equipmentName, reportId,
+  reportLabel, at, date, technician, type, description, changes[{field,label,from,to}]}`; types added / inspection /
+  fault / repaired / replaced / firmware / details. Technical Docs saves record "added" or field changes
+  (`saveWithHistory`); applied updates record firmware/details events. Linked reports' service events are derived by
+  `serviceEvents` with fixed ids (`<report>:<item>:service|repaired|replaced`) and synced (debounced) by
+  `syncReportHistory`, which replaces only that report's service events — so reopening/editing/exporting never
+  duplicates. Repair/replacement events exist only when the technician picks that outcome. Unlinking removes the job's
+  service events. Shown newest first in the equipment form; exported as an "Equipment History" sheet when present.
+- **Backup** (`src/lib/techdocs/backup.ts`): `{format:"fieldwise-techdocs-backup", version:1, exportedAt, registers,
+  reports}` — reports linked to the included registers are included so links survive. `parseBackup` (JSON.parse + full
+  zod validation, size cap, duplicate-id checks; never executes content) → preview → `planImport` (merge: add new,
+  skip identical, import changed-with-same-id as copies with new ids and repointed links; replace: swap registers after
+  explicit confirmation; reports are never overwritten, conflicts become copies) → `commitImport` writes registers and
+  reports together and restores both on failure. All local; nothing uploaded.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -296,6 +324,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.7.1 ✅ | Site-linked service jobs, equipment picker, confirmed master updates, equipment history, JSON backup/restore |
 | v0.7.0 ✅ | Technical Documentation: standalone site equipment registers, fast entry, network checks, 5-sheet Excel |
 | v0.6.2 ✅ | Corporate inspection report: numbered summary, KPI tiles, defect/action tables, one-page-wide register |
 | v0.6.1 ✅ | Professional Excel redesign: customer-ready summary, technical register, overflow-safe long text |

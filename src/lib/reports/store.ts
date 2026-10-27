@@ -48,7 +48,7 @@ export function readRaw(): string | null {
 }
 
 /** Writes all reports; returns false if storage is unavailable or full. */
-function writeAll(reports: Report[]): boolean {
+export function writeAll(reports: Report[]): boolean {
   let ok = true;
   try {
     window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ version: 1, reports: Object.fromEntries(reports.map((r) => [r.id, r])) }));

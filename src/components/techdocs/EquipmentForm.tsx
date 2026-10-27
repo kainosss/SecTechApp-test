@@ -8,6 +8,9 @@ import { equipmentLabel, UNIQUE_IDENTIFIERS } from "@/lib/techdocs/register";
 import { CATEGORIES, OP_STATUSES, type Category, type Equipment, type TechRegister } from "@/lib/techdocs/schema";
 import { equipmentWarnings } from "@/lib/techdocs/validation";
 import { FIELD_LABEL } from "@/lib/techdocs/fields";
+import { eventDay, HISTORY_LABEL } from "@/lib/techdocs/history";
+import type { HistoryEvent } from "@/lib/techdocs/schema";
+import { displayDate } from "@/lib/reports/xlsx-layout";
 
 export type SaveMode = "close" | "next" | "duplicate";
 
@@ -28,6 +31,7 @@ export function EquipmentForm({
   onSave,
   onCancel,
   onDelete,
+  history = [],
 }: {
   register: TechRegister;
   initial: Equipment;
@@ -37,6 +41,8 @@ export function EquipmentForm({
   onSave: (item: Equipment, mode: SaveMode) => void;
   onCancel: (draft: Equipment, dirty: boolean) => void;
   onDelete: (item: Equipment) => void;
+  /** This entry's history, newest first (read-only). */
+  history?: HistoryEvent[];
 }) {
   const [item, setItem] = useState(initial);
   const [open, setOpen] = useState<Set<SectionId>>(() => new Set([...CATEGORY_PRIORITY[initial.category], ...sectionOrder(initial.category).filter((id) => filled(initial, id) > 0)]));
@@ -222,6 +228,38 @@ export function EquipmentForm({
           </details>
         );
       })}
+
+      {!isNew && (
+        <details className="rounded-2xl border border-line bg-ink-900" data-section="history" open={history.length > 0 && history.length <= 5}>
+          <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-4 py-2 text-[15px] font-semibold text-fg">
+            <span>Equipment history</span>
+            <span className="text-xs font-medium text-fg-muted">{history.length ? `${history.length} event${history.length === 1 ? "" : "s"} · newest first` : "No events yet"}</span>
+          </summary>
+          <div className="border-t border-line px-4 py-3">
+            {history.length === 0 ? (
+              <p className="text-sm text-fg-muted">Changes saved here and service jobs linked to this site will appear here.</p>
+            ) : (
+              <ol className="flex flex-col gap-3" aria-label="Equipment history">
+                {history.map((h) => (
+                  <li key={h.id} className="border-l-2 border-signal-400/40 pl-3 text-sm" data-history={h.type}>
+                    <p className="text-xs text-fg-muted">
+                      {displayDate(eventDay(h))}
+                      {h.technician ? ` · ${h.technician}` : ""}
+                    </p>
+                    <p className="font-semibold text-fg">{HISTORY_LABEL[h.type]}</p>
+                    <p className="text-fg-muted">{h.description}</p>
+                    {h.reportId && (
+                      <a href={`/reports?id=${encodeURIComponent(h.reportId)}`} className="text-xs font-medium text-signal-400 hover:text-signal-300">
+                        Service report: {h.reportLabel || "open"}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </details>
+      )}
 
       {!isNew && (
         <div className="rounded-2xl border border-line px-4 py-3">

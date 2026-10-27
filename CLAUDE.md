@@ -45,6 +45,11 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   (network warnings only — never rewrite values), `store.ts` (`fieldwise:techdocs:v1`), `excel.ts` (5 plain sheets).
   Ladder height/type and mounting height are separate free text; never infer one or assess ladder suitability.
   Never assign IPs or other configuration automatically. Network data stays out of service report exports.
+  `history.ts` (factual equipment events; `saveWithHistory`), `backup.ts` (versioned JSON; validate → preview → merge/replace,
+  never overwrite silently; `commitImport` rolls back on failure).
+- `src/lib/sites/link.ts`: report ↔ register link (`report.registerId`, `item.source` with snapshot — no network data),
+  picker duplicate prevention, `syncReportHistory` (fixed event ids, no duplicates), `applyEquipmentUpdate` (only
+  confirmed fields, checked against reviewed originals). Never update master records without explicit confirmation.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

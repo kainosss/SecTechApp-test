@@ -6,6 +6,7 @@ import { downloadTechWorkbook } from "@/lib/techdocs/download";
 import { createRegister, duplicateRegister, registerTitle } from "@/lib/techdocs/register";
 import type { TechRegister } from "@/lib/techdocs/schema";
 import { deleteRegister, parseRegisters, readRegistersRaw, saveRegister, subscribeRegisters } from "@/lib/techdocs/store";
+import { BackupPanel } from "./BackupPanel";
 import { defaultTechnician, RegisterEditor } from "./RegisterEditor";
 
 /** Registers home (create, reopen, manage) and the editor, switched by `?id=` so Back works on phones. */
@@ -115,6 +116,7 @@ export function TechDocsApp() {
           </ul>
         )}
       </section>
+      <BackupPanel registers={registers} />
     </div>
   );
 }
