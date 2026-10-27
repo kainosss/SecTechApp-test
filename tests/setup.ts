@@ -4,5 +4,6 @@ import { cleanup } from "@testing-library/react";
 
 afterEach(() => {
   cleanup();
-  window.localStorage.clear();
+  // Node-environment tests (e.g. workbook generation) have no DOM storage.
+  if (typeof window !== "undefined") window.localStorage.clear();
 });
