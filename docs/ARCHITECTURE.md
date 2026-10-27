@@ -210,12 +210,24 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
 - **Storage:** `store.ts` — drafts in `localStorage` (`fieldwise:reports:v1`), each validated on read; damaged or
   outdated entries are skipped and counted. Technician details in `fieldwise:technician:v1`. Autosave on every edit;
   the "Saved" indicator compares the stored copy with the editor state.
-- **Workbook:** `excel.ts` builds three sheets with ExcelJS (MIT), imported dynamically on Generate so it's not in
-  page bundles: Job Summary (details, totals, summaries), Equipment Register (frozen, filtered headers, status
-  drop-down) and Outstanding Actions. Navy headers, light-blue dividers, thin borders, wrapped text, estimated row
-  heights, A4 print setup with repeated headers. `safeText` strips XML-invalid characters, prefixes formula-like
-  text with an apostrophe and truncates to Excel's cell limit; no formulas are written. Generated in the browser —
-  nothing is uploaded.
+- **Workbook (v0.6.1 design):** `excel.ts` + layout helpers in `xlsx-layout.ts`, ExcelJS imported on demand.
+  - *Job Summary* (A4 portrait, fit to width only): "SERVICE REPORT" header with date and reference on the right and
+    a navy rule; two-column job details on a 10-column grid; a five-tile status overview (counts from the entries);
+    only the narrative sections that have content. Keep-with-next page breaks stop headings being stranded.
+  - *Equipment Register* (A4 landscape, 85 %): title + meta line, 11 columns (all item fields incl. priority),
+    frozen headings and item columns, filter, status and priority drop-downs, status colours as conditional
+    formatting on the status cells only (follows edits). Prints across two pages wide with the heading row and
+    Item/Equipment columns repeated — legibility over one-page shrinking.
+  - *Outstanding Actions* (A4 landscape, fit to width): register item number, issue, action, priority (blank if
+    not set), status; a one-line message when nothing is outstanding.
+  - *Full Text* (only when needed): register cells whose text would need a row taller than ~200 pt show a preview
+    ending "… continued in the Full Text sheet (ref Tn)"; the complete text is split there across rows at line /
+    word boundaries (each within Excel's 409 pt row and 32 767-character cell limits). Job Summary narrative is split
+    across consecutive rows the same way. Nothing is truncated.
+  - Row heights are estimated (greedy word-wrap on column width and font size, Excel-safe line height) because
+    ExcelJS can't auto-fit; Excel re-fits a row when a cell is edited. `safeText` removes only XLSX-invalid
+    characters and prefixes formula-like text with an apostrophe; no formulas are written; footer text is fixed
+    ("Generated with Fieldwise", page x of y) so no user text reaches header/footer codes.
 - `npm audit` reports a moderate advisory in `uuid` (a dependency of ExcelJS) affecting v3/v5/v6 calls with a
   caller-supplied buffer, which ExcelJS doesn't use. Revisit when ExcelJS updates.
 
@@ -237,6 +249,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.6.1 ✅ | Professional Excel redesign: customer-ready summary, technical register, overflow-safe long text |
 | v0.6.0 ✅ | Quick Service Report: on-site entry, local drafts, one-tap Excel workbook |
 | v0.5.1 ✅ | Calculated EOL expectations (unequal pairs), verification metadata, guide audit, review workspace |
 | v0.5.0 ✅ | Guided Fault Finder: five deterministic diagnostic workflows, saved sessions |

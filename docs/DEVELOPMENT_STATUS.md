@@ -1,31 +1,33 @@
 # Development status
 
-**Milestone:** v0.6.0 — Quick Service Report & Excel Generator — **complete**
+**Milestone:** v0.6.1 — Professional Excel Export Redesign — **complete**
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
-## Completed (v0.6.0)
-- `/reports`: start a report by job type (CCTV / Intruder Alarm / Access Control / General Security), resume,
-  duplicate, delete (with undo), re-export, clear all (with confirm); storage-is-device-only warning.
-- Editor: job details (date auto-filled, technician remembered), quick-add equipment presets per job type,
-  custom types, 4-button status, findings, collapsible extra fields, add another / duplicate / reorder /
-  remove with undo, live status counts, summary with "fill empty sections from equipment" (entered text only),
-  non-blocking warnings, autosave with a "Saved on this device" indicator, sticky Generate Excel.
-- `src/lib/reports/`: schema (zod), pure operations, local store (per-report validation), ExcelJS workbook
-  (Job Summary, Equipment Register, Outstanding Actions), on-demand loading, download helper.
-- Navigation: Reports in the bottom bar; Lab moved to sidebar/dashboard only (`mobile: false`); tool card + search.
+## Completed (v0.6.1)
+- Redesigned workbook (`src/lib/reports/excel.ts`, helpers in `xlsx-layout.ts`); in-app reporting UI unchanged.
+  - Job Summary: SERVICE REPORT header (date/ref right), two-column details, horizontal status tiles, only filled
+    narrative sections, keep-with-next page breaks, A4 portrait fit-to-width, "Generated with Fieldwise" + page numbers.
+  - Equipment Register: header + meta line, 11 columns incl. Priority, frozen headings + item columns, filter,
+    status/priority drop-downs, status colours via conditional formatting on status cells, A4 landscape 85 % with
+    repeated heading row and Item/Equipment columns.
+  - Outstanding Actions: register item numbers, filters, frozen headings, fit-to-width landscape, concise empty state.
+  - Full Text sheet for over-long register cells; narrative split across rows; nothing truncated.
+- Representative fixtures `tests/reports/fixtures.ts`; sample writer `tests/reports/samples.test.ts` (opt-in).
 
 ## Latest validation
-- Lint, typecheck clean. Tests 348/348 (39 files), including reopening generated XLSX files. Normal + demo builds OK.
-- Playwright (iPhone 13 touch, 1440 desktop): create report, add 3 items, reload restores, Generate Excel
-  downloads a real .xlsx; reopened with ExcelJS: 3 sheets, correct rows, formula text neutralised, no formulas,
-  no external network requests, no console errors, no horizontal overflow. Rendered via LibreOffice for a visual check.
+- Lint, typecheck clean. Tests 365 passed, 1 skipped (opt-in sample writer). Normal + demo builds OK.
+- Visual QA: five sample workbooks (short CCTV, intruder inspection, access faults, long text, 120 items) rendered
+  with LibreOffice → PDF/PNG and inspected; fixes made (keep-with-next, print title columns, meta-line wrap, widths).
+- Playwright (mobile + desktop): in-app Generate Excel downloads; reopened with ExcelJS — 3 sheets, correct rows,
+  no formulas, injection text neutralised.
+- Not verified in Microsoft Excel itself (not available in this environment).
 
 ## Known limitations
-- Drafts live in this browser only (no sync/backup) — by design for this milestone.
-- Row heights are estimated (Excel doesn't auto-fit rows written by a library); very long notes may need resizing.
-- No company logo or sign-off/signature block in the workbook yet.
-- `npm audit`: moderate advisory in `uuid` via ExcelJS (unused code path); see ARCHITECTURE.md.
+- Row heights are estimates; LibreOffice renders lines slightly shorter than Excel, leaving small gaps under long
+  text. Excel re-fits a row when a cell is edited.
+- When printed, the register's repeated A:B columns also repeat the merged meta line, which is clipped on
+  continuation pages (cosmetic).
+- Very long narratives split mid-paragraph show as separate blocks.
 
 ## Next (suggested)
-- Company details/logo on the workbook, photo references per item, and optional PDF export; later, cloud sync
-  with accounts (Supabase) once storage and privacy requirements are agreed.
+- Optional company name/logo and sign-off block (only from details the user provides); photo references per item.

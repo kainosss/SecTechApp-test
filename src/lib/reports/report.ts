@@ -132,6 +132,8 @@ export function statusCounts(report: Report): Record<ItemStatus, number> {
 export const STATUS_LABEL = Object.fromEntries(STATUSES.map((s) => [s.id, s.label])) as Record<ItemStatus, string>;
 
 export interface OutstandingAction {
+  /** The item's number in the equipment register. */
+  number: number;
   item: string;
   location: string;
   issue: string;
@@ -144,8 +146,10 @@ export interface OutstandingAction {
 /** Items that need attention: marked Fault or Recommendation. Text comes only from what was entered. */
 export function outstandingActions(report: Report): OutstandingAction[] {
   return report.equipment
-    .filter((i) => i.status === "fault" || i.status === "recommendation")
-    .map((i) => ({
+    .map((i, n) => ({ i, number: n + 1 }))
+    .filter(({ i }) => i.status === "fault" || i.status === "recommendation")
+    .map(({ i, number }) => ({
+      number,
       item: itemLabel(report, i),
       location: i.location.trim(),
       issue: i.findings.trim(),

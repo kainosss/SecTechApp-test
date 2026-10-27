@@ -85,9 +85,9 @@ describe("derived data never invents content", () => {
 
   it("outstanding actions come only from faults and recommendations, blank where nothing was entered", () => {
     expect(outstandingActions(report())).toEqual([
-      { item: "PIR 1", location: "Hall", issue: "Fails walk test", action: "Replace detector", priority: "", status: "Fault" },
-      { item: "Siren/strobe 1", location: "", issue: "", action: "Replace battery", priority: "Low", status: "Recommendation" },
-      { item: "Reed switch 1", location: "", issue: "", action: "", priority: "", status: "Fault" },
+      { number: 1, item: "PIR 1", location: "Hall", issue: "Fails walk test", action: "Replace detector", priority: "", status: "Fault" },
+      { number: 3, item: "Siren/strobe 1", location: "", issue: "", action: "Replace battery", priority: "Low", status: "Recommendation" },
+      { number: 4, item: "Reed switch 1", location: "", issue: "", action: "", priority: "", status: "Fault" },
     ]);
   });
 
