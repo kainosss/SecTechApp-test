@@ -125,3 +125,30 @@ export function displayDate(iso: string): string {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return `${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`;
 }
+
+/** Text placed in header/footer codes: `&` must be doubled, and only a short single line is allowed. */
+export function headerFooterText(value: string, max = 60): string {
+  const s = cleanText(value).replace(/\s+/g, " ").trim();
+  return (s.length > max ? `${s.slice(0, max - 1)}…` : s).replace(/&/g, "&&");
+}
+
+/**
+ * ExcelJS writes print areas as `$A6:$K13` (column-absolute only). Excel's own form is fully absolute, and
+ * LibreOffice ignores the mixed form — printing the whole sheet — so print areas are rewritten as `$A$6:$K$13`.
+ */
+export function absolutePrintAreas(workbookXml: string): string {
+  return workbookXml.replace(
+    /(<definedName name="_xlnm\.Print_Area"[^>]*>[^<]*!)\$([A-Z]+)\$?(\d+):\$([A-Z]+)\$?(\d+)(?=<)/g,
+    (_m, pre: string, c1: string, r1: string, c2: string, r2: string) => `${pre}$${c1}$${r1}:$${c2}$${r2}`,
+  );
+}
+
+/** Applies post-write fixes to the XLSX package. */
+export async function finalizeXlsx(buffer: ArrayBuffer): Promise<ArrayBuffer> {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(buffer);
+  const path = "xl/workbook.xml";
+  const xml = await zip.file(path)!.async("string");
+  zip.file(path, absolutePrintAreas(xml));
+  return zip.generateAsync({ type: "arraybuffer", compression: "DEFLATE", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}

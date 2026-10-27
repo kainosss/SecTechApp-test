@@ -1,37 +1,40 @@
 # Development status
 
-**Milestone:** v0.6.2 — Premium Corporate Inspection Report Redesign — **complete**
+**Milestone:** v0.7.0 — Technical Documentation System (stage 1 of dual documentation) — **complete**
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
-## Completed (v0.6.2)
-- Workbook redesigned as a corporate inspection report (`src/lib/reports/excel.ts`); in-app reporting UI and the
-  Generate Excel workflow unchanged. Palette navy/blue/greys, Calibri type scale, muted status colours.
-  - Job Summary: SERVICE REPORT + job-type subtitle, date/ref right; numbered sections — report identification panel,
-    five KPI tiles, factual inspection summary, work completed, identified defects table (restrained wording when
-    none), recommendations & follow-up action table (entered priorities only) + outstanding work, additional
-    information. Empty sections omitted; auto-fill narrative not duplicated beside its table.
-  - Equipment Register: all 11 fields on one A4 landscape page width (≈ 80 %), table at row 6, frozen headings +
-    No./Equipment, filter, status/priority drop-downs, status + priority conditional formatting, page header on
-    every printed page (fixes the clipped meta line on continuation pages).
-  - Outstanding Actions: corrective-action schedule (No., equipment, location, finding, action, priority, status).
-  - Full Text: only when needed; ref / register No. / equipment / field / part.
-  - `finalizeXlsx` (jszip, exact dep) makes print areas fully absolute so LibreOffice honours them.
-- Fixtures: added `cctvFaults`, `emptyReport`; workbook tests rewritten for the new layout (reopen real XLSX).
+## Completed (v0.7.0)
+- New section **Technical Docs** (`/tech-docs`): standalone site equipment registers, independent of service reports.
+  - Registers: create, edit details (name, site, customer, address, site ref, technician, notes; created/updated
+    dates), reopen, duplicate, delete with confirmation, multiple sites; stored locally (`fieldwise:techdocs:v1`).
+  - Equipment: identification, hardware (incl. firmware, hardware revision), network, connectivity, access (ladder
+    height, ladder type, mounting height kept separate), system references, maintenance, custom fields.
+  - Category-aware form: relevant sections first/open, all fields always available, category change keeps values.
+  - Fast entry: add by category, Save & add another, Save & duplicate, list Duplicate (clears name, asset ID, serial,
+    IP, MAC, hostname, switch port, system numbers, maintenance notes), Enter → next field, Ctrl+Enter save, Esc
+    cancel, phone Back closes form (Restore offered), delete with confirm + undo.
+  - Register view: search (name, ref, location, make, model, IP, serial), category/status filters, desktop table /
+    mobile cards, duplicate-IP note; tested with 120 entries.
+  - Validation warnings only (IPv4/IPv6, mask/prefix, gateway subnet, DNS, VLAN, MAC, duplicate IP).
+  - Excel: Equipment Register, Network Configuration, Access & Maintenance, Full Equipment Details, Site Information.
+  - Sensitivity notices (list, export, workbook); no credential fields; no network data in service report exports.
+- Shared `headerFooterText`, `absolutePrintAreas`, `finalizeXlsx` moved to `reports/xlsx-layout.ts` (re-exported).
 
 ## Latest validation
-- Lint, typecheck clean. Tests 375 passed, 1 skipped (opt-in sample writer). Normal + demo builds OK.
-- Visual QA (three passes, LibreOffice → PDF/PNG): 7 samples (short CCTV, CCTV faults, intruder, access, long text,
-  120 items, empty). Fixes: tighter vertical rhythm (no near-empty spill page), label spacing beside long values,
-  absolute print areas, one-page-wide register, status-line wording.
-- Playwright (mobile + desktop): in-app Generate Excel downloads; reopened with ExcelJS — correct rows at the new
-  positions, absolute print areas, no formulas, injection text neutralised, no external requests.
+- Lint, typecheck clean. Tests 431 passed, 2 skipped (opt-in sample writers). Normal + demo builds OK.
+- Visual QA: 5 sample registers (CCTV 12 cameras + NVR, intruder, access control, mixed, 120 entries) exported and
+  rendered with LibreOffice; UI checked with Playwright at iPhone 13 and 1440 px (seeded registers, open, search,
+  duplicate, warnings, Back, reload, export → reopened with ExcelJS; no overflow, no errors, no external requests).
+  Refinements: one-row scrolling add bar on phones, wrapped desktop table cells, name/ref and make/model stacked.
 - Not verified in Microsoft Excel itself (not available in this environment).
 
 ## Known limitations
-- Row heights are estimates; LibreOffice draws lines slightly shorter than Excel, leaving small gaps under long or
-  split text. Excel re-fits a row when a cell is edited.
-- The register prints at ≈ 80 % to keep every column on one page width.
-- ExcelJS reads half-point font sizes back as integers (the file itself stores 10.5 etc. correctly).
+- Technical Docs isn't in the 5-slot mobile bottom bar (sidebar, dashboard, search and a Reports link instead).
+- Search matches the query as a phrase within one field (no multi-field AND search).
+- The equipment form for IP cameras opens six sections, so it is long on phones (sections collapse).
+- Sheets 1–3 print at roughly 60–70 % to fit all columns on one A4 landscape width.
+- Network checks are syntax/consistency warnings only; they don't confirm a configuration works.
 
 ## Next (suggested)
-- Optional company name/logo and sign-off block (only from details the user provides); photo references per item.
+- v0.8: Client Handover Documentation (customer-facing PDF built from a technical register).
+- Optional: import/export register JSON for backup; CSV import of equipment lists.

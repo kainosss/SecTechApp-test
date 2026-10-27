@@ -242,6 +242,42 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
 - `npm audit` reports a moderate advisory in `uuid` (a dependency of ExcelJS) affecting v3/v5/v6 calls with a
   caller-supplied buffer, which ExcelJS doesn't use. Revisit when ExcelJS updates.
 
+## Technical Documentation (v0.7.0)
+
+Standalone site equipment registers (`/tech-docs`), independent of service reports — stage 1 of the planned dual
+documentation system (client handover documents come later).
+
+- **Model** (`src/lib/techdocs/schema.ts`, zod): register (name, site, customer, address, site reference, technician,
+  created/updated, site notes) with equipment entries: identification, hardware (make, model, serial, firmware,
+  hardware revision), networking (IP, subnet/prefix, gateway, DNS ×2, VLAN, MAC, hostname), connectivity (switch,
+  port, PoE, connected NVR/controller, system ref), access (ladder height, ladder type, mounting height, notes — three
+  separate free-text fields, nothing inferred, no suitability assessment), system references (camera/door/zone,
+  controller, NVR/VMS), maintenance (status, fault, work, recommendations, notes, last inspected) and custom fields
+  (name/value pairs). No credential fields. Every value is kept exactly as typed.
+- **Fields** (`fields.ts`): section/field definitions shared by the form and the workbook; `CATEGORY_PRIORITY` orders
+  and opens sections per category (all sections always available; category changes never clear values).
+- **Logic** (`register.ts`): create, `applyRegisterEdit` (`save-item` insert/replace, remove/restore), `duplicateEquipment`
+  (clears `DUPLICATE_CLEARS`: name, asset ID, serial, IP, MAC, hostname, switch port, system numbers, maintenance
+  observations), labels, phrase search across name/ref/location/make/model/IP/serial (+type, hostname, MAC), category and
+  status filters, `hasNetworkConfig`.
+- **Validation** (`validation.ts`): warnings only — IPv4/IPv6 syntax, subnet mask or CIDR prefix, gateway/DNS syntax,
+  gateway outside the subnet, VLAN 1–4094, MAC formats, duplicate IPs in the register. Never rewrites; entries save
+  incomplete.
+- **Storage** (`store.ts`): `localStorage` key `fieldwise:techdocs:v1`, same pattern as report drafts (validated on read,
+  damaged entries skipped and counted). Nothing is sent anywhere or logged.
+- **UI** (`src/components/techdocs/`): `TechDocsApp` (registers list; `?id=`), `RegisterEditor` (details, add-by-category,
+  search/filters, responsive list → table at `xl`, duplicate-IP note, export with sensitivity notice), `EquipmentForm`
+  (draft edited locally; Save / Save & add another / Save & duplicate / Cancel; `&item=` history entry so phone Back
+  closes it with a Restore option; Enter = next field, Ctrl/⌘+Enter = save, Esc = cancel; inline warnings with
+  `aria-invalid`). Nav: sidebar + dashboard + search (`mobile: false` keeps the 5-slot bottom bar); linked from Reports.
+- **Workbook** (`excel.ts`, ExcelJS on demand, `finalizeXlsx` from `reports/xlsx-layout.ts`): Equipment Register ·
+  Network Configuration (network categories or any network value) · Access & Maintenance · Full Equipment Details
+  (one row per entered field incl. custom fields; long text split into "part i of n" rows) · Site Information. Plain
+  tables (no merges), title block + sensitivity note, header row 6 frozen and repeated when printed, filters, status
+  and category lists, status font colours, A4 landscape fit to width, confidential footer. Table cells taller than
+  150 pt show a preview pointing to Full Equipment Details. All user text via `safeText`; no formulas or links; blank
+  fields stay empty cells.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -260,6 +296,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.7.0 ✅ | Technical Documentation: standalone site equipment registers, fast entry, network checks, 5-sheet Excel |
 | v0.6.2 ✅ | Corporate inspection report: numbered summary, KPI tiles, defect/action tables, one-page-wide register |
 | v0.6.1 ✅ | Professional Excel redesign: customer-ready summary, technical register, overflow-safe long text |
 | v0.6.0 ✅ | Quick Service Report: on-site entry, local drafts, one-tap Excel workbook |

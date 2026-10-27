@@ -14,6 +14,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `/fault-finder` guided fault finder · `/fault-finder/diagnose/[id]` diagnosis · `/fault-finder/[id]` workflow records
 - `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
 - `/reports` Quick Service Report (list, or editor with `?id=`)
+- `/tech-docs` Technical Docs: site equipment registers (list; `?id=` register; `&item=` equipment form)
 - Navigation: `src/lib/navigation.ts` (NAV_ITEMS — `mobile: false` keeps an item off the 5-slot bottom bar; TOOLS → search index)
 
 ## Content
@@ -39,6 +40,11 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   drafts (`store.ts`), ExcelJS workbook (`excel.ts` + `xlsx-layout.ts`; loaded on demand; `finalizeXlsx` (jszip) fixes print areas; all user text through
   `safeText`; no formulas; long text split across rows / Full Text sheet, never truncated). Visual QA: write samples with
   `FIELDWISE_SAMPLE_DIR=<dir> npx vitest run tests/reports/samples.test.ts`, render with `soffice --headless --convert-to pdf`.
+- `src/lib/techdocs/`: standalone technical registers — zod `schema.ts` (no credential fields), shared `fields.ts`
+  (sections, category priority), `register.ts` (edits, duplicate clears unique IDs, search/filters), `validation.ts`
+  (network warnings only — never rewrite values), `store.ts` (`fieldwise:techdocs:v1`), `excel.ts` (5 plain sheets).
+  Ladder height/type and mounting height are separate free text; never infer one or assess ladder suitability.
+  Never assign IPs or other configuration automatically. Network data stays out of service report exports.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

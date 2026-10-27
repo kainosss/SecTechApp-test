@@ -1,4 +1,4 @@
-export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "report" | "search";
+export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "report" | "docs" | "search";
 
 export interface NavItem {
   href: string;
@@ -14,6 +14,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/eol", label: "EOL", icon: "eol" },
   { href: "/fault-finder", label: "Faults", icon: "fault" },
   { href: "/reports", label: "Reports", icon: "report" },
+  { href: "/tech-docs", label: "Tech Docs", icon: "docs", mobile: false },
   { href: "/circuit-lab", label: "Lab", icon: "lab", mobile: false },
 ];
 
@@ -63,6 +64,15 @@ export const TOOLS: ToolDefinition[] = [
     icon: "report",
     status: "available",
     keywords: ["report", "service report", "job sheet", "excel", "xlsx", "maintenance", "inspection", "equipment register"],
+  },
+  {
+    id: "technical-docs",
+    title: "Technical Docs",
+    description: "Site equipment registers: firmware, IP configuration, ladder requirements and references, exported to Excel.",
+    href: "/tech-docs",
+    icon: "docs",
+    status: "available",
+    keywords: ["technical", "documentation", "register", "asset", "firmware", "ip address", "network", "vlan", "mac", "ladder", "serial", "as-built", "handover"],
   },
   {
     id: "circuit-lab",

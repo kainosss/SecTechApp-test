@@ -8,6 +8,7 @@ export type IconKey =
   | "lab"
   | "lock"
   | "report"
+  | "docs"
   | "pir"
   | "search"
   | "star"
@@ -54,6 +55,14 @@ const PATHS: Record<IconKey, React.ReactNode> = {
     <>
       <rect x="5" y="4.5" width="14" height="16" rx="2" />
       <path d="M9 4.5V3.5h6v1M8.5 10h7M8.5 13.5h7M8.5 17h4" />
+    </>
+  ),
+  // Stacked documents with a table
+  docs: (
+    <>
+      <path d="M8 3.5h8.5L20 7v11.5a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1z" />
+      <path d="M16.5 3.5V7H20M10 11h7M10 14h7M10 17h4M13.5 11v6" />
+      <path d="M4 7v13a1 1 0 0 0 1 1h10" />
     </>
   ),
   // Padlock
