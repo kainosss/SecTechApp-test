@@ -1,6 +1,7 @@
 import { listDevices, listManufacturers, listWiringConfigurations, listWorkflows } from "@/lib/content/repository";
 import { CATEGORY_LABELS, FAULT_AREA_LABELS, STATUS_LABELS } from "@/lib/content/schema";
 import { TOOLS } from "@/lib/navigation";
+import { WORKFLOWS } from "@/lib/fault-finder/workflows";
 import type { SearchDocument } from "./search";
 
 /** Builds the universal search index from visible content. Server-only; the result is serialisable. */
@@ -41,6 +42,15 @@ export async function buildSearchIndex(): Promise<SearchDocument[]> {
     keywords: ["fault", "troubleshooting", ...w.devices.map((d) => d.model)],
   }));
 
+  const guides: SearchDocument[] = WORKFLOWS.map((w) => ({
+    id: `guide-${w.id}`,
+    type: "workflow",
+    title: w.title,
+    subtitle: `Guided diagnosis · ${w.area === "access" ? "Access control" : "Intrusion alarm"}`,
+    href: `/fault-finder/diagnose/${w.id}`,
+    keywords: ["fault", "troubleshooting", "diagnose", ...w.symptoms.flatMap((s) => s.toLowerCase().match(/[a-z]{4,}/g) ?? []).slice(0, 12)],
+  }));
+
   const tools: SearchDocument[] = TOOLS.map((t) => ({
     id: t.id,
     type: "tool",
@@ -50,5 +60,5 @@ export async function buildSearchIndex(): Promise<SearchDocument[]> {
     keywords: t.keywords,
   }));
 
-  return [...devices, ...manufacturers, ...workflows, ...wiring, ...tools];
+  return [...devices, ...manufacturers, ...guides, ...workflows, ...wiring, ...tools];
 }

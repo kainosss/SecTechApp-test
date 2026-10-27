@@ -11,7 +11,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 ## Routes
 - `/` dashboard · `/search` · `/devices`, `/devices/[id]` Device Library
 - `/eol` EOL Wiring Assistant (explorer; URL state `?t=<template>&p=<preset>`), `/eol/[id]`
-- `/fault-finder`, `/fault-finder/[id]`
+- `/fault-finder` guided fault finder · `/fault-finder/diagnose/[id]` diagnosis · `/fault-finder/[id]` workflow records
 - `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
 - Navigation: `src/lib/navigation.ts` (NAV_ITEMS, TOOLS → search index)
 
@@ -29,6 +29,8 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `src/lib/lab/check.ts`: `checkWiring` (5 states, behaviour-based findings), `stepStatus`.
 - `src/lib/lab/meter.ts`: virtual multimeter (resistance between probe nodes, de-energised only).
 - `src/lib/lab/faults.ts`: scenarios (hidden elements, broken conductors) + diagnosis checked against the circuit.
+- `src/lib/fault-finder/`: diagnostic engine (`engine.ts`, replayed answer lists), zod `schema.ts`, `sessions.ts`;
+  workflows in `content/diagnostics/*.json` (generic guidance; `validateWorkflow` checks structure).
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

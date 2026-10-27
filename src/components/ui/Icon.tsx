@@ -6,6 +6,8 @@ export type IconKey =
   | "eol"
   | "fault"
   | "lab"
+  | "lock"
+  | "pir"
   | "search"
   | "star"
   | "star-filled"
@@ -44,6 +46,20 @@ const PATHS: Record<IconKey, React.ReactNode> = {
       <circle cx="8" cy="10" r="1.3" />
       <circle cx="16" cy="14" r="1.3" />
       <path d="M8 11.3v1.2a1.5 1.5 0 0 0 1.5 1.5h5.2" />
+    </>
+  ),
+  // Padlock
+  lock: (
+    <>
+      <rect x="5" y="10.5" width="14" height="10" rx="2" />
+      <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 14.5v2.5" />
+    </>
+  ),
+  // Detector with detection arcs
+  pir: (
+    <>
+      <rect x="9" y="3.5" width="6" height="7" rx="2" />
+      <path d="M6.5 14.5a8 8 0 0 0 11 0M4 17.5a12 12 0 0 0 16 0" />
     </>
   ),
   search: (

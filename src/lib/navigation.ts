@@ -46,11 +46,11 @@ export const TOOLS: ToolDefinition[] = [
   {
     id: "fault-finder",
     title: "Guided Fault Finder",
-    description: "Step-by-step diagnostics for common site faults.",
+    description: "Guided diagnosis for common faults: answer questions, enter meter readings, get likely causes.",
     href: "/fault-finder",
     icon: "fault",
-    status: "preview",
-    keywords: ["fault", "troubleshoot", "tamper", "diagnose", "trouble"],
+    status: "available",
+    keywords: ["fault", "troubleshoot", "tamper", "diagnose", "trouble", "zone open", "short", "pir", "door", "lock", "access control"],
   },
   {
     id: "circuit-lab",

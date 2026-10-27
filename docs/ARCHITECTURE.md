@@ -165,6 +165,24 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
 - `progress.ts`: per-device progress (`fieldwise:lab:progress:v1`), validated with zod; invalid or unknown
   entries are dropped. `/circuit-lab` is the exercise picker with completion status and Reset progress.
 
+## Guided Fault Finder (v0.5.0)
+
+- **Content:** `content/diagnostics/*.json` — one deterministic decision tree per fault (symptoms, safety checks,
+  question / measure / result nodes, causes, escalation, notes). Validated by `src/lib/fault-finder/schema.ts`
+  at import; `validateWorkflow` (tested) rejects dangling links, unknown causes, unreachable nodes, cycles and
+  measurement bands that don't cover 0 → OL. Bump `version` when a tree changes.
+- **Engine:** `src/lib/fault-finder/engine.ts`. A session is the list of answers; the current node, findings,
+  context (e.g. the zone's seal value, a lock's rated voltage) and evidence are derived by replaying it.
+  Measure nodes classify a parsed reading (2k2, 2.2k, OL, volts) into bands, optionally scaled by a context
+  value, so 4.4 kΩ means "alarm" on a 2k2 zone but "low" on a 10k zone. Results rank their own candidate causes
+  by author order plus evidence; wording never claims a confirmed diagnosis.
+- **Sessions:** `sessions.ts` saves per-workflow answers locally (`fieldwise:fault-finder:v1`); on load they
+  are zod-validated and replayed — outdated versions are discarded and invalid tails trimmed.
+- **UI:** `/fault-finder` lists the guides (resume badges) above any content workflow records;
+  `/fault-finder/diagnose/[id]` shows safety checks, then questions/measurements, findings with "Change",
+  progress, Back / Restart / Clear, and the result with verify / act / escalate / notes and related links.
+- Guidance is generic: example EOL values are illustrations; resistance only on isolated circuits.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -183,6 +201,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.5.0 ✅ | Guided Fault Finder: five deterministic diagnostic workflows, saved sessions |
 | v0.4.2 ✅ | Tappable contacts, five fault exercises, readable routing, saved progress, exercise picker |
 | Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
 | Later | Supabase (auth, content tables, review workflow), Stripe subscriptions, production deployment |

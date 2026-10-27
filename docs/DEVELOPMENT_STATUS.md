@@ -1,38 +1,29 @@
 # Development status
 
-**Milestone:** v0.5.0 — Guided Fault Finder — **in progress** (v0.4.2 complete at 99a4546)
-
-## v0.5.0 progress
-- Done: `src/lib/fault-finder/{schema,engine,workflows}.ts`; five workflows in `content/diagnostics/*.json`
-  (zone open, zone shorted, PIR not activating, tamper won't clear, door not unlocking); tests in
-  `tests/fault-finder/` (structure, branching, measurement parsing, back/restart, invalid/tampered sessions).
-- Remaining: session persistence, UI (landing + `/fault-finder/diagnose/[id]`), search/nav integration,
-  UI tests, browser QA, docs.
-
-## Previous milestone
-v0.4.2 — Circuit Lab Refinement & Training Expansion — complete
+**Milestone:** v0.5.0 — Guided Fault Finder — **complete**
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
-## Completed (v0.4.2)
-- Tappable ALARM/TAMPER contacts (touch, mouse, keyboard) synced with the meter's state control; any combination
-  is calculated (`circuitNetlist`, `ContactState`).
-- Fault exercises: open circuit (broken conductor via `brokenIds`), incorrect resistor value (value question);
-  five in total. Diagnoses checked against the simulated circuit (fault present, type consistent with readings,
-  stated value = fitted value).
-- `src/lib/lab/layout.ts`: leads route around unconnected terminals; labels avoid each other, terminals, text.
-- `src/lib/lab/progress.ts`: zod-validated localStorage progress (current, completed, diagnosis, repair, wiring,
-  hints); Reset exercise keeps completion; Reset progress (with confirm) clears all incl. the wiring bench.
-- `/circuit-lab` = exercise picker; build exercise moved to `/circuit-lab/wiring-bench`.
+## Completed (v0.5.0)
+- Deterministic diagnostic engine `src/lib/fault-finder/` (schema, engine, sessions, workflows loader).
+- Five workflows in `content/diagnostics/`: zone permanently open, zone permanently shorted, PIR not activating,
+  tamper won't clear, access-controlled door not unlocking. Yes/no, choice and measurement nodes; bands relative
+  to the zone's EOL value (2k2/2k2 or 10k/10k examples) or a lock's rated voltage; evidence-ranked causes;
+  verify / act / escalate / notes; cross-links between guides and to EOL Assistant / Circuit Lab.
+- `/fault-finder` landing (guides + resume badges + generic-guidance notice; content records listed when present),
+  `/fault-finder/diagnose/[id]` (safety first, progress, findings with Change, Back / Restart / Clear).
+- Local sessions, zod-validated and replayed (outdated discarded, invalid tails trimmed).
+- Search index includes the guides; tool card marked available. Bottom nav unchanged (Faults already present).
 
 ## Latest validation
-- Lint, typecheck clean. Tests 256/256 (29 files). Normal + demo-mode production builds OK.
-- Playwright (iPhone 13 touch, 1440 desktop): lab, EOL and Devices pages 200, no horizontal overflow, no console
-  errors; contact tap → meter update and wrong-value diagnosis verified.
+- Lint, typecheck clean. Tests 292/292 (33 files). Normal + demo-mode production builds OK.
+- Playwright (iPhone 13 touch, 1440 desktop): all fault-finder routes, /circuit-lab, /eol, /search 200 with no
+  horizontal overflow or console errors; full open-zone path to a result; resume after reload verified.
 
 ## Known limitations
-- Leads can still cross board titles/group headings (labels avoid them; lines don't).
-- Probe tool stays on the same probe once both are placed (deliberate, for adjusting).
-- Fault locations are chosen from a list; the electrical check covers type, value and fault presence.
+- Measurement steps assume equal seal/alarm resistors; other EOL combinations route to "confirm EOL values".
+- Workflows are generic and unreviewed by a manufacturer; no source citations (not panel-specific claims).
+- Older outline-only workflow records (demo mode) still live at `/fault-finder/[id]`.
 
 ## Next (suggested)
-- Intermediate exercises (combined faults), and a voltage range only once panel/detector electronics are modelled.
+- Technical review of the five trees by an experienced technician; then more workflows (comms/dialler faults,
+  battery/AC fail, reader offline) and optional unequal EOL pairs (e.g. 4k7/2k2) via a second context value.
