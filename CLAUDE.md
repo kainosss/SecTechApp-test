@@ -30,7 +30,10 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `src/lib/lab/meter.ts`: virtual multimeter (resistance between probe nodes, de-energised only).
 - `src/lib/lab/faults.ts`: scenarios (hidden elements, broken conductors) + diagnosis checked against the circuit.
 - `src/lib/fault-finder/`: diagnostic engine (`engine.ts`, replayed answer lists), zod `schema.ts`, `sessions.ts`;
-  workflows in `content/diagnostics/*.json` (generic guidance; `validateWorkflow` checks structure).
+  workflows in `content/diagnostics/*.json` (generic guidance; `validateWorkflow` checks structure). Zone readings
+  are classified against bands calculated by `fault-finder/eol.ts` (EOL engine), never fixed values. Never set
+  `verification.status` beyond "generic" without a real source or a named technician review (see
+  `docs/TECHNICAL_REVIEW.md`); an AI review is not verification.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

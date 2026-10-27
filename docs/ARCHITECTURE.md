@@ -183,6 +183,23 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
   progress, Back / Restart / Clear, and the result with verify / act / escalate / notes and related links.
 - Guidance is generic: example EOL values are illustrations; resistance only on isolated circuits.
 
+### v0.5.1 — technical accuracy and review preparation
+
+- **Expected readings are calculated, not assumed.** `src/lib/fault-finder/eol.ts` builds the generic dual EOL
+  network (R1 series, R2 across the NC alarm contact, NC tamper in series) and evaluates it with the EOL engine
+  (`networkResistance`). An `eol-config` node collects R1/R2 (presets 2k2/2k2, 10k/10k, 4k7/2k2, 2k2/4k7, or custom);
+  measure nodes with `scale: "zone"` classify readings into calculated bands (short / low / sealed / between /
+  alarm / high / open) with ±10 % tolerance. Out-of-range or indistinguishable pairs are rejected with a reason;
+  other topologies route to "confirm EOL values". `validateWorkflow` checks band coverage and that zone
+  measurements are only reachable after the EOL values are set.
+- **Verification metadata:** each guide has `verification` (status: generic / manufacturer-referenced /
+  technician-reviewed / requires-verification, reviewer, lastReviewed, reviewerNotes, pending) and `sources`
+  (title, organisation, type, version or date, URL, section). The schema refuses manufacturer-referenced
+  without a source and technician-reviewed without a reviewer and date. Steps can carry `review` flags.
+- **Confidence:** results declare `likely` / `possible` / `verify`; the UI separates confirmed measurements,
+  likely and possible causes, and further verification. Findings record how they were established.
+- Review workspace: `docs/TECHNICAL_REVIEW.md`. Workflow versions bumped to 2 (older saved sessions discarded).
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -201,6 +218,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.5.1 ✅ | Calculated EOL expectations (unequal pairs), verification metadata, guide audit, review workspace |
 | v0.5.0 ✅ | Guided Fault Finder: five deterministic diagnostic workflows, saved sessions |
 | v0.4.2 ✅ | Tappable contacts, five fault exercises, readable routing, saved progress, exercise picker |
 | Next | Verified panel wiring once documentation is reviewed; interactive Fault Finder |
