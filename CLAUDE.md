@@ -36,7 +36,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   `verification.status` beyond "generic" without a real source or a named technician review (see
   `docs/TECHNICAL_REVIEW.md`); an AI review is not verification.
 - `src/lib/reports/`: report schema (zod), pure edits/derivations (`report.ts`, never invents content), local
-  drafts (`store.ts`), ExcelJS workbook (`excel.ts` + `xlsx-layout.ts`; loaded on demand; all user text through
+  drafts (`store.ts`), ExcelJS workbook (`excel.ts` + `xlsx-layout.ts`; loaded on demand; `finalizeXlsx` (jszip) fixes print areas; all user text through
   `safeText`; no formulas; long text split across rows / Full Text sheet, never truncated). Visual QA: write samples with
   `FIELDWISE_SAMPLE_DIR=<dir> npx vitest run tests/reports/samples.test.ts`, render with `soffice --headless --convert-to pdf`.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).

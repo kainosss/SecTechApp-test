@@ -210,24 +210,35 @@ wired to a zone input as dual EOL, 2k2 sealed / 4k4 alarm. Entirely simulated; n
 - **Storage:** `store.ts` — drafts in `localStorage` (`fieldwise:reports:v1`), each validated on read; damaged or
   outdated entries are skipped and counted. Technician details in `fieldwise:technician:v1`. Autosave on every edit;
   the "Saved" indicator compares the stored copy with the editor state.
-- **Workbook (v0.6.1 design):** `excel.ts` + layout helpers in `xlsx-layout.ts`, ExcelJS imported on demand.
-  - *Job Summary* (A4 portrait, fit to width only): "SERVICE REPORT" header with date and reference on the right and
-    a navy rule; two-column job details on a 10-column grid; a five-tile status overview (counts from the entries);
-    only the narrative sections that have content. Keep-with-next page breaks stop headings being stranded.
-  - *Equipment Register* (A4 landscape, 85 %): title + meta line, 11 columns (all item fields incl. priority),
-    frozen headings and item columns, filter, status and priority drop-downs, status colours as conditional
-    formatting on the status cells only (follows edits). Prints across two pages wide with the heading row and
-    Item/Equipment columns repeated — legibility over one-page shrinking.
-  - *Outstanding Actions* (A4 landscape, fit to width): register item number, issue, action, priority (blank if
-    not set), status; a one-line message when nothing is outstanding.
+- **Workbook (v0.6.2 corporate inspection report):** `excel.ts` + layout helpers in `xlsx-layout.ts`, ExcelJS
+  imported on demand. One palette (`PALETTE`: navy #17324D, blue #285A7A, pale/light greys, border, text, secondary),
+  muted status colours (`STATUS_COLOURS`) and a Calibri type scale (`TYPE`).
+  - *Job Summary* (A4 portrait, fit to width only): "SERVICE REPORT" + job-type subtitle (`JOB_TITLES`), report date
+    and job reference on the right, navy rule. Numbered sections: 1 Report identification (grey panel of label/value
+    pairs, "Not recorded" for blanks) · 2 Inspection overview (five KPI tiles; total inspected = pass + fault +
+    recommendation) · 3 Inspection summary (`inspectionOverview`, counts only) · Work completed · Identified defects
+    (table of Fault entries; restrained wording when none; Not Tested never treated as a defect) · Recommendations &
+    follow-up (entered recommendations as an action table with entered priorities, outstanding work) · Additional
+    information (parts, site notes). Sections without content are omitted; narrative identical to the auto-fill is
+    not repeated next to its table. Keep-with-next page breaks stop headings being stranded.
+  - *Equipment Register* (A4 landscape, all 11 columns fitted to one page width, ≈ 80 %): title, context and status
+    lines; table header at row 6 (`TABLE_ROW`); frozen headings + No./Equipment columns, filter, status and priority
+    drop-downs, conditional formatting on status (fill + font) and priority (font) cells, so colours follow edits.
+    The print area starts at the table header (repeated on every page) and a page header identifies each page, so
+    nothing is clipped on continuation pages.
+  - *Outstanding Actions* (A4 landscape, fit to width): corrective-action schedule — register No., equipment,
+    location, finding, recommended action, priority (blank if not set), status; concise empty state.
   - *Full Text* (only when needed): register cells whose text would need a row taller than ~200 pt show a preview
-    ending "… continued in the Full Text sheet (ref Tn)"; the complete text is split there across rows at line /
-    word boundaries (each within Excel's 409 pt row and 32 767-character cell limits). Job Summary narrative is split
-    across consecutive rows the same way. Nothing is truncated.
+    ending "… continued in the Full Text sheet (ref Tn)"; the complete text is listed there by ref, register No.,
+    equipment, field and part ("1 of 2"), split at line / word boundaries within Excel's 409 pt row and 32 767-character
+    cell limits. Job Summary narrative is split across consecutive rows the same way. Nothing is truncated.
   - Row heights are estimated (greedy word-wrap on column width and font size, Excel-safe line height) because
     ExcelJS can't auto-fit; Excel re-fits a row when a cell is edited. `safeText` removes only XLSX-invalid
-    characters and prefixes formula-like text with an apostrophe; no formulas are written; footer text is fixed
-    ("Generated with Fieldwise", page x of y) so no user text reaches header/footer codes.
+    characters and prefixes formula-like text with an apostrophe; no formulas are written. Footer: "Generated with
+    Fieldwise", job ref, page x of y; user text in header/footer codes goes through `headerFooterText` (`&` escaped,
+    single short line).
+  - `finalizeXlsx` (JSZip) rewrites print areas as fully absolute (`$A$6:$K$15`): ExcelJS writes `$A6:$K15`, which
+    LibreOffice ignores. `workbookBytes` = build → write → finalize.
 - `npm audit` reports a moderate advisory in `uuid` (a dependency of ExcelJS) affecting v3/v5/v6 calls with a
   caller-supplied buffer, which ExcelJS doesn't use. Revisit when ExcelJS updates.
 
@@ -249,6 +260,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.6.2 ✅ | Corporate inspection report: numbered summary, KPI tiles, defect/action tables, one-page-wide register |
 | v0.6.1 ✅ | Professional Excel redesign: customer-ready summary, technical register, overflow-safe long text |
 | v0.6.0 ✅ | Quick Service Report: on-site entry, local drafts, one-tap Excel workbook |
 | v0.5.1 ✅ | Calculated EOL expectations (unequal pairs), verification metadata, guide audit, review workspace |

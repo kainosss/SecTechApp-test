@@ -26,6 +26,22 @@ export const shortCctv = () =>
     { workCompleted: "Service of 3 CCTV items. Cleaned cameras and checked recording.", faults: "• Camera 1 (Gate 2): No video on channel 3", parts: "1 × PoE injector" },
   );
 
+export const cctvFaults = () =>
+  build(
+    "cctv",
+    { siteName: "Parkside Shopping Centre", customer: "Parkside Centre Management", reference: "CC-3307", siteAddress: "88 Park Avenue, Chatswood NSW 2067" },
+    [
+      { type: "NVR", location: "Security office", makeModel: "Generic 32-channel NVR", status: "fault", findings: "Drive 2 reporting SMART errors; recording gaps overnight", work: "Exported last 7 days of footage for client", recommendations: "Replace HDD 2 and verify retention", priority: "High" },
+      { type: "Camera", location: "Car park level 1", status: "fault", findings: "Image out of focus after bracket was knocked", work: "Re-aimed camera; focus still soft", recommendations: "Replace bracket and refocus", priority: "Medium" },
+      { type: "Camera", location: "Car park level 2", status: "pass", work: "Cleaned and checked" },
+      { type: "Camera", location: "Loading dock", status: "fault", findings: "No IR at night" },
+      { type: "Camera", location: "Food court", status: "pass" },
+      { type: "Network switch", location: "Comms rack", status: "recommendation", findings: "Switch at 92% PoE budget", recommendations: "Plan PoE budget before adding cameras", priority: "Low" },
+      { type: "Monitor", location: "Security office", status: "pass" },
+    ],
+    { workCompleted: "Quarterly CCTV service. Cleaned cameras, checked recording and exported footage requested by the centre manager.", outstanding: "Return visit needed to replace HDD 2 and the level 1 bracket." },
+  );
+
 export const intruderInspection = () =>
   build(
     "intruder",
@@ -104,4 +120,6 @@ export const largeRegister = () =>
     })),
   );
 
-export const SAMPLES = { shortCctv, intruderInspection, accessFaults, longText, largeRegister };
+export const emptyReport = () => build("general", { siteName: "Unit 4 Office" }, []);
+
+export const SAMPLES = { emptyReport, shortCctv, cctvFaults, intruderInspection, accessFaults, longText, largeRegister };
