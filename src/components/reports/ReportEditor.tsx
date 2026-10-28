@@ -12,6 +12,8 @@ import type { HistoryChange, TechRegister } from "@/lib/techdocs/schema";
 import { parseRegisters, readRegistersRaw, subscribeRegisters, updateRegister } from "@/lib/techdocs/store";
 import { areaClass, EquipmentCard, Field, inputClass, STATUS_STYLE } from "./EquipmentCard";
 import { EquipmentPicker, LinkedItemPanel, SiteLinkCard } from "./SiteLink";
+import { HandoverPanel } from "./HandoverPanel";
+import { useUrlSearch } from "@/lib/eol/use-url-selection";
 
 interface State {
   report: Report | null;
@@ -81,6 +83,9 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
   const registersRaw = useSyncExternalStore(subscribeRegisters, () => readRegistersRaw() ?? "", () => "");
   const registers = useMemo(() => parseRegisters(registersRaw || null).registers, [registersRaw]);
   const [picking, setPicking] = useState(false);
+  const { search, setSearch } = useUrlSearch();
+  const handoverView = new URLSearchParams(search).get("view") === "handover";
+  const [openedHandover, setOpenedHandover] = useState(false);
 
   useEffect(() => {
     dispatch({ type: "load", report: getReport(id) });
@@ -108,6 +113,20 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
           Back to reports
         </button>
       </div>
+    );
+  }
+
+  if (handoverView) {
+    return (
+      <HandoverPanel
+        report={report}
+        onClose={() => {
+          // Back returns to the editor; if the panel was opened from a link or reload, replace the URL instead.
+          if (openedHandover) window.history.back();
+          else setSearch(`?id=${encodeURIComponent(report.id)}`, "replace");
+          setOpenedHandover(false);
+        }}
+      />
     );
   }
 
@@ -361,6 +380,17 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
           className="h-12 flex-1 rounded-xl bg-signal-500 px-5 text-[15px] font-semibold text-ink-950 hover:bg-signal-400 disabled:opacity-60 sm:flex-none"
         >
           {busy ? "Creating Excel…" : "Generate Excel"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setOpenedHandover(true);
+            setSearch(`?id=${encodeURIComponent(report.id)}&view=handover`, "push");
+            window.scrollTo?.({ top: 0 });
+          }}
+          className="h-12 rounded-xl border border-signal-400/60 px-4 text-[15px] font-semibold text-signal-300 hover:bg-signal-500/10"
+        >
+          Client handover PDF
         </button>
         <p className="min-w-0 flex-1 text-xs text-fg-muted" role="status" data-testid="generate-status">
           {message ?? `${report.equipment.length} item${report.equipment.length === 1 ? "" : "s"} · created on this device, nothing is uploaded`}

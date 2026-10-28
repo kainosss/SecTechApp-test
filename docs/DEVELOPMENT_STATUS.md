@@ -1,39 +1,41 @@
 # Development status
 
-**Milestone:** v0.7.1 — Site integration, equipment history & data backup — **complete**
+**Milestone:** v0.8.0 — Professional client handover generator — **complete**
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
-## Completed (v0.7.1)
-- **Site-linked service reports:** optional "Site register" card in the report editor; links fill empty site name,
-  customer and address; differing values need "Link and replace" (or keep). Link persists (`report.registerId`).
-  Unlink (confirmed) keeps items and removes the job's service history entries. Standalone reports unchanged.
-- **Equipment picker:** search (name, ref, location, make, model, IP), multi-select, "select all shown", already-added
-  entries disabled ("In report"); duplicate-safe at the data layer; manual items still allowed.
-- **Master records:** register stays the source of truth; report items keep a reference + snapshot (no network
-  data). Card shows "Site equipment details", notes where the site record has since changed, then "Service findings".
-- **Proposed equipment updates:** enter new values → review original vs proposed with per-field ticks → apply only
-  ticked fields (checked against the reviewed original). Applied changes listed on the item.
-- **Equipment history:** added / service inspection / fault / repair / replacement / firmware / details events with
-  report link, date, technician and previous → new values; derived service events have fixed ids (no duplicates on
-  reopen or export). Shown in the equipment form (newest first) and as an "Equipment History" workbook sheet.
-- **Backup & restore** in Technical Docs: versioned JSON (registers, equipment, custom fields, history, linked
-  reports); validation, preview, merge or confirmed replace, copies for id collisions, atomic commit with rollback.
+## Completed (v0.8.0)
+- **Client handover PDF** from any service report (linked or standalone): "Client handover PDF" button beside
+  Generate Excel → choose sections → optional branding → live preview → Download / Open PDF.
+- **Document:** "SECURITY SERVICE REPORT" + job type, report date, job reference; numbered sections — site & customer
+  details, inspection overview (5 KPI tiles from the entries + factual summary), work completed, identified defects
+  (Fault items only; finding, work, entered priority), recommendations, equipment inspection schedule, additional
+  information (outstanding work, parts, site notes). Empty sections omitted. Footer: job ref · Generated with
+  Fieldwise · Page n of N; running header from page 2. No signatures, approvals or compliance statements.
+- **Sensitive data:** only client-facing report fields; no network settings, item notes, register details,
+  snapshots (serial/firmware/asset ID) or equipment history.
+- **Layout engine** (`src/lib/handover/layout.ts`): wrapping, keep-with-next headings, tables starting with ≥3 rows,
+  repeated table headers, row splitting only when taller than a page, panels across pages.
+- **Preview = PDF:** one generation produces the page model (drawn as SVG with the PDF font) and the PDF bytes.
+- **Branding:** optional company name, phone, email, address, ABN, accent colour, PNG/JPEG logo (signature-checked,
+  ≤512 KB, aspect kept, transparency kept); stored locally; unbranded by default.
+- jsPDF 4.2.1 (exact) added; Carlito fonts (SIL OFL 1.1) bundled in `public/fonts/` with licence.
 
 ## Latest validation
-- Lint, typecheck clean. Tests 479 passed, 2 skipped (opt-in sample writers). Normal + demo builds OK.
-- Playwright (iPhone 13 + 1440 px): v0.7.0-format stored data loads; link → pick 3 → fault + outcome → propose and
-  apply firmware → Excel (no IP addresses) → history visible in Technical Docs → backup download → restore preview
-  (all skipped, no duplicates). No horizontal overflow, console errors or external requests.
-- Excel outputs not verified in Microsoft Excel itself (not available here).
+- Lint, typecheck clean. Tests 503 passed, 3 skipped (opt-in sample writers). Normal + demo builds OK.
+- Visual QA (3 passes, PDFs rendered with poppler `pdftoppm` and inspected): short CCTV, CCTV faults, intruder,
+  access, long narrative, 120-item schedule, minimal, branded (sample logo), unbranded. Fixes: status column width,
+  keep-with-next for tall first rows, running header keeps job ref, no repeated fault findings, header spacing,
+  no single-row table openings.
+- Playwright (iPhone 13 + 1440 px): preview in < 1 s, branding + logo upload, download → `pdfinfo`/`pdftotext`
+  (page count matches preview, branding present, internal notes absent), back to editor; no overflow, console
+  errors or external requests.
 
 ## Known limitations
-- History sync from a report is debounced (~0.4 s); closing the tab within that window can miss the last edit (it
-  is re-synced next time the report is opened).
-- Applying an update and editing the same register in another browser tab at the same time can overwrite one
-  another (single-tab use assumed; local storage only).
-- Equipment IDs are unique within a register; links always pair register + equipment id.
-- Restore merges whole registers (no per-entry merge inside a register; a changed register is imported as a copy).
-- Deleting a report keeps its history events (history records what happened).
+- The PDF font (Carlito) has no glyphs for symbols such as ✓, emoji or CJK; these appear as "?" and are listed in
+  the preview so the technician can edit the text.
+- Branding is per device (not included in Technical Docs backups).
+- The embedded logo is stored as base64 in browser storage (limited to 512 KB).
+- Not verified in Adobe Acrobat; checked with poppler and Chromium.
 
 ## Next (suggested)
-- v0.8: Client Handover Documentation (customer-facing PDF from a register and its history).
+- Optional sign-off block with a technician-entered name (never auto-generated); photos per item.

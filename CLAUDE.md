@@ -13,7 +13,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `/eol` EOL Wiring Assistant (explorer; URL state `?t=<template>&p=<preset>`), `/eol/[id]`
 - `/fault-finder` guided fault finder · `/fault-finder/diagnose/[id]` diagnosis · `/fault-finder/[id]` workflow records
 - `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
-- `/reports` Quick Service Report (list, or editor with `?id=`)
+- `/reports` Quick Service Report (list, or editor with `?id=`; `&view=handover` client handover PDF)
 - `/tech-docs` Technical Docs: site equipment registers (list; `?id=` register; `&item=` equipment form)
 - Navigation: `src/lib/navigation.ts` (NAV_ITEMS — `mobile: false` keeps an item off the 5-slot bottom bar; TOOLS → search index)
 
@@ -50,6 +50,11 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `src/lib/sites/link.ts`: report ↔ register link (`report.registerId`, `item.source` with snapshot — no network data),
   picker duplicate prevention, `syncReportHistory` (fixed event ids, no duplicates), `applyEquipmentUpdate` (only
   confirmed fields, checked against reviewed originals). Never update master records without explicit confirmation.
+- `src/lib/handover/`: client handover PDF — `content.ts` (client-facing document model only; never network data, item
+  notes, register details or history; no compliance claims), `layout.ts` (page model; wrap, keep-with-next, repeated
+  table headers), `pdf.ts` (jsPDF + Carlito from `public/fonts`, one generation for preview + download),
+  `branding.ts` (optional, `fieldwise:branding:v1`, logo checked by signature/size). Visual QA: write samples with
+  `FIELDWISE_SAMPLE_DIR=<dir> npx vitest run tests/handover/samples.test.ts`, render with `pdftoppm`.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

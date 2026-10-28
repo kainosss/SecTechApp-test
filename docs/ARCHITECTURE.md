@@ -306,6 +306,32 @@ documentation system (client handover documents come later).
   explicit confirmation; reports are never overwritten, conflicts become copies) → `commitImport` writes registers and
   reports together and restores both on failure. All local; nothing uploaded.
 
+## Client handover PDF (v0.8.0)
+
+Customer-facing "Security Service Report" PDF made from a service report (`/reports?id=…&view=handover`).
+
+- **Content** (`src/lib/handover/content.ts`): `handoverDocument(report, options)` → document model (numbered
+  sections: site & customer details, inspection overview KPIs, work completed, identified defects, recommendations,
+  equipment inspection schedule, additional information). Only client-facing report fields; never item notes,
+  Technical Docs links/snapshots, network data or history. Counts from entries; Not Tested never counted as passed or
+  faulty; no compliance/certification statements; empty or switched-off sections omitted (`included` / `empty`).
+  A fault's finding isn't repeated in the schedule when Identified defects is included ("Refer to section n").
+- **Layout** (`layout.ts`): deterministic engine → `Page[]` of drawing ops (text/rect/line/image, points from the
+  top-left). A4 portrait, 48 pt margins, Carlito type scale, palette navy/blue/greys. Word wrap (never clipped;
+  over-long words broken), keep-with-next headings (measures the real start of the next block), tables start with
+  ≥3 rows (or all), repeat headers on each page, split only rows taller than a page; panels continue across pages;
+  running header (company or title · site · job ref) from page 2; footer with job ref, "Generated with Fieldwise",
+  "Page n of N".
+- **PDF** (`pdf.ts`): jsPDF (dynamic import) with embedded Carlito (OFL, `public/fonts/`, fetched same-origin and
+  subset by jsPDF). `generateHandover()` builds document → layout → PDF bytes once; the preview draws the same pages
+  as SVG (`HandoverPreview.tsx`, same font), download uses the same bytes. Characters the font lacks are shown as "?"
+  and listed to the technician. Desktop browsers with a PDF viewer can also show the actual PDF in an iframe.
+- **Branding** (`branding.ts`): optional company name, phone, email, address, ABN, accent colour (rules only), logo
+  (PNG/JPEG by file signature, ≤512 KB, ≤4000 px, aspect ratio kept, transparency kept). `fieldwise:branding:v1`;
+  nothing pre-filled; unbranded layout when empty.
+- **UI** (`HandoverPanel.tsx`): "Client handover PDF" button beside Generate Excel; section toggles (disabled when
+  nothing to show), branding editor, live preview (debounced), Download / Open PDF, loading and error states.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -324,6 +350,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.8.0 ✅ | Client handover PDF: corporate layout engine, exact preview, optional branding |
 | v0.7.1 ✅ | Site-linked service jobs, equipment picker, confirmed master updates, equipment history, JSON backup/restore |
 | v0.7.0 ✅ | Technical Documentation: standalone site equipment registers, fast entry, network checks, 5-sheet Excel |
 | v0.6.2 ✅ | Corporate inspection report: numbered summary, KPI tiles, defect/action tables, one-page-wide register |

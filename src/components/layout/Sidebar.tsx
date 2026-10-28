@@ -35,7 +35,7 @@ export function Sidebar() {
         })}
       </nav>
       <div className="mt-auto rounded-lg border border-line bg-ink-850 p-3 text-xs leading-relaxed text-fg-muted">
-        <p className="font-mono tracking-wider text-fg-subtle uppercase">Build 0.6 · Beta</p>
+        <p className="font-mono tracking-wider text-fg-subtle uppercase">Build 0.8 · Beta</p>
         <p className="mt-1">Records are still being verified. Accounts and subscriptions are not enabled yet.</p>
       </div>
     </aside>
