@@ -29,7 +29,7 @@ export function ToolCards({ tools }: { tools: ToolDefinition[] }) {
               </span>
               <span className="mt-0.5 block text-[13px] leading-snug text-fg-muted">{tool.description}</span>
               <span
-                className={`mt-2 inline-block font-mono text-[10px] tracking-wider uppercase ${
+                className={`mt-2 inline-block font-mono text-[11px] tracking-wider uppercase ${
                   tool.status === "planned" ? "text-fg-subtle" : "text-signal-400"
                 }`}
               >

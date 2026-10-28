@@ -3,6 +3,7 @@
  * Each saved report is validated on read; corrupted or outdated entries are
  * skipped (and counted) rather than breaking the list. Nothing is sent anywhere.
  */
+import { onWorkspaceChange, scopedKey } from "@/lib/workspace";
 import { z } from "zod";
 import { reportSchema, technicianSchema, type Report, type TechnicianProfile } from "./schema";
 
@@ -41,7 +42,7 @@ export function parseReports(raw: string | null): LoadedReports {
 
 export function readRaw(): string | null {
   try {
-    return window.localStorage.getItem(REPORTS_KEY);
+    return window.localStorage.getItem(scopedKey(REPORTS_KEY));
   } catch {
     return null;
   }
@@ -51,7 +52,7 @@ export function readRaw(): string | null {
 export function writeAll(reports: Report[]): boolean {
   let ok = true;
   try {
-    window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ version: 1, reports: Object.fromEntries(reports.map((r) => [r.id, r])) }));
+    window.localStorage.setItem(scopedKey(REPORTS_KEY), JSON.stringify({ version: 1, reports: Object.fromEntries(reports.map((r) => [r.id, r])) }));
   } catch {
     ok = false;
   }
@@ -79,7 +80,7 @@ export function deleteReport(id: string): boolean {
 
 export function clearReports() {
   try {
-    window.localStorage.removeItem(REPORTS_KEY);
+    window.localStorage.removeItem(scopedKey(REPORTS_KEY));
   } catch {
     // Nothing stored or storage unavailable.
   }
@@ -89,15 +90,17 @@ export function clearReports() {
 export function subscribeReports(cb: () => void) {
   window.addEventListener(REPORTS_EVENT, cb);
   window.addEventListener("storage", cb);
+  const offWorkspace = onWorkspaceChange(cb);
   return () => {
     window.removeEventListener(REPORTS_EVENT, cb);
     window.removeEventListener("storage", cb);
+    offWorkspace();
   };
 }
 
 export function loadTechnician(): TechnicianProfile {
   try {
-    const r = technicianSchema.safeParse(JSON.parse(window.localStorage.getItem(TECHNICIAN_KEY) ?? "null"));
+    const r = technicianSchema.safeParse(JSON.parse(window.localStorage.getItem(scopedKey(TECHNICIAN_KEY)) ?? "null"));
     return r.success ? r.data : { name: "", company: "" };
   } catch {
     return { name: "", company: "" };
@@ -106,7 +109,7 @@ export function loadTechnician(): TechnicianProfile {
 
 export function saveTechnician(profile: TechnicianProfile) {
   try {
-    window.localStorage.setItem(TECHNICIAN_KEY, JSON.stringify(profile));
+    window.localStorage.setItem(scopedKey(TECHNICIAN_KEY), JSON.stringify(profile));
   } catch {
     // Won't persist.
   }

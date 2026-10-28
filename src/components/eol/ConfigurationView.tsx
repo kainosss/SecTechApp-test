@@ -162,7 +162,7 @@ export function ConfigurationView({
       )}
       {detail.status === "needs-verification" && detail.statusReasons.length > 0 && (
         <details className="rounded-xl border border-line bg-ink-900 px-4 py-3 text-sm">
-          <summary className="cursor-pointer font-medium text-fg">Why this is not verified ({detail.statusReasons.length})</summary>
+          <summary className="flex min-h-11 cursor-pointer items-center font-medium text-fg">Why this is not verified ({detail.statusReasons.length})</summary>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-fg-muted">
             {detail.statusReasons.map((r) => (
               <li key={r}>{r}</li>

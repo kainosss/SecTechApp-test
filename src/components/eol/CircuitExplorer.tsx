@@ -10,6 +10,7 @@ import { CUSTOM_PRESET, buildExplorerCircuit, explorerToSearch, paramsForState, 
 import { RESISTOR_ROLE_LABELS, type ResistorNode } from "@/lib/eol/model";
 import { COMMON_EOL_VALUES, isStandardValue, parseResistance, realise } from "@/lib/eol/standard-values";
 import { useUrlSearch } from "@/lib/eol/use-url-selection";
+import { presetTier, TIER_LABELS } from "@/lib/verification";
 import { Icon } from "@/components/ui/Icon";
 import { ClassificationBadge } from "./ClassificationBadge";
 import { CircuitWorkbench } from "./CircuitWorkbench";
@@ -34,7 +35,7 @@ function Chips<T extends string>({
           role="radio"
           aria-checked={o.value === value}
           onClick={() => onChange(o.value)}
-          className={`h-10 shrink-0 rounded-full border px-4 text-sm font-medium whitespace-nowrap ${
+          className={`h-11 shrink-0 rounded-full border px-4 text-sm font-medium whitespace-nowrap ${
             o.value === value ? "border-signal-400 bg-signal-500 text-ink-950" : "border-line-strong text-fg-muted hover:text-fg"
           }`}
         >
@@ -87,7 +88,7 @@ function ResistorEditor({ resistor, base, onApply, onClose }: { resistor: Resist
         <p className="text-sm font-semibold text-fg">
           {resistor.id} · {resistor.ohms === null ? "—" : resistorCode(resistor.ohms)} <span className="font-normal text-fg-muted">({RESISTOR_ROLE_LABELS[resistor.role]})</span>
         </p>
-        <button type="button" onClick={onClose} className="h-9 px-1 text-sm font-medium text-fg-muted hover:text-fg">
+        <button type="button" onClick={onClose} className="h-11 px-1 text-sm font-medium text-fg-muted hover:text-fg">
           Done
         </button>
       </div>
@@ -98,7 +99,7 @@ function ResistorEditor({ resistor, base, onApply, onClose }: { resistor: Resist
             type="button"
             aria-pressed={resistor.ohms === v}
             onClick={() => onApply(v)}
-            className={`h-9 rounded-lg border px-2.5 font-mono text-sm ${resistor.ohms === v ? "border-signal-400 bg-signal-500/20 text-signal-300" : "border-line-strong text-fg"}`}
+            className={`h-11 rounded-lg border px-2.5 font-mono text-sm ${resistor.ohms === v ? "border-signal-400 bg-signal-500/20 text-signal-300" : "border-line-strong text-fg"}`}
           >
             {resistorCode(v)}
           </button>
@@ -148,6 +149,7 @@ export function CircuitExplorer({ templates, presets }: { templates: WiringDetai
     ? { normal: model.targets.normal!, alarm: model.targets.alarm, label: model.isCustomPreset ? "custom targets" : (model.preset?.shortLabel ?? "example") }
     : undefined;
 
+  const tier = presetTier(model.preset, model.isCustomPreset || model.modified);
   return (
     <div className="flex flex-col gap-3">
       <Chips
@@ -207,6 +209,9 @@ export function CircuitExplorer({ templates, presets }: { templates: WiringDetai
 
       <div className="flex flex-col gap-1">
         <p className="text-sm text-fg">{model.template.title}</p>
+        <p className="text-xs font-semibold text-fg" data-testid="values-status">
+          Resistor values: <span className={tier === "generic" ? "text-signal-300" : "text-unverified"}>{TIER_LABELS[tier]}</span>
+        </p>
         <p className="text-xs leading-relaxed text-fg-subtle">
         {model.isCustomPreset
           ? "Enter the readings you want; Fieldwise sizes the resistors for the selected arrangement."
@@ -214,13 +219,17 @@ export function CircuitExplorer({ templates, presets }: { templates: WiringDetai
             ? `${model.preset.label}. ${model.preset.note}`
             : null}
         </p>
+        <p className="text-xs leading-relaxed text-fg-subtle">
+          Resistors here are separate components wired to terminals. Some detectors have built-in EOL resistors chosen with links or switches — those aren&apos;t
+          terminals; follow the detector&apos;s manual before cutting or moving a link.
+        </p>
       </div>
 
       <section aria-label="Resistors" className="rounded-2xl border border-line bg-ink-900">
         <div className="flex min-h-11 items-center justify-between gap-2 border-b border-line px-4">
           <h3 className="text-sm font-semibold text-fg">Resistors · tap to change</h3>
           {model.modified && (
-            <button type="button" onClick={() => go({ ...current, r: undefined }, "replace")} className="h-9 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
+            <button type="button" onClick={() => go({ ...current, r: undefined }, "replace")} className="h-11 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
               Reset
             </button>
           )}

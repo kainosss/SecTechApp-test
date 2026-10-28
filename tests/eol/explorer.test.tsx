@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CircuitExplorer } from "@/components/eol/CircuitExplorer";
 import { listEolPresets, listGenericCircuits, type EolPreset, type WiringDetail } from "@/lib/content/repository";
@@ -236,5 +236,16 @@ describe("CircuitExplorer (component)", () => {
     expect(document.querySelector('[data-component="ALM"]')?.getAttribute("data-changed")).toBeNull();
     await user.click(screen.getByRole("button", { name: /alarm contact ALM/ }));
     expect(document.querySelector('[data-component="ALM"]')?.getAttribute("data-changed")).toBe("true");
+  });
+
+  it("labels the resistor values' status: generic, requires verification, or technician-configured", async () => {
+    await setup("?p=tecom-example");
+    expect(screen.getByTestId("values-status")).toHaveTextContent("Resistor values: Requires verification");
+    cleanup();
+    await setup();
+    expect(screen.getByTestId("values-status")).toHaveTextContent("Resistor values: Generic training example");
+    cleanup();
+    await setup("?p=custom&seal=4700&alarm=9400");
+    expect(screen.getByTestId("values-status")).toHaveTextContent("Resistor values: Technician-configured values");
   });
 });

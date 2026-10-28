@@ -23,7 +23,7 @@ export function VerificationPanel({ wf }: { wf: Workflow }) {
       </p>
       {(v.pending.length > 0 || wf.sources.length > 0) && (
         <details className="mt-2">
-          <summary className="cursor-pointer text-fg">
+          <summary className="flex min-h-11 cursor-pointer items-center text-fg">
             {v.pending.length > 0 ? `${v.pending.length} item${v.pending.length === 1 ? "" : "s"} awaiting verification` : "Sources"}
           </summary>
           {v.pending.length > 0 && (

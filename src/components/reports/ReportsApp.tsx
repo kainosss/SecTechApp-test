@@ -7,6 +7,7 @@ import { createReport, duplicateReport, statusCounts } from "@/lib/reports/repor
 import { JOB_TYPES, type JobType, type Report } from "@/lib/reports/schema";
 import { clearReports, deleteReport, loadTechnician, parseReports, readRaw, saveReport, subscribeReports } from "@/lib/reports/store";
 import { BackupPanel, BackupReminder } from "@/components/backup/BackupPanel";
+import { DemoInvite } from "@/components/demo/DemoWorkspaceBanner";
 import { ReportEditor } from "./ReportEditor";
 import { markReportDeleted, markReportRestored } from "@/lib/sites/link";
 import { updateAllRegisters } from "@/lib/techdocs/store";
@@ -76,16 +77,16 @@ export function ReportsApp() {
                     updateAllRegisters((reg) => ids.reduce((acc, id) => markReportDeleted(acc, id), reg));
                     setConfirmClear(false);
                   }}
-                  className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
+                  className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
                 >
                   Delete all
                 </button>
-                <button type="button" onClick={() => setConfirmClear(false)} className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
+                <button type="button" onClick={() => setConfirmClear(false)} className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
                   Cancel
                 </button>
               </span>
             ) : (
-              <button type="button" onClick={() => setConfirmClear(true)} className="h-10 rounded-lg px-2 text-sm font-medium text-fg-muted hover:text-fault">
+              <button type="button" onClick={() => setConfirmClear(true)} className="h-11 rounded-lg px-2 text-sm font-medium text-fg-muted hover:text-fault">
                 Clear saved reports
               </button>
             ))}
@@ -105,7 +106,7 @@ export function ReportsApp() {
                 updateAllRegisters((reg) => markReportRestored(reg, deleted.id));
                 setDeleted(null);
               }}
-              className="h-9 px-2 font-semibold text-signal-400 hover:text-signal-300"
+              className="h-11 px-2 font-semibold text-signal-400 hover:text-signal-300"
             >
               Undo
             </button>
@@ -134,7 +135,7 @@ export function ReportsApp() {
                     </span>
                   </button>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => open(r)} className="h-10 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
+                    <button type="button" onClick={() => open(r)} className="h-11 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
                       Continue
                     </button>
                     <button
@@ -146,11 +147,11 @@ export function ReportsApp() {
                           setMessage("Couldn't create the Excel file. Try again.");
                         }
                       }}
-                      className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800"
+                      className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800"
                     >
                       Excel
                     </button>
-                    <button type="button" onClick={() => saveReport(duplicateReport(r))} className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800">
+                    <button type="button" onClick={() => saveReport(duplicateReport(r))} className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800">
                       Duplicate
                     </button>
                     <button
@@ -160,7 +161,7 @@ export function ReportsApp() {
                         updateAllRegisters((reg) => markReportDeleted(reg, r.id));
                         setDeleted(r);
                       }}
-                      className="h-10 rounded-lg px-3 text-sm font-medium text-fg-muted hover:text-fault"
+                      className="h-11 rounded-lg px-3 text-sm font-medium text-fg-muted hover:text-fault"
                     >
                       Delete
                     </button>
@@ -171,6 +172,7 @@ export function ReportsApp() {
           </ul>
         )}
       </section>
+      <DemoInvite />
       <BackupPanel />
     </div>
   );

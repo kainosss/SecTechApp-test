@@ -44,7 +44,7 @@ export function Multimeter(props: MultimeterProps) {
       <div className="flex items-stretch gap-2.5">
         {/* LCD */}
         <div className="flex min-w-0 flex-1 flex-col justify-center rounded-lg bg-[#b9c7a5] px-3 py-1.5 text-[#14200f] shadow-inner">
-          <div className="flex items-center justify-between font-mono text-[10px] font-semibold tracking-wider uppercase opacity-70">
+          <div className="flex items-center justify-between font-mono text-[11px] font-semibold tracking-wider uppercase opacity-70">
             <span>Ω · auto</span>
             <span>{stateText}</span>
           </div>
@@ -83,7 +83,7 @@ export function Multimeter(props: MultimeterProps) {
                     type="button"
                     onClick={() => props.onRemoveProbe(c)}
                     aria-label={`Remove ${s.name.toLowerCase()}`}
-                    className="grid size-9 shrink-0 place-items-center rounded-lg text-fg-muted hover:text-fault"
+                    className="grid size-11 shrink-0 place-items-center rounded-lg text-fg-muted hover:text-fault"
                   >
                     <Icon name="close" className="size-4" />
                   </button>
@@ -113,7 +113,7 @@ export function Multimeter(props: MultimeterProps) {
             aria-checked={state === s.kind}
             aria-label={s.label}
             onClick={() => props.onContacts(contactsFor(s.kind))}
-            className={`h-10 rounded-lg border text-xs font-medium ${state === s.kind ? "border-signal-400 bg-signal-500/15 text-signal-300" : "border-line text-fg-muted hover:text-fg"}`}
+            className={`h-11 rounded-lg border text-xs font-medium ${state === s.kind ? "border-signal-400 bg-signal-500/15 text-signal-300" : "border-line text-fg-muted hover:text-fg"}`}
           >
             {s.short}
           </button>

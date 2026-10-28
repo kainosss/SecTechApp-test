@@ -7,6 +7,7 @@ import { createRegister, duplicateRegister, registerTitle } from "@/lib/techdocs
 import type { TechRegister } from "@/lib/techdocs/schema";
 import { deleteRegister, parseRegisters, readRegistersRaw, saveRegister, subscribeRegisters } from "@/lib/techdocs/store";
 import { BackupPanel, BackupReminder } from "@/components/backup/BackupPanel";
+import { DemoInvite } from "@/components/demo/DemoWorkspaceBanner";
 import { defaultTechnician, RegisterEditor } from "./RegisterEditor";
 
 /** Registers home (create, reopen, manage) and the editor, switched by `?id=` so Back works on phones. */
@@ -78,17 +79,17 @@ export function TechDocsApp() {
                         deleteRegister(r.id);
                         setConfirmDelete(null);
                       }}
-                      className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
+                      className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
                     >
                       Delete register
                     </button>
-                    <button type="button" onClick={() => setConfirmDelete(null)} className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
+                    <button type="button" onClick={() => setConfirmDelete(null)} className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
                       Cancel
                     </button>
                   </p>
                 ) : (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => open(r)} className="h-10 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
+                    <button type="button" onClick={() => open(r)} className="h-11 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
                       Open
                     </button>
                     <button
@@ -100,14 +101,14 @@ export function TechDocsApp() {
                           setMessage("Couldn't create the Excel file. Try again.");
                         }
                       }}
-                      className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800"
+                      className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800"
                     >
                       Excel
                     </button>
-                    <button type="button" onClick={() => saveRegister(duplicateRegister(r))} className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800">
+                    <button type="button" onClick={() => saveRegister(duplicateRegister(r))} className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800">
                       Duplicate
                     </button>
-                    <button type="button" onClick={() => setConfirmDelete(r.id)} className="h-10 rounded-lg px-3 text-sm font-medium text-fg-muted hover:text-fault">
+                    <button type="button" onClick={() => setConfirmDelete(r.id)} className="h-11 rounded-lg px-3 text-sm font-medium text-fg-muted hover:text-fault">
                       Delete
                     </button>
                   </div>
@@ -117,6 +118,7 @@ export function TechDocsApp() {
           </ul>
         )}
       </section>
+      <DemoInvite />
       <BackupPanel />
     </div>
   );

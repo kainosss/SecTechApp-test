@@ -220,7 +220,7 @@ export function FaultLab({ scenarioId }: { scenarioId: string }) {
               <button
                 type="button"
                 onClick={() => dispatch({ type: "hint" })}
-                className="h-10 self-start rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg"
+                className="h-11 self-start rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg"
               >
                 Show hint ({hintsShown + 1} of {scenario.hints.length})
               </button>

@@ -152,7 +152,7 @@ export const sourceSchema = z
 
 export const VERIFICATION_STATUSES = ["generic", "manufacturer-referenced", "technician-reviewed", "requires-verification"] as const;
 export const VERIFICATION_LABELS: Record<(typeof VERIFICATION_STATUSES)[number], string> = {
-  generic: "Generic guidance — not manufacturer verified",
+  generic: "Generic training example — not manufacturer verified",
   "manufacturer-referenced": "Manufacturer documentation referenced",
   "technician-reviewed": "Technician reviewed",
   "requires-verification": "Requires verification",

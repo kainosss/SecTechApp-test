@@ -27,11 +27,11 @@ export default async function WiringPage({ params }: Props) {
   return (
     <article className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link href="/eol" className="-ml-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+        <Link href="/eol" className="-ml-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
           <Icon name="chevron-right" className="size-4 rotate-180" />
           EOL Wiring Assistant
         </Link>
-        <Link href={assistantHref} className="inline-flex h-10 items-center rounded-lg px-2 text-sm font-medium text-signal-400 hover:text-signal-300">
+        <Link href={assistantHref} className="inline-flex h-11 items-center rounded-lg px-2 text-sm font-medium text-signal-400 hover:text-signal-300">
           Open in assistant
         </Link>
       </div>

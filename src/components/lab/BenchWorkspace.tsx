@@ -208,7 +208,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
         })}
       </div>
 
-      <p className="mt-2 min-h-10 rounded-lg bg-ink-850 px-3 py-2 text-sm text-fg" role="status" aria-live="polite" data-testid="bench-status">
+      <p className="mt-2 min-h-11 rounded-lg bg-ink-850 px-3 py-2 text-sm text-fg" role="status" aria-live="polite" data-testid="bench-status">
         {message}
       </p>
 
@@ -260,7 +260,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
               cancelPlacement();
               setMessage("Placement cancelled.");
             }}
-            className="h-9 shrink-0 px-1 font-medium text-signal-400 hover:text-signal-300"
+            className="h-11 shrink-0 px-1 font-medium text-signal-400 hover:text-signal-300"
           >
             Cancel
           </button>
@@ -277,10 +277,10 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
       {selected && (
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-ink-850 px-3 py-2 text-sm" data-testid="selected-component">
           <span className="min-w-0 flex-1 text-fg">{describe(selected, labels[selected.id]!)}</span>
-          <button type="button" onClick={() => startMove(selected.id)} className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
+          <button type="button" onClick={() => startMove(selected.id)} className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
             Move
           </button>
-          <button type="button" onClick={() => remove(selected.id)} className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10">
+          <button type="button" onClick={() => remove(selected.id)} className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10">
             Remove
           </button>
         </div>
@@ -312,7 +312,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
       </div>
 
       <details className="mt-3 rounded-lg border border-line px-3 py-2 text-sm" open={components.length > 0}>
-        <summary className="cursor-pointer font-medium text-fg">Placed components ({components.length})</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium text-fg">Placed components ({components.length})</summary>
         {components.length === 0 ? (
           <p className="mt-2 text-fg-muted">Nothing placed yet.</p>
         ) : (
@@ -323,7 +323,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
                   type="button"
                   onClick={() => onComponent(c.id)}
                   aria-pressed={c.id === selectedComponent}
-                  className={`min-h-10 min-w-0 flex-1 rounded-lg px-2 text-left ${c.id === selectedComponent ? "bg-signal-500/15 text-signal-300" : "text-fg hover:bg-ink-850"}`}
+                  className={`min-h-11 min-w-0 flex-1 rounded-lg px-2 text-left ${c.id === selectedComponent ? "bg-signal-500/15 text-signal-300" : "text-fg hover:bg-ink-850"}`}
                 >
                   <span className="font-mono font-semibold">{labels[c.id]}</span>{" "}
                   <span className="text-fg-muted">
@@ -331,7 +331,7 @@ export function BenchWorkspace(props: BenchWorkspaceProps) {
                     {short(c.a)} → {short(c.b)}
                   </span>
                 </button>
-                <button type="button" onClick={() => remove(c.id)} aria-label={`Remove ${labels[c.id]}`} className="grid size-10 shrink-0 place-items-center rounded-lg text-fg-muted hover:text-fault">
+                <button type="button" onClick={() => remove(c.id)} aria-label={`Remove ${labels[c.id]}`} className="grid size-11 shrink-0 place-items-center rounded-lg text-fg-muted hover:text-fault">
                   <Icon name="close" className="size-4" />
                 </button>
               </li>

@@ -100,7 +100,7 @@ export function DeviceBrowser({
         type="button"
         aria-pressed={selected}
         onClick={() => setFilter({ ...filter, group: value })}
-        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors ${
+        className={`inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors ${
           selected
             ? "border-signal-500/60 bg-signal-500/15 text-signal-300"
             : count === 0
@@ -146,7 +146,7 @@ export function DeviceBrowser({
               type="button"
               onClick={() => setFilter({ ...filter, query: "" })}
               aria-label="Clear search"
-              className="absolute top-1/2 right-1 grid size-10 -translate-y-1/2 place-items-center rounded-lg text-fg-subtle hover:text-fg"
+              className="absolute top-1/2 right-1 grid size-11 -translate-y-1/2 place-items-center rounded-lg text-fg-subtle hover:text-fg"
             >
               <Icon name="close" className="size-4" />
             </button>
@@ -175,12 +175,12 @@ export function DeviceBrowser({
         {groups.map((g) => chip(g.label, g.id, counts.get(g.id) ?? 0))}
       </div>
 
-      <div className="mt-4 mb-2 flex h-8 items-center justify-between text-sm">
+      <div className="mt-4 mb-2 flex h-11 items-center justify-between text-sm">
         <p aria-live="polite" className="text-fg-muted">
           {results.length} {results.length === 1 ? "device" : "devices"}
         </p>
         {active && (
-          <button type="button" onClick={() => setFilter({})} className="h-8 px-1 font-medium text-signal-400 hover:text-signal-300">
+          <button type="button" onClick={() => setFilter({})} className="h-11 px-1 font-medium text-signal-400 hover:text-signal-300">
             Clear filters
           </button>
         )}
@@ -197,7 +197,7 @@ export function DeviceBrowser({
             <p>No devices match. Check the model number or part number, or clear the filters to see the full library.</p>
           )}
           {active && (
-            <button type="button" onClick={() => setFilter({})} className="mt-3 h-10 font-medium text-signal-400">
+            <button type="button" onClick={() => setFilter({})} className="mt-3 h-11 font-medium text-signal-400">
               Clear filters
             </button>
           )}

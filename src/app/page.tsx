@@ -7,12 +7,14 @@ import { UniversalSearch, UniversalSearchFromUrl } from "@/components/dashboard/
 import { ToolCards } from "@/components/dashboard/ToolCards";
 import { DeviceShortlists } from "@/components/dashboard/DeviceShortlists";
 import { DemoNotice } from "@/components/ui/DemoNotice";
+import { WelcomeCard } from "@/components/onboarding/WelcomeCard";
 
 export default async function DashboardPage() {
   const [index, devices, stats] = await Promise.all([buildSearchIndex(), listDevices(), getContentStats()]);
 
   return (
     <div className="flex flex-col gap-8 lg:gap-10">
+      <WelcomeCard />
       <section className="relative -mx-4 overflow-hidden border-b border-line px-4 pt-2 pb-6 sm:mx-0 sm:rounded-2xl sm:border sm:bg-ink-900 sm:p-8">
         <div className="bg-grid pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]" aria-hidden="true" />
         <div className="relative">
@@ -45,7 +47,7 @@ export default async function DashboardPage() {
           <h2 id="library-heading" className="text-sm font-semibold text-fg">
             Library status
           </h2>
-          <Link href="/devices" className="text-sm font-medium text-signal-400 hover:text-signal-300">
+          <Link href="/devices" className="inline-flex min-h-11 items-center text-sm font-medium text-signal-400 hover:text-signal-300">
             Browse devices
           </Link>
         </div>
@@ -54,7 +56,7 @@ export default async function DashboardPage() {
             ["Devices", stats.devices],
             ["Manufacturers", stats.manufacturers],
             ["Verified", stats.verified],
-            ["Needs verification", stats.needsVerification],
+            ["Requires verification", stats.needsVerification],
           ].map(([label, value]) => (
             <div key={label} className="bg-ink-850 px-4 py-3">
               <dt className="text-xs text-fg-muted">{label}</dt>

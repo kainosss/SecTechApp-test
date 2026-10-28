@@ -35,7 +35,7 @@ function Step({
           {value && <span className="block truncate text-[15px] font-medium text-fg">{value}</span>}
         </span>
         {value && onChange && (
-          <button type="button" onClick={onChange} className="h-9 shrink-0 rounded-lg px-2 text-sm font-medium text-signal-400 hover:text-signal-300">
+          <button type="button" onClick={onChange} className="h-11 shrink-0 rounded-lg px-2 text-sm font-medium text-signal-400 hover:text-signal-300">
             Change
           </button>
         )}
@@ -104,7 +104,7 @@ export function EolAssistant({
                 <dt className="w-24 shrink-0 text-xs text-fg-subtle">{r.label}</dt>
                 <dd className="min-w-0 flex-1 truncate text-sm font-medium text-fg">{r.value}</dd>
                 {r.change && (
-                  <button type="button" onClick={r.change} aria-label={`Change ${r.label.toLowerCase()}`} className="h-9 shrink-0 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
+                  <button type="button" onClick={r.change} aria-label={`Change ${r.label.toLowerCase()}`} className="h-11 shrink-0 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
                     Change
                   </button>
                 )}
@@ -157,7 +157,7 @@ export function EolAssistant({
             </ul>
             <div className="border-t border-line px-4 py-3 text-sm text-fg-muted">
               Not looking for a specific panel?{" "}
-              <button type="button" onClick={exitToExplorer} className="font-medium text-signal-400 hover:text-signal-300">
+              <button type="button" onClick={exitToExplorer} className="inline-flex min-h-11 items-center font-medium text-signal-400 hover:text-signal-300">
                 Explore generic circuits
               </button>
             </div>
@@ -218,7 +218,7 @@ export function EolAssistant({
       )}
 
       {realPanel && !arrangement && forPanel.length > 0 && (
-        <Link href={`/devices/${realPanel.id}`} className="inline-flex h-10 items-center gap-1 self-start rounded-lg px-1 text-sm font-medium text-fg-muted hover:text-fg">
+        <Link href={`/devices/${realPanel.id}`} className="inline-flex h-11 items-center gap-1 self-start rounded-lg px-1 text-sm font-medium text-fg-muted hover:text-fg">
           <Icon name="chevron-right" className="size-4 rotate-180" />
           Back to {realPanel.model}
         </Link>

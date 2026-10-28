@@ -3,6 +3,7 @@
  * this device, and whether the reminder is snoozed. Only dates are stored —
  * no copy of any data — and nothing leaves the device.
  */
+import { onWorkspaceChange, scopedKey } from "@/lib/workspace";
 import { z } from "zod";
 
 export const BACKUP_META_KEY = "fieldwise:backup-meta:v1";
@@ -17,7 +18,7 @@ const EMPTY: BackupMeta = { lastBackupAt: "", snoozedUntil: "" };
 
 export function readMetaRaw(): string {
   try {
-    return window.localStorage.getItem(BACKUP_META_KEY) ?? "";
+    return window.localStorage.getItem(scopedKey(BACKUP_META_KEY)) ?? "";
   } catch {
     return "";
   }
@@ -34,7 +35,7 @@ export function parseMeta(raw: string): BackupMeta {
 
 function write(meta: BackupMeta) {
   try {
-    window.localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
+    window.localStorage.setItem(scopedKey(BACKUP_META_KEY), JSON.stringify(meta));
   } catch {
     // Not stored: the reminder simply shows again.
   }
@@ -52,9 +53,11 @@ export function snoozeReminder(now = new Date()) {
 export function subscribeMeta(cb: () => void) {
   window.addEventListener(BACKUP_META_EVENT, cb);
   window.addEventListener("storage", cb);
+  const offWorkspace = onWorkspaceChange(cb);
   return () => {
     window.removeEventListener(BACKUP_META_EVENT, cb);
     window.removeEventListener("storage", cb);
+    offWorkspace();
   };
 }
 

@@ -22,7 +22,7 @@ export function LabExerciseNav({ current }: { current: string }) {
                   active ? "border-signal-400 bg-signal-500/15" : "border-line-strong bg-ink-900 hover:bg-ink-850"
                 }`}
               >
-                <span className={`font-mono text-[10px] tracking-wider uppercase ${e.kind === "Fault" ? "text-amber-300" : "text-signal-400"}`}>{e.kind}</span>
+                <span className={`font-mono text-[11px] tracking-wider uppercase ${e.kind === "Fault" ? "text-amber-300" : "text-signal-400"}`}>{e.kind}</span>
                 <span className={`text-sm font-medium whitespace-nowrap ${active ? "text-signal-300" : "text-fg"}`}>{e.title}</span>
               </Link>
             </li>

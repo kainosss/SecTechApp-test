@@ -5,6 +5,7 @@
  * actual file signature (not just the declared type), size-limited, and
  * kept as a data URL — never uploaded.
  */
+import { scopedKey } from "@/lib/workspace";
 import { z } from "zod";
 
 export const BRANDING_KEY = "fieldwise:branding:v1";
@@ -45,7 +46,7 @@ export function isBranded(b: Branding): boolean {
 
 export function loadBranding(): Branding {
   try {
-    const r = brandingSchema.safeParse(JSON.parse(window.localStorage.getItem(BRANDING_KEY) ?? "null"));
+    const r = brandingSchema.safeParse(JSON.parse(window.localStorage.getItem(scopedKey(BRANDING_KEY)) ?? "null"));
     return r.success ? r.data : EMPTY_BRANDING;
   } catch {
     return EMPTY_BRANDING;
@@ -55,7 +56,7 @@ export function loadBranding(): Branding {
 /** Returns false if storage is unavailable or full (e.g. a large logo). */
 export function saveBranding(b: Branding): boolean {
   try {
-    window.localStorage.setItem(BRANDING_KEY, JSON.stringify(brandingSchema.parse(b)));
+    window.localStorage.setItem(scopedKey(BRANDING_KEY), JSON.stringify(brandingSchema.parse(b)));
     return true;
   } catch {
     return false;

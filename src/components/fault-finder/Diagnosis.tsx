@@ -71,7 +71,7 @@ function ReviewFlag({ note }: { note: string }) {
     <p className="flex gap-2 rounded-lg border border-unverified/40 bg-unverified/[0.07] px-3 py-2 text-xs leading-relaxed text-fg" data-testid="review-flag">
       <Icon name="alert" className="mt-0.5 size-3.5 shrink-0 text-unverified" />
       <span>
-        <span className="font-semibold text-unverified">Needs verification: </span>
+        <span className="font-semibold text-unverified">Requires verification: </span>
         {note}
       </span>
     </p>
@@ -270,7 +270,7 @@ function MeasureView({
         </button>
       </form>
       <details className="rounded-xl border border-line px-3 py-2 text-sm" data-testid="bands">
-        <summary className="cursor-pointer font-medium text-fg-muted">How readings are classified</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium text-fg-muted">How readings are classified</summary>
         {bands?.ok ? (
           <>
             <p className="mt-2 text-fg-muted">
@@ -503,7 +503,7 @@ export function Diagnosis({ workflowId }: { workflowId: string }) {
                     <li key={`${f.node}-${i}`} className="flex items-start gap-2 text-sm" data-finding-kind={f.kind}>
                       <span className="mt-0.5 font-mono text-xs text-fg-subtle">{i + 1}</span>
                       <span className="min-w-0 flex-1 text-fg">
-                        <span className={`mr-1.5 rounded px-1 py-px font-mono text-[10px] uppercase ${f.kind === "measured" ? "bg-signal-500/15 text-signal-300" : "bg-ink-800 text-fg-subtle"}`}>
+                        <span className={`mr-1.5 rounded px-1 py-px font-mono text-[11px] uppercase ${f.kind === "measured" ? "bg-signal-500/15 text-signal-300" : "bg-ink-800 text-fg-subtle"}`}>
                           {KIND_TAG[f.kind]}
                         </span>
                         {f.text}
@@ -512,7 +512,7 @@ export function Diagnosis({ workflowId }: { workflowId: string }) {
                         type="button"
                         onClick={() => dispatch({ type: "go-to", steps: i })}
                         aria-label={`Change answer ${i + 1}: ${f.question}`}
-                        className="h-8 shrink-0 rounded-md px-2 text-xs font-medium text-signal-400 hover:bg-ink-850"
+                        className="h-11 shrink-0 rounded-md px-2 text-xs font-medium text-signal-400 hover:bg-ink-850"
                       >
                         Change
                       </button>

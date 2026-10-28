@@ -66,7 +66,7 @@ function RelatedList({ items, empty, toolHref, toolLabel }: { items: RelatedReco
     return (
       <div className="px-4 pt-1 pb-4 text-sm leading-relaxed text-fg-muted">
         <p>{empty}</p>
-        <Link href={toolHref} className="mt-1 inline-flex h-10 items-center gap-1 font-medium text-signal-400 hover:text-signal-300">
+        <Link href={toolHref} className="mt-1 inline-flex h-11 items-center gap-1 font-medium text-signal-400 hover:text-signal-300">
           Browse {toolLabel}
           <Icon name="chevron-right" className="size-4" />
         </Link>

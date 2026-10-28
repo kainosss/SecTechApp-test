@@ -1,4 +1,4 @@
-export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "report" | "docs" | "search";
+export type IconName = "home" | "library" | "eol" | "fault" | "lab" | "report" | "docs" | "search" | "help" | "feedback";
 
 export interface NavItem {
   href: string;
@@ -16,6 +16,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/reports", label: "Reports", icon: "report" },
   { href: "/tech-docs", label: "Tech Docs", icon: "docs", mobile: false },
   { href: "/circuit-lab", label: "Lab", icon: "lab", mobile: false },
+  { href: "/help", label: "Help", icon: "help", mobile: false },
+  { href: "/feedback", label: "Feedback", icon: "feedback", mobile: false },
 ];
 
 export interface ToolDefinition {

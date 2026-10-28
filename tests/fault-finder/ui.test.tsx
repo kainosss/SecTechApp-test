@@ -23,7 +23,7 @@ describe("guided diagnosis screen", () => {
   it("shows safety checks first, then walks a measurement-based path to a hedged result", () => {
     render(<Diagnosis workflowId="zone-permanently-open" />);
     expect(screen.getByTestId("safety")).toHaveTextContent("Only measure resistance on an isolated circuit");
-    expect(screen.getByTestId("verification")).toHaveTextContent("Generic guidance — not manufacturer verified");
+    expect(screen.getByTestId("verification")).toHaveTextContent("Generic training example — not manufacturer verified");
     expect(screen.getByTestId("verification")).toHaveTextContent("Not yet reviewed by an experienced technician");
     start();
     expect(question()).toBe("Which EOL resistors does this zone use?");
@@ -68,7 +68,7 @@ describe("guided diagnosis screen", () => {
     enter("6.9k");
     expect(question()).toBe("What is the supply voltage at the detector?");
     expect(screen.getByTestId("test-kind")).toHaveTextContent("Voltage test · live, DC volts range");
-    expect(screen.getByTestId("review-flag")).toHaveTextContent("Needs verification");
+    expect(screen.getByTestId("review-flag")).toHaveTextContent("Requires verification");
   });
 
   it("rejects an unreadable measurement and keeps the question", () => {

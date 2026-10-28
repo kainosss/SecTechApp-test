@@ -111,7 +111,7 @@ export function EquipmentCard({
             <textarea className={area} rows={2} value={item.findings} onChange={(e) => set({ findings: e.target.value })} placeholder="What you found" />
           </Field>
           <details className="group rounded-xl border border-line px-3 py-2" open={Boolean(item.name || item.makeModel || item.work || item.recommendations || item.notes || item.priority)}>
-            <summary className="cursor-pointer py-1 text-sm font-medium text-fg-muted">More details (name, make/model, work, recommendations, priority, notes)</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-fg-muted">More details (name, make/model, work, recommendations, priority, notes)</summary>
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
               <Field label="Equipment name">
                 <input className={input} value={item.name} onChange={(e) => set({ name: e.target.value })} placeholder={label} />

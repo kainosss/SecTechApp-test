@@ -22,7 +22,7 @@ export const CLASSIFICATION_LABELS: Record<CircuitClassification, string> = {
   "manufacturer-confirmed": "Manufacturer confirmed — documented configuration",
   "electrically-validated": "Electrically validated — generic circuit",
   custom: "Custom circuit — panel compatibility not confirmed",
-  "needs-verification": "Needs verification — not confirmed by the manufacturer",
+  "needs-verification": "Requires verification — not confirmed by the manufacturer",
   demonstration: "Demonstration only — fictional panel",
   invalid: "Circuit has errors — not validated",
 };
@@ -31,7 +31,7 @@ export const CLASSIFICATION_SHORT: Record<CircuitClassification, string> = {
   "manufacturer-confirmed": "Manufacturer confirmed",
   "electrically-validated": "Electrically validated",
   custom: "Custom circuit",
-  "needs-verification": "Needs verification",
+  "needs-verification": "Requires verification",
   demonstration: "Demonstration only",
   invalid: "Not validated",
 };

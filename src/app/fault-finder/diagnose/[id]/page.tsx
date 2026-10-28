@@ -21,7 +21,7 @@ export default async function DiagnosePage({ params }: Props) {
   if (!wf) notFound();
   return (
     <>
-      <Link href="/fault-finder" className="-ml-2 mb-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+      <Link href="/fault-finder" className="-ml-2 mb-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
         <Icon name="chevron-right" className="size-4 rotate-180" />
         All faults
       </Link>

@@ -29,14 +29,14 @@ export function Sidebar() {
             >
               {active && <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-signal-400" aria-hidden="true" />}
               <Icon name={item.icon} className={`size-5 ${active ? "text-signal-400" : ""}`} />
-              {LONG_LABELS[item.href] ?? (item.href === "/" ? "Dashboard" : item.label)}
+              {LONG_LABELS[item.href] ?? (item.href === "/" ? "Dashboard" : item.href === "/feedback" ? "Send feedback" : item.label)}
             </Link>
           );
         })}
       </nav>
       <div className="mt-auto rounded-lg border border-line bg-ink-850 p-3 text-xs leading-relaxed text-fg-muted">
-        <p className="font-mono tracking-wider text-fg-subtle uppercase">Build 0.8 · Beta</p>
-        <p className="mt-1">Records are still being verified. Accounts and subscriptions are not enabled yet.</p>
+        <p className="font-mono tracking-wider text-fg-subtle uppercase">Build 0.9 · Pilot</p>
+        <p className="mt-1">Pilot build. Records are still being verified. Data stays in this browser — no accounts or cloud sync.</p>
       </div>
     </aside>
   );

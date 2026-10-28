@@ -1,6 +1,6 @@
 # Verification backlog
 
-Everything in the production library is currently **Needs verification**. No record or claim is
+Everything in the production library is currently **Requires verification**. No record or claim is
 Verified. This file lists what is missing, so a reviewer can work through it with the manufacturer
 documents in hand.
 
@@ -88,4 +88,4 @@ All 5 workflows are demonstration only and visible only in demo mode.
    `appliesToRevisions` (the hardware/firmware revisions you checked) and, once checked, a
    `review` (`reviewedBy`, `reviewedAt`) and `"status": "verified"`.
 3. Run `npm test`. If any evidence is missing, the test names the claim and the reason, and the
-   app will display it as Needs verification regardless.
+   app will display it as Requires verification regardless.

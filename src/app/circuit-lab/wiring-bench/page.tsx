@@ -52,7 +52,7 @@ export default async function CircuitLabPage() {
       <LabExerciseNav current="/circuit-lab/wiring-bench" />
 
       <details className="mb-4 rounded-2xl border border-line bg-ink-900 px-4 py-3 text-sm" open>
-        <summary className="cursor-pointer font-medium text-fg">Circuit specification</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center font-medium text-fg">Circuit specification</summary>
         <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
           {SPEC.map(([k, v]) => (
             <div key={k} className="contents">

@@ -175,7 +175,7 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
             type="button"
             aria-pressed={animate}
             onClick={() => writeAnim(!animate)}
-            className={`h-10 rounded-lg border px-3 text-sm font-medium ${
+            className={`h-11 rounded-lg border px-3 text-sm font-medium ${
               animate ? "border-signal-400/60 bg-signal-500/15 text-signal-300" : "border-line-strong text-fg-muted hover:text-fg"
             }`}
           >
@@ -188,7 +188,7 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
             type="button"
             aria-pressed={line === fault}
             onClick={() => props.onSetLine(line === fault ? "intact" : fault)}
-            className={`h-10 rounded-lg border px-3 text-sm font-medium ${
+            className={`h-11 rounded-lg border px-3 text-sm font-medium ${
               line === fault ? "border-fault/60 bg-fault/15 text-fault" : "border-line-strong text-fg-muted hover:text-fg"
             }`}
           >
@@ -200,7 +200,7 @@ export function CircuitWorkbench(props: CircuitWorkbenchProps) {
       <section aria-label="What's happening" className="rounded-2xl border border-line bg-ink-900">
         <div className="flex min-h-11 items-center justify-between gap-2 border-b border-line px-4">
           <h3 className="text-sm font-semibold text-fg">What&apos;s happening</h3>
-          <button type="button" aria-expanded={showExplain} onClick={() => writeLearn(!showExplain)} className="h-9 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
+          <button type="button" aria-expanded={showExplain} onClick={() => writeLearn(!showExplain)} className="h-11 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
             {showExplain ? "Hide" : "Explain"}
           </button>
         </div>

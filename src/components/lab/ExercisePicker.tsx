@@ -68,16 +68,16 @@ export function ExercisePicker() {
                   resetAllProgress();
                   setConfirming(false);
                 }}
-                className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
+                className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
               >
                 Clear
               </button>
-              <button type="button" onClick={() => setConfirming(false)} className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
+              <button type="button" onClick={() => setConfirming(false)} className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
                 Cancel
               </button>
             </span>
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg">
+            <button type="button" onClick={() => setConfirming(true)} className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg">
               Reset progress
             </button>
           ))}
@@ -95,7 +95,7 @@ export function ExercisePicker() {
                 className={`group flex h-full flex-col gap-2 rounded-2xl border bg-ink-900 p-4 transition-colors hover:bg-ink-850 ${current ? "border-signal-400/60" : "border-line hover:border-line-strong"}`}
               >
                 <span className="flex items-center justify-between gap-2">
-                  <span className={`font-mono text-[10px] tracking-wider uppercase ${e.kind === "Fault" ? "text-amber-300" : "text-signal-400"}`}>
+                  <span className={`font-mono text-[11px] tracking-wider uppercase ${e.kind === "Fault" ? "text-amber-300" : "text-signal-400"}`}>
                     {e.kind === "Fault" ? "Fault finding" : "Build"} · {e.difficulty}
                   </span>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${st.cls}`} data-status={statusOf(e.id)}>

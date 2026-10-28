@@ -62,7 +62,7 @@ export function HandoverPanel({ report, onClose }: { report: Report; onClose: ()
   return (
     <div className="flex flex-col gap-4 pb-8" data-testid="handover">
       <PreviewFontStyle />
-      <button type="button" onClick={onClose} className="-ml-2 inline-flex h-10 items-center gap-1 self-start rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+      <button type="button" onClick={onClose} className="-ml-2 inline-flex h-11 items-center gap-1 self-start rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
         <Icon name="chevron-right" className="size-4 rotate-180" />
         Back to report
       </button>
@@ -118,7 +118,7 @@ export function HandoverPanel({ report, onClose }: { report: Report; onClose: ()
                     ["pdf", "PDF viewer"],
                   ] as const
                 ).map(([id, label]) => (
-                  <button key={id} type="button" role="radio" aria-checked={view === id} onClick={() => setView(id)} className={`h-9 rounded-lg px-3 text-sm ${view === id ? "bg-signal-500/15 font-semibold text-signal-300" : "text-fg-muted hover:text-fg"}`}>
+                  <button key={id} type="button" role="radio" aria-checked={view === id} onClick={() => setView(id)} className={`h-11 rounded-lg px-3 text-sm ${view === id ? "bg-signal-500/15 font-semibold text-signal-300" : "text-fg-muted hover:text-fg"}`}>
                     {label}
                   </button>
                 ))}

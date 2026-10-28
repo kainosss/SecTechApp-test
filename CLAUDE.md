@@ -15,10 +15,12 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 - `/circuit-lab` exercise picker · `/circuit-lab/wiring-bench` build exercise · `/circuit-lab/faults/[id]` fault exercises
 - `/reports` Quick Service Report (list, or editor with `?id=`; `&view=handover` client handover PDF)
 - `/tech-docs` Technical Docs: site equipment registers (list; `?id=` register; `&item=` equipment form)
+- `/help` tool guide, content labels, privacy, demo entry · `/feedback` local feedback (copy/download; nothing sent)
 - Navigation: `src/lib/navigation.ts` (NAV_ITEMS — `mobile: false` keeps an item off the 5-slot bottom bar; TOOLS → search index)
 
 ## Content
 - JSON in `/content` (+ `/content/demo`, shown only when `FIELDWISE_DEMO_MODE=true`, except generic circuits).
+  (Not the same as the client-side demo *workspace* below.)
 - Manifest auto-generated (`scripts/generate-content-manifest.mjs`, runs pre dev/build/test).
 - Read via async `src/lib/content/repository.ts`. Status from `verification.ts` (fail-safe).
 - Never fabricate manufacturer data, URLs, terminal assignments or readings. Unverified content is labelled.
@@ -61,6 +63,15 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   one generation for preview + download),
   `branding.ts` (optional, `fieldwise:branding:v1`, logo checked by signature/size). Visual QA: write samples with
   `FIELDWISE_SAMPLE_DIR=<dir> npx vitest run tests/handover/samples.test.ts`, render with `pdftoppm`.
+- `src/lib/workspace.ts`: demo workspace — every record store reads/writes `scopedKey(key)` (`fieldwise:demo:…` while
+  active). `src/lib/demo/seed.ts` (fictional Riverside Business Centre; RFC 5737 IPs, RFC 7042 MACs, no credentials),
+  `demo/workspace.ts` (enter/reset/exit; never touches real keys). Backup/restore is off in the demo. New stores must
+  use `scopedKey`; never copy demo records into real keys.
+- `src/lib/onboarding.ts` (welcome, `fieldwise:onboarding:v1`), `guide.ts` (tool descriptions), `feedback.ts` (no
+  automatic data; mailto only with a valid `NEXT_PUBLIC_FEEDBACK_EMAIL`; never invent an address), `verification.ts`
+  (display labels: Verified against manufacturer documentation / Generic training example / Requires verification /
+  Technician-configured — mapping only ever towards caution). `APP_VERSION` in `config.ts` (from package.json).
+- No analytics, telemetry or external requests. Pilot docs: `docs/PILOT_TESTING.md`, `docs/RELEASE_READINESS.md`.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

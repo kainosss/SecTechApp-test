@@ -36,7 +36,7 @@ export function DiagramViewer(props: CircuitDiagramProps & { stateLabel: string 
               setZoom(1);
               setExpanded(true);
             }}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line-strong bg-ink-900 px-3 text-xs font-medium text-fg hover:bg-ink-800"
+            className="inline-flex h-11 items-center gap-1.5 rounded-lg border border-line-strong bg-ink-900 px-3 text-xs font-medium text-fg hover:bg-ink-800"
           >
             <Icon name="search" className="size-4" />
             Expand
@@ -53,7 +53,7 @@ export function DiagramViewer(props: CircuitDiagramProps & { stateLabel: string 
                 aria-label="Zoom out"
                 disabled={zoom === ZOOMS[0]}
                 onClick={() => setZoom(ZOOMS[Math.max(0, ZOOMS.indexOf(zoom) - 1)]!)}
-                className="grid size-10 place-items-center rounded-lg border border-line-strong text-lg text-fg disabled:opacity-40"
+                className="grid size-11 place-items-center rounded-lg border border-line-strong text-lg text-fg disabled:opacity-40"
               >
                 −
               </button>
@@ -65,7 +65,7 @@ export function DiagramViewer(props: CircuitDiagramProps & { stateLabel: string 
                 aria-label="Zoom in"
                 disabled={zoom === ZOOMS[ZOOMS.length - 1]}
                 onClick={() => setZoom(ZOOMS[Math.min(ZOOMS.length - 1, ZOOMS.indexOf(zoom) + 1)]!)}
-                className="grid size-10 place-items-center rounded-lg border border-line-strong text-lg text-fg disabled:opacity-40"
+                className="grid size-11 place-items-center rounded-lg border border-line-strong text-lg text-fg disabled:opacity-40"
               >
                 +
               </button>
@@ -74,7 +74,7 @@ export function DiagramViewer(props: CircuitDiagramProps & { stateLabel: string 
               ref={closeRef}
               type="button"
               onClick={() => setExpanded(false)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg"
+              className="inline-flex h-11 items-center gap-1.5 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg"
             >
               <Icon name="close" className="size-4" />
               Close

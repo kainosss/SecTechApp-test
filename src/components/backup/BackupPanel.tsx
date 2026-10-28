@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useDemoWorkspace } from "@/components/demo/DemoWorkspaceBanner";
 import { downloadFullBackup, latestChange } from "@/lib/backup/download";
 import { parseMeta, readMetaRaw, shouldRemind, snoozeReminder, subscribeMeta } from "@/lib/backup/meta";
 import { loadBranding } from "@/lib/handover/branding";
@@ -28,6 +29,10 @@ function useLocalData() {
 
 /** A quiet, snoozable reminder to back up when there are changes since the last backup. */
 export function BackupReminder() {
+  return useDemoWorkspace() ? null : <Reminder />;
+}
+
+function Reminder() {
   const { meta, latest } = useLocalData();
   const [message, setMessage] = useState<string | null>(null);
   if (message) {
@@ -56,6 +61,17 @@ export function BackupReminder() {
 
 /** Complete backup to a file, and restore from one with a preview and an explicit merge or replace. */
 export function BackupPanel() {
+  if (useDemoWorkspace()) {
+    return (
+      <p className="rounded-xl border border-line px-4 py-3 text-sm text-fg-muted" data-testid="backup-demo-note">
+        Backup and restore are turned off in the demo workspace so demo and real records never mix. Exit the demo to back up or restore your own records.
+      </p>
+    );
+  }
+  return <Panel />;
+}
+
+function Panel() {
   const data = useLocalData();
   const input = useRef<HTMLInputElement>(null);
   const [backup, setBackup] = useState<Backup | null>(null);

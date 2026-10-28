@@ -31,7 +31,7 @@ export type VerificationStatus = z.infer<typeof verificationStatusSchema>;
 
 export const STATUS_LABELS: Record<VerificationStatus, string> = {
   verified: "Verified",
-  "needs-verification": "Needs verification",
+  "needs-verification": "Requires verification",
   demonstration: "Demonstration only",
 };
 

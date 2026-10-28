@@ -29,7 +29,7 @@ export function GuideList() {
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-1">
                 <span className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[10px] tracking-wider text-fg-subtle uppercase">{AREA[w.area]}</span>
+                  <span className="font-mono text-[11px] tracking-wider text-fg-subtle uppercase">{AREA[w.area]}</span>
                   {answers > 0 && (
                     <span className="rounded-full bg-signal-500/15 px-2 py-0.5 text-[11px] font-medium text-signal-300" data-testid="resume-badge">
                       Resume · {answers} answer{answers === 1 ? "" : "s"}

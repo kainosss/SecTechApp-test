@@ -12,6 +12,7 @@ import { getRegister, parseRegisters, readRegistersRaw, saveRegister, subscribeR
 import { historyFor, saveWithHistory } from "@/lib/techdocs/history";
 import { duplicateIps } from "@/lib/techdocs/validation";
 import { EquipmentForm, type SaveMode } from "./EquipmentForm";
+import { SiteReports } from "./SiteReports";
 
 interface Draft {
   item: Equipment;
@@ -142,7 +143,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
   if (draft) {
     return (
       <div className="flex flex-col gap-3">
-        <button type="button" onClick={closeDraft} className="-ml-2 inline-flex h-10 items-center gap-1 self-start rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+        <button type="button" onClick={closeDraft} className="-ml-2 inline-flex h-11 items-center gap-1 self-start rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
           <Icon name="chevron-right" className="size-4 rotate-180" />
           {registerTitle(register)}
         </button>
@@ -196,7 +197,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
   return (
     <div className="flex flex-col gap-4 pb-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onClick={onClose} className="-ml-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+        <button type="button" onClick={onClose} className="-ml-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
           <Icon name="chevron-right" className="size-4 rotate-180" />
           All registers
         </button>
@@ -251,7 +252,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
         <p className="flex items-center justify-between gap-2 rounded-lg bg-ink-850 px-3 py-2 text-sm text-fg" role="status">
           {notice.text}
           {notice.restore && (
-            <button type="button" onClick={notice.restore} className="h-9 px-2 font-semibold text-signal-400 hover:text-signal-300">
+            <button type="button" onClick={notice.restore} className="h-11 px-2 font-semibold text-signal-400 hover:text-signal-300">
               {notice.text.startsWith("Deleted") ? "Undo" : "Restore"}
             </button>
           )}
@@ -375,7 +376,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
                       ) : (
                         <span className="text-xs text-fg-subtle">—</span>
                       )}
-                      <button type="button" onClick={() => duplicate(e)} className="h-9 rounded-lg px-2 text-xs font-medium text-fg-muted hover:bg-ink-800 hover:text-fg" aria-label={`Duplicate ${label}`}>
+                      <button type="button" onClick={() => duplicate(e)} className="h-11 rounded-lg px-2 text-xs font-medium text-fg-muted hover:bg-ink-800 hover:text-fg" aria-label={`Duplicate ${label}`}>
                         Duplicate
                       </button>
                     </span>
@@ -386,6 +387,8 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
           </div>
         )}
       </section>
+
+      <SiteReports register={register} />
 
       <section aria-labelledby="export-heading" className="rounded-2xl border border-line bg-ink-900 p-4">
         <h2 id="export-heading" className="text-[15px] font-semibold text-fg">

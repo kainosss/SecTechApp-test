@@ -39,7 +39,7 @@ export function SectionNav({ links }: { links: SectionLink[] }) {
           <li key={l.id}>
             <a
               href={`#${l.id}`}
-              className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium whitespace-nowrap text-fg-muted hover:bg-ink-850 hover:text-fg"
+              className="inline-flex h-11 items-center rounded-lg px-3 text-sm font-medium whitespace-nowrap text-fg-muted hover:bg-ink-850 hover:text-fg"
             >
               {l.label}
             </a>

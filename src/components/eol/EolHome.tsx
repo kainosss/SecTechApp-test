@@ -32,7 +32,7 @@ export function EolHome(props: {
             role="tab"
             aria-selected={t.active}
             onClick={t.go}
-            className={`h-10 rounded-lg text-sm font-medium ${t.active ? "bg-ink-800 text-fg" : "text-fg-muted hover:text-fg"}`}
+            className={`h-11 rounded-lg text-sm font-medium ${t.active ? "bg-ink-800 text-fg" : "text-fg-muted hover:text-fg"}`}
           >
             {t.label}
           </button>

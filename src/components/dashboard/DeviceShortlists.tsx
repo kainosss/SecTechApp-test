@@ -61,7 +61,7 @@ export function DeviceShortlists({ devices }: { devices: DeviceSummary[] }) {
         empty="Devices you open will appear here so you can get back to them quickly on site."
         action={
           recentItems.length > 0 ? (
-            <button type="button" onClick={recent.clear} className="h-9 px-2 text-xs font-medium text-fg-subtle hover:text-fg">
+            <button type="button" onClick={recent.clear} className="h-11 px-2 text-xs font-medium text-fg-subtle hover:text-fg">
               Clear
             </button>
           ) : undefined

@@ -30,7 +30,7 @@ export default async function WorkflowPage({ params }: Props) {
       <div>
         <Link
           href="/fault-finder"
-          className="-ml-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg"
+          className="-ml-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg"
         >
           <Icon name="chevron-right" className="size-4 rotate-180" />
           Troubleshooting workflows
@@ -87,7 +87,7 @@ export default async function WorkflowPage({ params }: Props) {
               <Link
                 key={c}
                 href={`/devices?group=${groupForCategory(c)}`}
-                className="inline-flex h-9 items-center rounded-full border border-line-strong px-3.5 text-sm text-fg-muted hover:text-fg"
+                className="inline-flex h-11 items-center rounded-full border border-line-strong px-3.5 text-sm text-fg-muted hover:text-fg"
               >
                 {CATEGORY_LABELS[c]}
               </Link>

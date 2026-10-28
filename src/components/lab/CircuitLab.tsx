@@ -198,17 +198,17 @@ export function CircuitLab({ schematic }: { schematic: LabSchematic | null }) {
               type="button"
               aria-expanded={Boolean(hints[shownStep.id])}
               onClick={() => setHints({ ...hints, [shownStep.id]: !hints[shownStep.id] })}
-              className="h-10 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg"
+              className="h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg-muted hover:text-fg"
             >
               {hints[shownStep.id] ? "Hide hint" : "Show hint"}
             </button>
             {shownStep.id === "identify" && !reviewed && (
-              <button type="button" onClick={() => dispatch({ type: "reviewed" })} className="h-10 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
+              <button type="button" onClick={() => dispatch({ type: "reviewed" })} className="h-11 rounded-lg bg-signal-500 px-3 text-sm font-semibold text-ink-950 hover:bg-signal-400">
                 I&apos;ve reviewed the terminals
               </button>
             )}
             {viewedStep && viewedStep !== currentStep && (
-              <button type="button" onClick={() => setViewedStep(null)} className="h-10 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
+              <button type="button" onClick={() => setViewedStep(null)} className="h-11 px-1 text-sm font-medium text-signal-400 hover:text-signal-300">
                 Back to current step
               </button>
             )}
@@ -231,7 +231,7 @@ export function CircuitLab({ schematic }: { schematic: LabSchematic | null }) {
             role="tab"
             aria-selected={view === id}
             onClick={() => setView(id)}
-            className={`h-10 rounded-lg text-sm font-medium ${view === id ? "bg-signal-500/15 text-signal-300" : "text-fg-muted hover:text-fg"}`}
+            className={`h-11 rounded-lg text-sm font-medium ${view === id ? "bg-signal-500/15 text-signal-300" : "text-fg-muted hover:text-fg"}`}
           >
             {label}
           </button>

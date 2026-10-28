@@ -4,6 +4,7 @@
  * skipped and counted rather than breaking the list. Nothing is sent anywhere,
  * and register contents are never logged.
  */
+import { onWorkspaceChange, scopedKey } from "@/lib/workspace";
 import { z } from "zod";
 import { readRaw as readReportsRaw, REPORTS_KEY, writeAll as writeReports } from "@/lib/reports/store";
 import type { Report } from "@/lib/reports/schema";
@@ -43,7 +44,7 @@ export function parseRegisters(raw: string | null): LoadedRegisters {
 
 export function readRegistersRaw(): string | null {
   try {
-    return window.localStorage.getItem(REGISTERS_KEY);
+    return window.localStorage.getItem(scopedKey(REGISTERS_KEY));
   } catch {
     return null;
   }
@@ -53,7 +54,7 @@ export function readRegistersRaw(): string | null {
 export function writeAll(registers: TechRegister[]): boolean {
   let ok = true;
   try {
-    window.localStorage.setItem(REGISTERS_KEY, JSON.stringify({ version: 1, registers: Object.fromEntries(registers.map((r) => [r.id, r])) }));
+    window.localStorage.setItem(scopedKey(REGISTERS_KEY), JSON.stringify({ version: 1, registers: Object.fromEntries(registers.map((r) => [r.id, r])) }));
   } catch {
     ok = false;
   }
@@ -82,9 +83,11 @@ export function deleteRegister(id: string): boolean {
 export function subscribeRegisters(cb: () => void) {
   window.addEventListener(REGISTERS_EVENT, cb);
   window.addEventListener("storage", cb);
+  const offWorkspace = onWorkspaceChange(cb);
   return () => {
     window.removeEventListener(REGISTERS_EVENT, cb);
     window.removeEventListener("storage", cb);
+    offWorkspace();
   };
 }
 
@@ -111,11 +114,11 @@ function readRaw(key: string): string | null {
  * back exactly as it was.
  */
 export function commitImport(registers: TechRegister[], reports: Report[], branding?: Branding): boolean {
-  const before = { registers: readRegistersRaw(), reports: readReportsRaw(), branding: readRaw(BRANDING_KEY) };
+  const before = { registers: readRegistersRaw(), reports: readReportsRaw(), branding: readRaw(scopedKey(BRANDING_KEY)) };
   const rollback = () => {
-    restoreRaw(REGISTERS_KEY, before.registers);
-    restoreRaw(REPORTS_KEY, before.reports);
-    restoreRaw(BRANDING_KEY, before.branding);
+    restoreRaw(scopedKey(REGISTERS_KEY), before.registers);
+    restoreRaw(scopedKey(REPORTS_KEY), before.reports);
+    restoreRaw(scopedKey(BRANDING_KEY), before.branding);
     window.dispatchEvent(new Event(REGISTERS_EVENT));
     return false;
   };
@@ -123,7 +126,7 @@ export function commitImport(registers: TechRegister[], reports: Report[], brand
   if (!writeReports(reports)) return rollback();
   if (branding) {
     try {
-      window.localStorage.setItem(BRANDING_KEY, JSON.stringify(brandingSchema.parse(branding)));
+      window.localStorage.setItem(scopedKey(BRANDING_KEY), JSON.stringify(brandingSchema.parse(branding)));
     } catch {
       return rollback();
     }

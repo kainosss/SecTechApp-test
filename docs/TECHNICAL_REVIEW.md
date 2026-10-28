@@ -10,7 +10,7 @@ in the guide's `verification` block (`status: "technician-reviewed"`, `reviewer`
 the schema refuses that status without a reviewer and date. Manufacturer documents go in `sources` (title,
 organisation, type, version or date, URL if public, section/page) and allow `manufacturer-referenced`.
 
-**Current status of all five guides:** Generic guidance — not manufacturer verified. No sources recorded.
+**Current status of all five guides:** Generic training example — not manufacturer verified. No sources recorded.
 
 ---
 

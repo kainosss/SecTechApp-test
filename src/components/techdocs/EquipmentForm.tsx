@@ -344,15 +344,15 @@ export function EquipmentForm({
           {confirmDelete ? (
             <p className="flex flex-wrap items-center gap-2 text-sm text-fg" role="alert">
               Delete {label} from this register?
-              <button type="button" onClick={() => onDelete(item)} className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10">
+              <button type="button" onClick={() => onDelete(item)} className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10">
                 Delete entry
               </button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
+              <button type="button" onClick={() => setConfirmDelete(false)} className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800">
                 Keep
               </button>
             </p>
           ) : (
-            <button type="button" onClick={() => setConfirmDelete(true)} className="h-10 text-sm font-medium text-fg-muted hover:text-fault">
+            <button type="button" onClick={() => setConfirmDelete(true)} className="h-11 text-sm font-medium text-fg-muted hover:text-fault">
               Delete this entry…
             </button>
           )}

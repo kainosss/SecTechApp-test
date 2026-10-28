@@ -18,7 +18,9 @@ export type IconKey =
   | "external"
   | "shield"
   | "alert"
-  | "close";
+  | "close"
+  | "help"
+  | "feedback";
 
 const PATHS: Record<IconKey, React.ReactNode> = {
   home: <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" />,
@@ -108,6 +110,19 @@ const PATHS: Record<IconKey, React.ReactNode> = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  help: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4M12 16.6v.3" />
+    </>
+  ),
+  // Speech bubble with lines
+  feedback: (
+    <>
+      <path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5V16.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" />
+      <path d="M8 9.5h8M8 12.5h5" />
+    </>
+  ),
 };
 
 export function Icon({ name, className = "size-5", ...props }: { name: IconKey } & SVGProps<SVGSVGElement>) {

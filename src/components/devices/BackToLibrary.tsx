@@ -14,7 +14,7 @@ export function BackToLibrary() {
   return (
     <Link
       href={href}
-      className="-ml-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg"
+      className="-ml-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg"
     >
       <Icon name="chevron-right" className="size-4 rotate-180" />
       {filtered ? "Back to results" : "Device Library"}

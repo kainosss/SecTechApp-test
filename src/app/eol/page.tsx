@@ -31,7 +31,7 @@ export default async function EolPage() {
       </header>
       <EolHome templates={templates} presets={presets} panels={panels} configs={configs} details={details} />
       <details className="mt-6 rounded-2xl border border-line bg-ink-900 px-4 py-3 text-sm">
-        <summary className="flex cursor-pointer items-center gap-2 font-medium text-fg">
+        <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-medium text-fg">
           <Icon name="shield" className="size-4 text-verified" />
           How Fieldwise keeps wiring references accurate
         </summary>

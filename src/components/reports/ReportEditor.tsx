@@ -164,7 +164,7 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
   return (
     <div className="flex flex-col gap-4 pb-28 lg:pb-24">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onClick={onClose} className="-ml-2 inline-flex h-10 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
+        <button type="button" onClick={onClose} className="-ml-2 inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-fg-muted hover:bg-ink-850 hover:text-fg">
           <Icon name="chevron-right" className="size-4 rotate-180" />
           All reports
         </button>
@@ -241,7 +241,7 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
           </Field>
         </div>
         <details className="mt-3 rounded-xl border border-line px-3 py-2" open={Boolean(report.siteAddress || report.description)}>
-          <summary className="cursor-pointer py-1 text-sm font-medium text-fg-muted">Site address and job description</summary>
+          <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-fg-muted">Site address and job description</summary>
           <div className="mt-2 grid gap-3">
             <Field label="Site address">
               <textarea className={areaClass} rows={2} value={report.siteAddress} onChange={(e) => set({ siteAddress: e.target.value })} />
@@ -322,7 +322,7 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
         {undo && (
           <p className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-ink-850 px-3 py-2 text-sm text-fg" role="status">
             Removed {itemLabel({ ...report, equipment: [...report.equipment, undo.item] }, undo.item)}.
-            <button type="button" onClick={() => dispatch({ type: "undo" })} className="h-9 px-2 font-semibold text-signal-400 hover:text-signal-300">
+            <button type="button" onClick={() => dispatch({ type: "undo" })} className="h-11 px-2 font-semibold text-signal-400 hover:text-signal-300">
               Undo
             </button>
           </p>
@@ -342,7 +342,7 @@ export function ReportEditor({ id, onClose }: { id: string; onClose: () => void 
         title="Job summary"
         aside={
           Object.keys(fill).length > 0 ? (
-            <button type="button" onClick={() => edit({ type: "summary", patch: fill })} className="h-10 rounded-lg border border-signal-400/50 px-3 text-sm font-medium text-signal-300 hover:bg-signal-500/10">
+            <button type="button" onClick={() => edit({ type: "summary", patch: fill })} className="h-11 rounded-lg border border-signal-400/50 px-3 text-sm font-medium text-signal-300 hover:bg-signal-500/10">
               Fill empty sections from equipment
             </button>
           ) : undefined

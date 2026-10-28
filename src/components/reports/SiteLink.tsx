@@ -126,6 +126,11 @@ export function SiteLinkCard({
               + Add site equipment
             </button>
           )}
+          {site && (
+            <Link href={`/tech-docs?id=${encodeURIComponent(site.id)}`} className={`${button} inline-flex items-center`}>
+              View site register
+            </Link>
+          )}
           <button type="button" className="h-11 px-2 text-sm font-medium text-fg-muted hover:text-fault" onClick={() => setConfirmUnlink(true)}>
             Unlink
           </button>
@@ -134,10 +139,10 @@ export function SiteLinkCard({
       {confirmUnlink && (
         <p className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-line px-3 py-2 text-sm text-fg" role="alert">
           Unlink this report? Equipment stays in the report with its recorded details; this job&apos;s service entries are removed from the site&apos;s equipment history.
-          <button type="button" className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10" onClick={() => (onUnlink(), setConfirmUnlink(false))}>
+          <button type="button" className="h-11 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10" onClick={() => (onUnlink(), setConfirmUnlink(false))}>
             Unlink
           </button>
-          <button type="button" className="h-10 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800" onClick={() => setConfirmUnlink(false)}>
+          <button type="button" className="h-11 rounded-lg border border-line-strong px-3 font-medium text-fg hover:bg-ink-800" onClick={() => setConfirmUnlink(false)}>
             Cancel
           </button>
         </p>
@@ -236,6 +241,14 @@ export function LinkedItemPanel({
         <p className="mt-1 text-sm text-fg">{[snap.assetId, snap.category, [snap.make, snap.model].filter(Boolean).join(" "), snap.serial && `S/N ${snap.serial}`, snap.firmware && `FW ${snap.firmware}`].filter(Boolean).join(" · ")}</p>
         <p className="text-xs text-fg-subtle">As recorded for this job{snap.capturedAt ? ` (${new Date(snap.capturedAt).toLocaleDateString("en-AU")})` : ""}. The site register stays the master record.</p>
         {!master && <p className="mt-1 text-xs text-amber-300">This entry is no longer in the site register.</p>}
+        {site && master && (
+          <Link
+            href={`/tech-docs?id=${encodeURIComponent(site.id)}&item=${encodeURIComponent(master.id)}`}
+            className="mt-1 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-signal-400 hover:text-signal-300"
+          >
+            Open equipment record and service history
+          </Link>
+        )}
         {diffs.length > 0 && (
           <p className="mt-1 text-xs text-fg-muted" data-testid="snapshot-diff">
             Site record now: {diffs.map((d) => `${d.label} ${d.now || "(blank)"}`).join(" · ")}
@@ -281,7 +294,7 @@ export function LinkedItemPanel({
           <p className="text-xs text-fg-muted">Enter only what changed (e.g. a replacement&apos;s serial number). Nothing changes in the site register until you review and apply.</p>
           {GROUPS.map((g) => (
             <details key={g.title} className="rounded-lg border border-line px-3 py-1" open={g.title === "Hardware"}>
-              <summary className="min-h-10 cursor-pointer py-2 text-sm font-medium text-fg">{g.title}</summary>
+              <summary className="flex min-h-11 cursor-pointer items-center text-sm font-medium text-fg">{g.title}</summary>
               <div className="grid gap-2 pb-2 sm:grid-cols-2">
                 {g.fields.map((k) => (
                   <Field key={k} label={`${FIELD_LABEL[k]} — now: ${master[k] || "blank"}`}>

@@ -94,7 +94,7 @@ export function UniversalSearch({ index, initialQuery = "", autoFocus = false, p
               {results.slice(0, previewLimit).map((r) => (
                 <li key={`${r.type}:${r.id}`}>
                   <Link href={r.href} className="flex min-h-14 items-center gap-3 px-4 py-2.5 hover:bg-ink-850 active:bg-ink-800">
-                    <span className="w-12 shrink-0 font-mono text-[10px] tracking-wider text-fg-subtle uppercase">
+                    <span className="w-12 shrink-0 font-mono text-[11px] tracking-wider text-fg-subtle uppercase">
                       {TYPE_LABEL[r.type]}
                     </span>
                     <span className="min-w-0 flex-1">
