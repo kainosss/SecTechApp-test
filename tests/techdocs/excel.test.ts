@@ -4,7 +4,7 @@ import ExcelJS from "exceljs";
 import JSZip from "jszip";
 import { buildWorkbook } from "@/lib/reports/excel";
 import { finalizeXlsx, MAX_CELL, MAX_ROW_HEIGHT } from "@/lib/reports/xlsx-layout";
-import { buildTechWorkbook, SENSITIVE_NOTE, TABLE_ROW } from "@/lib/techdocs/excel";
+import { buildTechWorkbook, columnsWidthPt, MIN_PRINT_SCALE, SENSITIVE_NOTE, TABLE_ROW, WIDE_PRINT_SCALE } from "@/lib/techdocs/excel";
 import { applyRegisterEdit, blankEquipment, createRegister } from "@/lib/techdocs/register";
 import type { TechRegister } from "@/lib/techdocs/schema";
 import { shortCctv } from "../reports/fixtures";
@@ -38,7 +38,7 @@ describe("technical workbook structure", () => {
     expect(wb.worksheets.map((w) => w.name)).toEqual(["Equipment Register", "Network Configuration", "Access & Maintenance", "Full Equipment Details", "Site Information"]);
     for (const ws of wb.worksheets) {
       expect(ws.views[0], ws.name).toMatchObject({ state: "frozen", ySplit: TABLE_ROW });
-      expect(ws.pageSetup, ws.name).toMatchObject({ paperSize: 9, orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: `${TABLE_ROW}:${TABLE_ROW}` });
+      expect(ws.pageSetup, ws.name).toMatchObject({ paperSize: 9, orientation: "landscape", printTitlesRow: `${TABLE_ROW}:${TABLE_ROW}` });
       expect(ws.headerFooter.oddFooter, ws.name).toContain("Page &P of &N");
       expect(ws.headerFooter.oddFooter, ws.name).toContain("confidential");
       expect(str(ws.getCell("A4").value)).toBe(SENSITIVE_NOTE);
@@ -166,7 +166,7 @@ describe("technical workbook structure", () => {
     expect(reg.autoFilter).toBe(`A6:M${TABLE_ROW + 120}`);
     expect(rows(wb.getWorksheet("Network Configuration")!)).toHaveLength(120);
     const xml = await (await JSZip.loadAsync(buffer)).file("xl/workbook.xml")!.async("string");
-    expect(xml).toContain(`&apos;Equipment Register&apos;!$A$1:$M$${TABLE_ROW + 120}`);
+    expect(xml).toContain(`&apos;Equipment Register&apos;!$A$${TABLE_ROW}:$M$${TABLE_ROW + 120}`);
   });
 });
 
@@ -223,3 +223,41 @@ describe("technical workbook safety", () => {
     expect(blankEquipment()).not.toHaveProperty("password");
   });
 });
+
+describe("technical workbook printing", () => {
+  it("prints wide sheets at a readable 90 % across page widths, repeating ID columns, heading row and a page header", async () => {
+    const { wb, buffer } = await open(cctvInstall());
+    const wide = { "Equipment Register": "A:C", "Network Configuration": "A:B", "Access & Maintenance": "A:B" } as const;
+    for (const [name, cols] of Object.entries(wide)) {
+      const ws = wb.getWorksheet(name)!;
+      expect(ws.pageSetup, name).toMatchObject({ fitToPage: false, scale: WIDE_PRINT_SCALE, printTitlesRow: "6:6", printTitlesColumn: cols, pageOrder: "overThenDown" });
+      expect(String(ws.pageSetup.printArea).replace(/\$/g, ""), name).toMatch(new RegExp(`^A${TABLE_ROW}:`)); // title block not printed (would be cut off)
+      expect(ws.headerFooter.oddHeader, name).toContain(`${name.replace("&", "&&")} — Building C CCTV`);
+      expect(ws.headerFooter.oddHeader, name).toContain("Westgate Logistics");
+      expect(ws.headerFooter.oddFooter, name).toContain("Page &P of &N"); // footer kept alongside the header
+      expect(str(ws.getCell("A1").value), name).toMatch(new RegExp(`^${name}`)); // still on the sheet itself
+    }
+    const xml = await (await JSZip.loadAsync(buffer)).file("xl/workbook.xml")!.async("string");
+    expect(xml).toContain("&apos;Equipment Register&apos;!$A:$C,&apos;Equipment Register&apos;!$6:$6");
+    expect(xml).toContain("&apos;Equipment Register&apos;!$A$6:$M$20");
+  });
+
+  it("keeps narrower sheets fitted to one page width (never below 85 %)", async () => {
+    const { wb } = await open(cctvInstall());
+    for (const name of ["Full Equipment Details", "Site Information"]) {
+      expect(wb.getWorksheet(name)!.pageSetup, name).toMatchObject({ fitToPage: true, fitToWidth: 1, fitToHeight: 0 });
+    }
+    const detailsWidth = columnsWidthPt([5, 22, 20, 26, 70]);
+    expect(((11.69 - 0.8) * 72) / detailsWidth).toBeGreaterThanOrEqual(MIN_PRINT_SCALE / 100);
+    expect(columnsWidthPt([10])).toBeCloseTo(56.25);
+  });
+
+  it("keeps every value, filter and freeze regardless of print settings", async () => {
+    const { wb } = await open(largeSite());
+    const reg = wb.getWorksheet("Equipment Register")!;
+    expect(reg.autoFilter).toBe(`A6:M${TABLE_ROW + 120}`);
+    expect(reg.views[0]).toMatchObject({ state: "frozen", xSplit: 3, ySplit: TABLE_ROW });
+    expect(rows(reg)).toHaveLength(120);
+  });
+});
+

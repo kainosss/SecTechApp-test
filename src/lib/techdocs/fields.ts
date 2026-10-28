@@ -148,3 +148,25 @@ export function sectionOrder(category: Category): SectionId[] {
   const first = CATEGORY_PRIORITY[category];
   return [...first, ...SECTIONS.map((s) => s.id).filter((id) => !first.includes(id))];
 }
+
+/**
+ * Quick Entry: the fields technicians fill most often for each category, shown together in one compact grid.
+ * Every other field stays available in the sections below; nothing is hidden or cleared when switching.
+ */
+export const QUICK_FIELDS: Record<Category, FieldDef["key"][]> = {
+  "ip-camera": ["name", "cameraNumber", "location", "make", "model", "serial", "firmware", "ip", "subnet", "gateway", "dns1", "switchName", "switchPort", "ladderHeight", "ladderType", "status"],
+  nvr: ["name", "location", "make", "model", "serial", "firmware", "ip", "subnet", "gateway", "dns1", "hostname", "switchName", "switchPort", "status"],
+  network: ["name", "location", "make", "model", "serial", "firmware", "ip", "subnet", "gateway", "vlan", "status"],
+  "alarm-panel": ["name", "type", "location", "make", "model", "serial", "firmware", "ip", "status"],
+  detector: ["name", "type", "location", "zoneNumber", "make", "model", "controller", "mountingHeight", "ladderHeight", "ladderType", "status"],
+  "access-reader": ["name", "type", "location", "doorNumber", "controller", "make", "model", "serial", "ladderType", "status"],
+  "access-controller": ["name", "location", "make", "model", "serial", "firmware", "ip", "subnet", "gateway", "status"],
+  power: ["name", "type", "location", "make", "model", "serial", "status"],
+  other: ["name", "type", "location", "make", "model", "serial", "status"],
+};
+
+const FIELD_DEFS = new Map(SECTIONS.flatMap((s) => s.fields.map((f) => [f.key, f] as const)));
+
+export function quickFields(category: Category): FieldDef[] {
+  return QUICK_FIELDS[category].map((k) => FIELD_DEFS.get(k)!);
+}

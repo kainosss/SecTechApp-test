@@ -58,7 +58,9 @@ describe("technical register workflow", () => {
 
     addCategory("IP camera");
     expect(window.location.search).toMatch(/&item=/);
-    // Camera-relevant sections open first; others stay available.
+    // Quick Entry first; with "All fields", camera-relevant sections open first and others stay available.
+    expect(within(form()).getByRole("radio", { name: "Quick entry" })).toBeChecked();
+    fireEvent.click(within(form()).getByRole("radio", { name: "All fields" }));
     const sections = [...form().querySelectorAll("details")].map((d) => [d.dataset.section, d.open]);
     expect(sections.slice(0, 3)).toEqual([["basic", true], ["hardware", true], ["network", true]]);
     expect(sections.map((s) => s[0])).toContain("custom");
@@ -168,6 +170,7 @@ describe("technical register workflow", () => {
   it("changing category keeps entered values and opens the new category's sections", () => {
     openSeeded();
     addCategory("Other");
+    fireEvent.click(within(form()).getByRole("radio", { name: "All fields" }));
     type("Equipment name", "Intercom");
     fireEvent.change(within(form()).getByLabelText("Equipment category"), { target: { value: "access-reader" } });
     expect(field("Equipment name")).toHaveValue("Intercom");
@@ -256,5 +259,78 @@ describe("technical register workflow", () => {
   it("mobile bottom bar keeps five items", () => {
     render(<BottomNav />);
     expect(screen.getAllByRole("link")).toHaveLength(5);
+  });
+
+  describe("Quick Entry", () => {
+    const quickLabels = () => [...form().querySelectorAll('[data-section="quick"] label')].map((l) => l.textContent);
+
+    it("shows the common camera fields together, with the rest available below and nothing duplicated", () => {
+      openSeeded();
+      addCategory("IP camera");
+      expect(quickLabels()).toEqual([
+        "Equipment name", "Camera number", "Location", "Manufacturer / make", "Model", "Serial number", "Firmware / software version",
+        "IP address", "Subnet mask or prefix", "Default gateway", "Primary DNS", "Network switch", "Switch port", "Ladder height required", "Ladder type required", "Operational status",
+      ]);
+      expect(within(form()).getAllByLabelText("IP address")).toHaveLength(1);
+      expect(field("MAC address")).toBeInTheDocument(); // still available in More details
+      expect(field("Mounting height")).toBeInTheDocument();
+    });
+
+    it("uses category layouts for NVRs, detectors and access devices", () => {
+      openSeeded();
+      addCategory("NVR / server");
+      expect(quickLabels()).toContain("Hostname");
+      fireEvent.change(within(form()).getByLabelText("Equipment category"), { target: { value: "detector" } });
+      expect(quickLabels()).toEqual(expect.arrayContaining(["Zone number", "Mounting height", "Ladder type required"]));
+      expect(quickLabels()).not.toContain("IP address");
+      fireEvent.change(within(form()).getByLabelText("Equipment category"), { target: { value: "access-reader" } });
+      expect(quickLabels()).toEqual(expect.arrayContaining(["Door number", "Controller / panel"]));
+    });
+
+    it("keeps every value when switching modes and categories", async () => {
+      openSeeded();
+      addCategory("IP camera");
+      type("Equipment name", "CAM-20");
+      type("Firmware / software version", "V6.1");
+      type("IP address", "10.20.0.120");
+      type("MAC address", "00:11:22:33:44:99");
+      fireEvent.click(within(form()).getByRole("radio", { name: "All fields" }));
+      expect(field("Firmware / software version")).toHaveValue("V6.1");
+      expect(field("MAC address")).toHaveValue("00:11:22:33:44:99");
+      fireEvent.click(within(form()).getByRole("radio", { name: "Quick entry" }));
+      fireEvent.change(within(form()).getByLabelText("Equipment category"), { target: { value: "detector" } });
+      // IP is no longer a quick field for detectors, so its section opens rather than hiding the value.
+      expect(field("IP address")).toHaveValue("10.20.0.120");
+      expect(field("IP address").closest("details")).toHaveProperty("open", true);
+      fireEvent.click(within(form()).getByRole("button", { name: "Save" }));
+      await closed();
+      expect(saved().equipment.at(-1)).toMatchObject({ name: "CAM-20", firmware: "V6.1", ip: "10.20.0.120", mac: "00:11:22:33:44:99", category: "detector" });
+    });
+
+    it("documents several cameras quickly: Ctrl+Shift+Enter saves and starts the next", async () => {
+      openSeeded();
+      addCategory("IP camera");
+      type("Equipment name", "CAM-21");
+      type("Ladder height required", "3.6 m");
+      type("Ladder type required", "Platform ladder");
+      fireEvent.keyDown(field("Equipment name"), { key: "Enter", ctrlKey: true, shiftKey: true });
+      expect(field("Equipment name")).toHaveValue("");
+      expect(within(form()).getByLabelText("Equipment category")).toHaveValue("ip-camera");
+      type("Equipment name", "CAM-22");
+      fireEvent.keyDown(field("Equipment name"), { key: "Enter", ctrlKey: true });
+      await closed();
+      expect(saved().equipment.slice(-2).map((e) => [e.name, e.ladderHeight, e.ladderType])).toEqual([["CAM-21", "3.6 m", "Platform ladder"], ["CAM-22", "", ""]]);
+    });
+
+    it("remembers the chosen mode on this device", async () => {
+      openSeeded();
+      addCategory("IP camera");
+      fireEvent.click(within(form()).getByRole("radio", { name: "All fields" }));
+      fireEvent.keyDown(field("Equipment name"), { key: "Escape" });
+      await closed();
+      addCategory("NVR / server");
+      expect(within(form()).getByRole("radio", { name: "All fields" })).toBeChecked();
+      expect(form().querySelector('[data-section="quick"]')).toBeNull();
+    });
   });
 });

@@ -3,19 +3,42 @@
 import { useRef, useState } from "react";
 import { areaClass, Field, inputClass } from "@/components/reports/EquipmentCard";
 import { newId } from "@/lib/reports/report";
-import { SECTIONS, sectionOrder, TYPE_SUGGESTIONS, CATEGORY_PRIORITY, type FieldDef, type SectionId } from "@/lib/techdocs/fields";
+import { QUICK_FIELDS, quickFields, SECTIONS, sectionOrder, TYPE_SUGGESTIONS, CATEGORY_PRIORITY, type FieldDef, type SectionId } from "@/lib/techdocs/fields";
 import { equipmentLabel, UNIQUE_IDENTIFIERS } from "@/lib/techdocs/register";
 import { CATEGORIES, OP_STATUSES, type Category, type Equipment, type TechRegister } from "@/lib/techdocs/schema";
 import { equipmentWarnings } from "@/lib/techdocs/validation";
 import { FIELD_LABEL } from "@/lib/techdocs/fields";
 import { eventDay, HISTORY_LABEL } from "@/lib/techdocs/history";
 import type { HistoryEvent } from "@/lib/techdocs/schema";
+import { sourceState } from "@/lib/sites/link";
 import { displayDate } from "@/lib/reports/xlsx-layout";
 
 export type SaveMode = "close" | "next" | "duplicate";
 
-const filled = (e: Equipment, id: SectionId) =>
-  id === "custom" ? e.customFields.filter((f) => f.name.trim() || f.value.trim()).length : SECTIONS.find((s) => s.id === id)!.fields.filter((f) => e[f.key].trim()).length;
+export type EntryMode = "quick" | "full";
+const MODE_KEY = "fieldwise:techdocs:entry-mode";
+function readMode(): EntryMode {
+  try {
+    return window.localStorage.getItem(MODE_KEY) === "full" ? "full" : "quick";
+  } catch {
+    return "quick";
+  }
+}
+function storeMode(m: EntryMode) {
+  try {
+    window.localStorage.setItem(MODE_KEY, m);
+  } catch {
+    // Preference not kept; the form still works.
+  }
+}
+
+/** A section's fields as shown: in Quick Entry, the quick fields are shown together above, so they're left out here. */
+const sectionFields = (id: SectionId, mode: EntryMode, category: Category) => {
+  const quick = new Set<string>(mode === "quick" ? QUICK_FIELDS[category] : []);
+  return SECTIONS.find((s) => s.id === id)!.fields.filter((f) => !quick.has(f.key));
+};
+const filled = (e: Equipment, id: SectionId, mode: EntryMode = "full") =>
+  id === "custom" ? e.customFields.filter((f) => f.name.trim() || f.value.trim()).length : sectionFields(id, mode, e.category).filter((f) => e[f.key].trim()).length;
 
 /**
  * Edits one equipment entry as a draft: nothing changes in the register until
@@ -32,6 +55,7 @@ export function EquipmentForm({
   onCancel,
   onDelete,
   history = [],
+  reportIds = new Set<string>(),
 }: {
   register: TechRegister;
   initial: Equipment;
@@ -43,9 +67,16 @@ export function EquipmentForm({
   onDelete: (item: Equipment) => void;
   /** This entry's history, newest first (read-only). */
   history?: HistoryEvent[];
+  /** Service reports on this device, so history only links to reports that can be opened. */
+  reportIds?: ReadonlySet<string>;
 }) {
   const [item, setItem] = useState(initial);
-  const [open, setOpen] = useState<Set<SectionId>>(() => new Set([...CATEGORY_PRIORITY[initial.category], ...sectionOrder(initial.category).filter((id) => filled(initial, id) > 0)]));
+  const [mode, setModeState] = useState<EntryMode>(readMode);
+  // Sections open by default: in full mode the category's priority sections; always any section holding values.
+  const [open, setOpen] = useState<Set<SectionId>>(() => {
+    const m = readMode();
+    return new Set([...(m === "full" ? CATEGORY_PRIORITY[initial.category] : []), ...sectionOrder(initial.category).filter((id) => filled(initial, id, m) > 0)]);
+  });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const dirty = JSON.stringify(item) !== JSON.stringify(initial);
@@ -57,8 +88,15 @@ export function EquipmentForm({
 
   const setCategory = (category: Category) => {
     set({ category });
-    // Open the new category's sections without closing anything the technician opened.
-    setOpen((o) => new Set([...o, ...CATEGORY_PRIORITY[category]]));
+    // Open the new category's sections (and any holding values) without closing anything the technician opened.
+    const next = { ...item, category };
+    setOpen((o) => new Set([...o, ...(mode === "full" ? CATEGORY_PRIORITY[category] : []), ...sectionOrder(category).filter((id) => filled(next, id, mode) > 0)]));
+  };
+  // Switching mode never changes values; sections holding values open so nothing is out of sight.
+  const setMode = (m: EntryMode) => {
+    setModeState(m);
+    storeMode(m);
+    setOpen((o) => new Set([...o, ...(m === "full" ? CATEGORY_PRIORITY[item.category] : []), ...sectionOrder(item.category).filter((id) => filled(item, id, m) > 0)]));
   };
   const toggle = (id: SectionId, next: boolean) => setOpen((o) => {
     const s = new Set(o);
@@ -74,7 +112,7 @@ export function EquipmentForm({
       onCancel(item, dirty);
     } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      onSave(item, "close");
+      onSave(item, e.shiftKey ? "next" : "close");
     } else if (e.key === "Enter" && target.tagName === "INPUT") {
       // Enter steps to the next field (like a spreadsheet) instead of submitting.
       e.preventDefault();
@@ -158,7 +196,7 @@ export function EquipmentForm({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold text-fg">{isNew ? `New entry — ${label}` : label}</h2>
-        <p className="hidden text-xs text-fg-subtle lg:block">Enter: next field · Ctrl+Enter: save · Esc: cancel</p>
+        <p className="hidden text-xs text-fg-subtle lg:block">Enter: next field · Ctrl+Enter: save · Ctrl+Shift+Enter: save &amp; add another · Esc: cancel</p>
       </div>
       {duplicatedFrom && (
         <p className="rounded-xl border border-signal-400/30 bg-signal-500/[0.06] px-3 py-2 text-sm text-fg" role="status">
@@ -176,10 +214,40 @@ export function EquipmentForm({
         </select>
       </Field>
 
+      <div role="radiogroup" aria-label="Entry mode" className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-ink-900 p-1 sm:max-w-sm">
+        {(
+          [
+            ["quick", "Quick entry"],
+            ["full", "All fields"],
+          ] as const
+        ).map(([id, text]) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={mode === id}
+            onClick={() => setMode(id)}
+            className={`h-11 rounded-lg text-sm font-semibold ${mode === id ? "bg-signal-500/15 text-signal-300" : "text-fg-muted hover:text-fg"}`}
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+
+      {mode === "quick" && (
+        <section aria-label="Quick entry" className="rounded-2xl border border-signal-400/40 bg-ink-900 px-4 py-3" data-section="quick">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{quickFields(item.category).map(renderField)}</div>
+          <p className="mt-3 text-xs text-fg-muted">Everything else is in the sections below. Ladder and mounting heights are recorded as entered — Fieldwise doesn&apos;t assess ladder suitability.</p>
+        </section>
+      )}
+      {mode === "quick" && <h3 className="-mb-1 text-xs font-semibold tracking-wide text-fg-muted uppercase">More details</h3>}
+
       {sectionOrder(item.category).map((id) => {
         const s = SECTIONS.find((x) => x.id === id)!;
-        const n = filled(item, id);
-        const warn = id === "custom" ? 0 : warnings.filter((w) => s.fields.some((f) => f.key === w.field)).length;
+        const fields = sectionFields(id, mode, item.category);
+        if (id !== "custom" && fields.length === 0) return null;
+        const n = filled(item, id, mode);
+        const warn = id === "custom" ? 0 : warnings.filter((w) => fields.some((f) => f.key === w.field)).length;
         return (
           <details key={id} open={open.has(id)} onToggle={(e) => toggle(id, (e.currentTarget as HTMLDetailsElement).open)} className="rounded-2xl border border-line bg-ink-900" data-section={id}>
             <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-4 py-2 text-[15px] font-semibold text-fg">
@@ -222,7 +290,7 @@ export function EquipmentForm({
                   <p className="text-xs text-fg-muted">For anything else worth recording. Don&apos;t store passwords or access codes here.</p>
                 </div>
               ) : (
-                <div className="grid gap-3 sm:grid-cols-2">{s.fields.map(renderField)}</div>
+                <div className="grid gap-3 sm:grid-cols-2">{fields.map(renderField)}</div>
               )}
             </div>
           </details>
@@ -248,10 +316,20 @@ export function EquipmentForm({
                     </p>
                     <p className="font-semibold text-fg">{HISTORY_LABEL[h.type]}</p>
                     <p className="text-fg-muted">{h.description}</p>
-                    {h.reportId && (
+                    {sourceState(h, reportIds) === "available" && (
                       <a href={`/reports?id=${encodeURIComponent(h.reportId)}`} className="text-xs font-medium text-signal-400 hover:text-signal-300">
                         Service report: {h.reportLabel || "open"}
                       </a>
+                    )}
+                    {sourceState(h, reportIds) === "deleted" && (
+                      <p className="text-xs text-fg-subtle" data-source="deleted">
+                        From service report {h.reportLabel ? `“${h.reportLabel}” ` : ""}— report since deleted
+                      </p>
+                    )}
+                    {sourceState(h, reportIds) === "missing" && (
+                      <p className="text-xs text-fg-subtle" data-source="missing">
+                        From service report {h.reportLabel ? `“${h.reportLabel}” ` : ""}— not on this device
+                      </p>
                     )}
                   </li>
                 ))}

@@ -1,41 +1,42 @@
 # Development status
 
-**Milestone:** v0.8.0 — Professional client handover generator — **complete**
+**Milestone:** v0.8.1 — Reliability, backup & workflow improvements — **complete**
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 
-## Completed (v0.8.0)
-- **Client handover PDF** from any service report (linked or standalone): "Client handover PDF" button beside
-  Generate Excel → choose sections → optional branding → live preview → Download / Open PDF.
-- **Document:** "SECURITY SERVICE REPORT" + job type, report date, job reference; numbered sections — site & customer
-  details, inspection overview (5 KPI tiles from the entries + factual summary), work completed, identified defects
-  (Fault items only; finding, work, entered priority), recommendations, equipment inspection schedule, additional
-  information (outstanding work, parts, site notes). Empty sections omitted. Footer: job ref · Generated with
-  Fieldwise · Page n of N; running header from page 2. No signatures, approvals or compliance statements.
-- **Sensitive data:** only client-facing report fields; no network settings, item notes, register details,
-  snapshots (serial/firmware/asset ID) or equipment history.
-- **Layout engine** (`src/lib/handover/layout.ts`): wrapping, keep-with-next headings, tables starting with ≥3 rows,
-  repeated table headers, row splitting only when taller than a page, panels across pages.
-- **Preview = PDF:** one generation produces the page model (drawn as SVG with the PDF font) and the PDF bytes.
-- **Branding:** optional company name, phone, email, address, ABN, accent colour, PNG/JPEG logo (signature-checked,
-  ≤512 KB, aspect kept, transparency kept); stored locally; unbranded by default.
-- jsPDF 4.2.1 (exact) added; Carlito fonts (SIL OFL 1.1) bundled in `public/fonts/` with licence.
+## Completed (v0.8.1)
+- **Complete backup & restore (v2):** registers (equipment, custom fields, history), all service reports with
+  equipment links, company branding and logo. v0.7.1 backups still import. Preview states whether the file holds
+  reports and branding; merge / replace; branding conflict → keep or import (choice); replace needs confirmation
+  listing what is removed; id collisions → copies; registers + reports + branding rolled back together on failure.
+  Logos re-validated by signature. Panel available on both Technical Docs and Reports.
+- **Backup reminder:** last backup date shown; reminder appears only when there are changes since a backup that is
+  ≥ 7 days old (or none), snoozable for a week; dates only, no telemetry.
+- **PDF characters:** symbol fallback font (DejaVu Sans subset, renamed "Fieldwise Symbols", ~224 KB per weight,
+  loaded only when needed) for ✓ ✗ ☐ ☑ ⚠ → ≤ ≥ ≈ ± ° ℃ Ω ⌀ ∞ ½, Greek, Cyrillic, etc. Embedded and subset,
+  extractable text, preview uses the same font runs. Emoji/CJK and other uncovered characters are listed with
+  their location and require acknowledgement before download ("?" in the PDF). PDF layout unchanged.
+- **History integrity:** deleted reports' events kept and marked (no broken links; undo restores); missing source
+  reports labelled; duplicated linked reports start with blank results; removed equipment labelled in Excel.
+- **Quick Entry:** category-specific quick fields (IP camera, NVR, network, panels, detectors, access readers and
+  controllers, power, other), remaining fields in sections, mode remembered, values kept when switching,
+  Ctrl+Shift+Enter save & add another.
+- **Technical Excel printing:** wide sheets print at 90 % across page widths with ID columns, heading row and a
+  page header repeated (was ~60–70 % squeezed onto one width); narrower sheets fit to width.
 
 ## Latest validation
-- Lint, typecheck clean. Tests 503 passed, 3 skipped (opt-in sample writers). Normal + demo builds OK.
-- Visual QA (3 passes, PDFs rendered with poppler `pdftoppm` and inspected): short CCTV, CCTV faults, intruder,
-  access, long narrative, 120-item schedule, minimal, branded (sample logo), unbranded. Fixes: status column width,
-  keep-with-next for tall first rows, running header keeps job ref, no repeated fault findings, header spacing,
-  no single-row table openings.
-- Playwright (iPhone 13 + 1440 px): preview in < 1 s, branding + logo upload, download → `pdfinfo`/`pdftotext`
-  (page count matches preview, branding present, internal notes absent), back to editor; no overflow, console
-  errors or external requests.
+- Lint, typecheck clean. Tests 535 passed, 3 skipped (opt-in sample writers). Normal + demo builds OK.
+- Playwright (iPhone 13 + 1440 px), full workflow: Quick Entry register with 3 cameras → reopen → linked job → fault
+  + firmware update → client PDF (symbols extracted with pdftotext, emoji warned + acknowledgement) → technical Excel
+  → complete backup → restore into a fresh browser profile (registers, reports, history, links). No console errors,
+  no external requests.
+- Visual: technical workbooks rendered with LibreOffice (register/network/access sheets at 90 % over two page
+  widths with repeated columns); handover PDF samples unchanged in page count. Microsoft Excel not available.
 
 ## Known limitations
-- The PDF font (Carlito) has no glyphs for symbols such as ✓, emoji or CJK; these appear as "?" and are listed in
-  the preview so the technician can edit the text.
-- Branding is per device (not included in Technical Docs backups).
-- The embedded logo is stored as base64 in browser storage (limited to 512 KB).
-- Not verified in Adobe Acrobat; checked with poppler and Chromium.
+- Characters outside Carlito + Fieldwise Symbols (emoji, CJK, many scripts) still print as "?" (with warning).
+- Branding conflicts are resolved as a whole (no per-field merge).
+- Wide technical sheets now span two page widths when printed (more pages, larger text).
+- Backup reminder state is per device/browser.
 
 ## Next (suggested)
-- Optional sign-off block with a technician-entered name (never auto-generated); photos per item.
+- Optional sign-off block with technician-entered name; photos per equipment entry.

@@ -4,8 +4,10 @@ import { FONT_FILES } from "@/lib/handover/pdf";
 import { PAGE, type Page } from "@/lib/handover/layout";
 
 /** The bundled PDF font, so on-screen pages use exactly the PDF's letterforms and widths. */
-const FONT_CSS = `@font-face{font-family:FieldwisePdf;src:url(${FONT_FILES.regular}) format("truetype");font-weight:400}
-@font-face{font-family:FieldwisePdf;src:url(${FONT_FILES.bold}) format("truetype");font-weight:700}`;
+const FONT_CSS = `@font-face{font-family:FieldwisePdf;src:url(${FONT_FILES.text.regular}) format("truetype");font-weight:400}
+@font-face{font-family:FieldwisePdf;src:url(${FONT_FILES.text.bold}) format("truetype");font-weight:700}
+@font-face{font-family:FieldwisePdfSymbols;src:url(${FONT_FILES.symbols.regular}) format("truetype");font-weight:400}
+@font-face{font-family:FieldwisePdfSymbols;src:url(${FONT_FILES.symbols.bold}) format("truetype");font-weight:700}`;
 
 const anchor = { left: "start", right: "end", center: "middle" } as const;
 
@@ -32,7 +34,13 @@ export function PreviewPage({ page, index, total }: { page: Page; index: number;
           case "text":
             return (
               <text key={i} x={op.x} y={op.y} fontSize={op.size} fontWeight={op.font === "bold" ? 700 : 400} fill={op.color} textAnchor={anchor[op.align ?? "left"]} xmlSpace="preserve">
-                {op.s}
+                {op.runs
+                  ? op.runs.map((r, k) => (
+                      <tspan key={k} fontFamily={r.symbols ? "FieldwisePdfSymbols, sans-serif" : undefined}>
+                        {r.s}
+                      </tspan>
+                    ))
+                  : op.s}
               </text>
             );
         }

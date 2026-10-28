@@ -6,7 +6,7 @@ import { downloadTechWorkbook } from "@/lib/techdocs/download";
 import { createRegister, duplicateRegister, registerTitle } from "@/lib/techdocs/register";
 import type { TechRegister } from "@/lib/techdocs/schema";
 import { deleteRegister, parseRegisters, readRegistersRaw, saveRegister, subscribeRegisters } from "@/lib/techdocs/store";
-import { BackupPanel } from "./BackupPanel";
+import { BackupPanel, BackupReminder } from "@/components/backup/BackupPanel";
 import { defaultTechnician, RegisterEditor } from "./RegisterEditor";
 
 /** Registers home (create, reopen, manage) and the editor, switched by `?id=` so Back works on phones. */
@@ -29,6 +29,7 @@ export function TechDocsApp() {
 
   return (
     <div className="flex flex-col gap-5">
+      <BackupReminder />
       <button type="button" onClick={create} className="h-14 rounded-2xl bg-signal-500 px-5 text-[15px] font-semibold text-ink-950 hover:bg-signal-400 sm:self-start">
         + New technical register
       </button>
@@ -116,7 +117,7 @@ export function TechDocsApp() {
           </ul>
         )}
       </section>
-      <BackupPanel registers={registers} />
+      <BackupPanel />
     </div>
   );
 }

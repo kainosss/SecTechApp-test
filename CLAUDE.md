@@ -45,14 +45,20 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   (network warnings only — never rewrite values), `store.ts` (`fieldwise:techdocs:v1`), `excel.ts` (5 plain sheets).
   Ladder height/type and mounting height are separate free text; never infer one or assess ladder suitability.
   Never assign IPs or other configuration automatically. Network data stays out of service report exports.
-  `history.ts` (factual equipment events; `saveWithHistory`), `backup.ts` (versioned JSON; validate → preview → merge/replace,
-  never overwrite silently; `commitImport` rolls back on failure).
+  `history.ts` (factual equipment events; `saveWithHistory`), `backup.ts` (complete v2 backup: registers, all reports,
+  branding + logo; v1 still imported; validate → preview → merge/replace, branding conflict = user choice, never
+  overwrite silently; `commitImport` rolls back registers, reports and branding together). Quick Entry fields per
+  category in `fields.ts` (`QUICK_FIELDS`). Wide sheets print at 90 % with repeated ID columns (never shrink < 85 %).
+- `src/lib/backup/`: `meta.ts` (last-backup date + snooze only, no data copies), `download.ts` (complete backup file).
 - `src/lib/sites/link.ts`: report ↔ register link (`report.registerId`, `item.source` with snapshot — no network data),
   picker duplicate prevention, `syncReportHistory` (fixed event ids, no duplicates), `applyEquipmentUpdate` (only
   confirmed fields, checked against reviewed originals). Never update master records without explicit confirmation.
+  Deleted reports: history kept, `sourceDeletedAt` set (no links); duplicating a linked report blanks service results.
 - `src/lib/handover/`: client handover PDF — `content.ts` (client-facing document model only; never network data, item
   notes, register details or history; no compliance claims), `layout.ts` (page model; wrap, keep-with-next, repeated
-  table headers), `pdf.ts` (jsPDF + Carlito from `public/fonts`, one generation for preview + download),
+  table headers), `pdf.ts` (jsPDF + Carlito, symbol fallback "Fieldwise Symbols" loaded only when needed; text ops carry
+  font `runs`; unsupported characters listed with locations and need acknowledgement — never silently replaced;
+  one generation for preview + download),
   `branding.ts` (optional, `fieldwise:branding:v1`, logo checked by signature/size). Visual QA: write samples with
   `FIELDWISE_SAMPLE_DIR=<dir> npx vitest run tests/handover/samples.test.ts`, render with `pdftoppm`.
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).

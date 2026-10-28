@@ -51,6 +51,7 @@ export function changeEvents(changes: HistoryChange[], ctx: EventContext): Histo
     at: ctx.now.toISOString(),
     date: ctx.date ?? "",
     technician: ctx.technician,
+    sourceDeletedAt: "",
   };
   const out: HistoryEvent[] = [];
   const fw = changes.filter((c) => c.field === "firmware");
@@ -61,7 +62,7 @@ export function changeEvents(changes: HistoryChange[], ctx: EventContext): Histo
 }
 
 export function addedEvent(item: Equipment, name: string, technician: string, now: Date): HistoryEvent {
-  return { id: newId(), equipmentId: item.id, equipmentName: name, reportId: "", reportLabel: "", at: now.toISOString(), date: "", technician, type: "added", description: "Added to register", changes: [] };
+  return { id: newId(), equipmentId: item.id, equipmentName: name, reportId: "", reportLabel: "", at: now.toISOString(), date: "", technician, type: "added", description: "Added to register", changes: [], sourceDeletedAt: "" };
 }
 
 /** Adds events, replacing any with the same id (so re-recording never duplicates). */

@@ -131,8 +131,13 @@ export function duplicateReport(report: Report, now = new Date()): Report {
     createdAt: iso,
     updatedAt: iso,
     reference: report.reference ? `${report.reference} (copy)` : "",
-    // Outcomes and applied master-record changes belong to the original job.
-    equipment: report.equipment.map((i) => ({ ...i, id: newId(), source: i.source ? { ...i.source, outcome: "" as const, applied: [] } : null })),
+    // For site-linked items, results belong to the original job: the copy keeps the equipment list but starts
+    // with blank service results, so the site's equipment history never receives results nobody recorded.
+    equipment: report.equipment.map((i) =>
+      i.source
+        ? { ...i, id: newId(), status: "not-tested" as const, findings: "", work: "", recommendations: "", priority: "" as const, source: { ...i.source, outcome: "" as const, applied: [] } }
+        : { ...i, id: newId() },
+    ),
   };
 }
 

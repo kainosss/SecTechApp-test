@@ -135,6 +135,7 @@ export function serviceEvents(report: Report, register: TechRegister): HistoryEv
       date: report.date,
       technician: report.technician.trim(),
       changes: [] as HistoryChange[],
+      sourceDeletedAt: "",
     };
     const fault = item.status === "fault";
     const outcome = src.outcome;
@@ -236,4 +237,32 @@ export function applyEquipmentUpdate(register: TechRegister, equipmentId: string
     date: report.date,
   });
   return { register: withHistory(updated, events), applied, conflicts };
+}
+
+/* ----------------------------------------------- deleted source reports */
+
+/**
+ * Marks history events from a deleted report: they stay (they record what
+ * happened) but no longer point to a report. Returns the same register when
+ * nothing changes.
+ */
+export function markReportDeleted(register: TechRegister, reportId: string, now = new Date()): TechRegister {
+  if (!register.history.some((e) => e.reportId === reportId && !e.sourceDeletedAt)) return register;
+  const at = now.toISOString();
+  return { ...register, history: register.history.map((e) => (e.reportId === reportId && !e.sourceDeletedAt ? { ...e, sourceDeletedAt: at } : e)) };
+}
+
+/** Undo of a report deletion: its history events point to it again. */
+export function markReportRestored(register: TechRegister, reportId: string): TechRegister {
+  if (!register.history.some((e) => e.reportId === reportId && e.sourceDeletedAt)) return register;
+  return { ...register, history: register.history.map((e) => (e.reportId === reportId ? { ...e, sourceDeletedAt: "" } : e)) };
+}
+
+export type SourceState = "none" | "available" | "deleted" | "missing";
+
+/** Whether an event's source report can be opened: deleted, not on this device, or available. */
+export function sourceState(e: HistoryEvent, reportIds: ReadonlySet<string>): SourceState {
+  if (!e.reportId) return "none";
+  if (e.sourceDeletedAt) return "deleted";
+  return reportIds.has(e.reportId) ? "available" : "missing";
 }

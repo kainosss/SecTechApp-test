@@ -4,7 +4,7 @@ import { useEffect, useMemo, useReducer, useState, useSyncExternalStore } from "
 import { areaClass, Field, inputClass } from "@/components/reports/EquipmentCard";
 import { Icon } from "@/components/ui/Icon";
 import { useUrlSearch } from "@/lib/eol/use-url-selection";
-import { loadTechnician } from "@/lib/reports/store";
+import { loadReports, loadTechnician } from "@/lib/reports/store";
 import { downloadTechWorkbook } from "@/lib/techdocs/download";
 import { applyRegisterEdit, blankEquipment, CATEGORY_LABEL, duplicateEquipment, equipmentLabel, filterEquipment, registerTitle, statusLabel, type EquipmentFilter, type RegisterEdit } from "@/lib/techdocs/register";
 import { CATEGORIES, OP_STATUSES, type Category, type Equipment, type TechRegister } from "@/lib/techdocs/schema";
@@ -154,6 +154,7 @@ export function RegisterEditor({ id, onClose }: { id: string; onClose: () => voi
         <EquipmentForm
           key={draft.item.id}
           history={draft.isNew ? [] : historyFor(register, draft.item.id)}
+          reportIds={new Set(loadReports().reports.map((r) => r.id))}
           register={register}
           initial={draft.item}
           isNew={draft.isNew}

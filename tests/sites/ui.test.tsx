@@ -11,6 +11,8 @@ import { applyEdit, createReport } from "@/lib/reports/report";
 import { loadReports, saveReport } from "@/lib/reports/store";
 import { linkedItem, linkReport, syncReportHistory } from "@/lib/sites/link";
 import { createBackup } from "@/lib/techdocs/backup";
+import { EMPTY_BRANDING, loadBranding, saveBranding } from "@/lib/handover/branding";
+import { sampleBranding } from "../handover/fixtures";
 import { getRegister, loadRegisters, saveRegister } from "@/lib/techdocs/store";
 import { accessSystem, cctvInstall, intruderSystem } from "../techdocs/fixtures";
 
@@ -169,6 +171,7 @@ describe("Technical Docs history and backup", () => {
     job = applyEdit(job, { type: "update-item", id: job.equipment[0]!.id, patch: { status: "pass", work: "Cleaned" } });
     site = syncReportHistory(site, job);
     saveRegister(site);
+    saveReport(job); // the source report is on this device, so history links to it
     window.history.replaceState(null, "", `/tech-docs?id=${site.id}`);
     render(<TechDocsApp />);
     fireEvent.click(screen.getByRole("button", { name: "Open CAM-01" }));
@@ -204,7 +207,7 @@ describe("Technical Docs history and backup", () => {
     expect(screen.getByTestId("backup")).toHaveTextContent("not a cloud backup");
     fireEvent.click(screen.getByRole("button", { name: "Download backup" }));
     expect(create).toHaveBeenCalledOnce();
-    expect(screen.getByText(/Downloaded Fieldwise-TechDocs-Backup-\d{4}-\d{2}-\d{2}\.json/)).toBeInTheDocument();
+    expect(screen.getByText(/Downloaded Fieldwise-Backup-\d{4}-\d{2}-\d{2}\.json/)).toBeInTheDocument();
   });
 
   it("previews a backup, then merges it without touching existing registers", async () => {
@@ -229,9 +232,9 @@ describe("Technical Docs history and backup", () => {
     render(<TechDocsApp />);
     await restore(JSON.stringify(createBackup([intruderSystem()], [])));
     const preview = await screen.findByTestId("restore-preview");
-    fireEvent.click(within(preview).getByRole("radio", { name: /Replace registers/ }));
+    fireEvent.click(within(preview).getByRole("radio", { name: /^Replace/ }));
     expect(preview).toHaveTextContent("Delete from this device: Building C CCTV");
-    const go = within(preview).getByRole("button", { name: "Replace registers" });
+    const go = within(preview).getByRole("button", { name: "Replace data" });
     expect(go).toBeDisabled();
     fireEvent.click(within(preview).getByRole("checkbox"));
     fireEvent.click(go);
@@ -248,5 +251,39 @@ describe("Technical Docs history and backup", () => {
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("version 9"));
     expect(screen.queryByTestId("restore-preview")).toBeNull();
     expect(loadRegisters().registers).toEqual([mine]);
+  });
+
+  it("shows what a backup contains and asks which branding to keep on a conflict", async () => {
+    saveBranding({ ...EMPTY_BRANDING, companyName: "My Company" });
+    render(<TechDocsApp />);
+    await restore(JSON.stringify(createBackup([intruderSystem()], [], sampleBranding())));
+    const preview = await screen.findByTestId("restore-preview");
+    expect(within(preview).getByTestId("backup-contents")).toHaveTextContent("Complete backup · includes company branding (Example Security Services) with logo");
+    const choice = within(preview).getByTestId("branding-choice");
+    expect(within(choice).getByRole("radio", { name: "Keep the branding on this device" })).toBeChecked();
+    expect(preview).toHaveTextContent("Company branding: this device's is kept");
+    fireEvent.click(within(choice).getByRole("radio", { name: /Use the backup's branding/ }));
+    expect(preview).toHaveTextContent("Company branding: replaced with the backup's");
+    fireEvent.click(within(preview).getByRole("button", { name: "Import (merge)" }));
+    expect(loadBranding().companyName).toBe("Example Security Services");
+    expect(loadRegisters().registers).toHaveLength(1);
+  });
+
+  it("records the last backup and reminds only when there are unbacked-up changes", () => {
+    Object.assign(URL, { createObjectURL: vi.fn(() => "blob:x"), revokeObjectURL: vi.fn() });
+    saveRegister(cctvInstall());
+    render(<TechDocsApp />);
+    expect(screen.getByTestId("backup-reminder")).toHaveTextContent("No backup has been downloaded from this device yet");
+    expect(screen.getByTestId("last-backup")).toHaveTextContent("No backup downloaded on this device yet");
+    fireEvent.click(within(screen.getByTestId("backup-reminder")).getByRole("button", { name: "Back up now" }));
+    expect(screen.queryByTestId("backup-reminder")).toBeNull();
+    expect(screen.getByTestId("last-backup")).toHaveTextContent("Last backup downloaded on this device:");
+  });
+
+  it("can be snoozed", () => {
+    saveRegister(cctvInstall());
+    render(<TechDocsApp />);
+    fireEvent.click(screen.getByRole("button", { name: "Remind me next week" }));
+    expect(screen.queryByTestId("backup-reminder")).toBeNull();
   });
 });

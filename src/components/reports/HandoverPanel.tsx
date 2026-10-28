@@ -22,6 +22,8 @@ export function HandoverPanel({ report, onClose }: { report: Report; onClose: ()
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState<"pages" | "pdf">("pages");
   const [message, setMessage] = useState<string | null>(null);
+  // An acknowledgement covers exactly the characters listed when it was given.
+  const [ackFor, setAckFor] = useState<string | null>(null);
   const available = availableSections(report);
 
   // One generation produces both the preview pages and the PDF bytes; it re-runs (debounced) when anything changes.
@@ -40,6 +42,8 @@ export function HandoverPanel({ report, onClose }: { report: Report; onClose: ()
   }, [report, options, branding, attempt]);
 
   const handover = state.status === "ready" ? state.handover : null;
+  const acknowledged = Boolean(handover) && ackFor === handover!.unsupported.chars.join("");
+  const setAcknowledged = (on: boolean) => setAckFor(on && handover ? handover.unsupported.chars.join("") : null);
   const url = useMemo(() => (handover && typeof URL.createObjectURL === "function" ? URL.createObjectURL(new Blob([handover.bytes], { type: "application/pdf" })) : null), [handover]);
   useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
   const canEmbed = typeof navigator !== "undefined" && (navigator as Navigator & { pdfViewerEnabled?: boolean }).pdfViewerEnabled === true;
@@ -122,17 +126,31 @@ export function HandoverPanel({ report, onClose }: { report: Report; onClose: ()
             )}
           </div>
 
-          {handover && handover.unsupported.length > 0 && (
-            <p className="rounded-lg border border-amber-300/40 bg-amber-300/[0.06] px-3 py-2 text-sm text-fg" role="note">
-              Some characters can&apos;t be shown in the PDF font and appear as “?”: {handover.unsupported.join(" ")}. Edit the report text if they matter.
-            </p>
+          {handover && handover.unsupported.chars.length > 0 && (
+            <div className="rounded-lg border border-amber-300/40 bg-amber-300/[0.06] px-3 py-2 text-sm text-fg" role="alert" data-testid="unsupported">
+              <p className="font-semibold">
+                Some characters can&apos;t be shown in the PDF and will appear as “?”: <span className="font-mono">{handover.unsupported.chars.join(" ")}</span>
+              </p>
+              <ul className="mt-1 list-disc pl-5 text-fg-muted">
+                {handover.unsupported.places.map((p, i) => (
+                  <li key={i}>
+                    {p.where}: “{p.excerpt}”
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1 text-xs text-fg-muted">Edit the report text to replace them, or confirm below to export anyway.</p>
+              <label className="mt-2 flex min-h-11 items-center gap-2">
+                <input type="checkbox" className="size-5 accent-signal-500" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} />
+                Export with “?” in place of these characters
+              </label>
+            </div>
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <button type="button" className={primary} disabled={!handover} onClick={download}>
+            <button type="button" className={primary} disabled={!handover || (handover.unsupported.chars.length > 0 && !acknowledged)} onClick={download}>
               Download PDF
             </button>
-            {url && (
+            {url && !(handover && handover.unsupported.chars.length > 0 && !acknowledged) && (
               <a href={url} target="_blank" rel="noopener" className={`${button} inline-flex items-center`}>
                 Open PDF
               </a>

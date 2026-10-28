@@ -6,7 +6,10 @@ import { downloadWorkbook } from "@/lib/reports/download";
 import { createReport, duplicateReport, statusCounts } from "@/lib/reports/report";
 import { JOB_TYPES, type JobType, type Report } from "@/lib/reports/schema";
 import { clearReports, deleteReport, loadTechnician, parseReports, readRaw, saveReport, subscribeReports } from "@/lib/reports/store";
+import { BackupPanel, BackupReminder } from "@/components/backup/BackupPanel";
 import { ReportEditor } from "./ReportEditor";
+import { markReportDeleted, markReportRestored } from "@/lib/sites/link";
+import { updateAllRegisters } from "@/lib/techdocs/store";
 
 const JOB_LABEL = Object.fromEntries(JOB_TYPES.map((j) => [j.id, j.label])) as Record<JobType, string>;
 
@@ -31,6 +34,7 @@ export function ReportsApp() {
 
   return (
     <div className="flex flex-col gap-5">
+      <BackupReminder />
       <section aria-labelledby="new-heading" className="rounded-2xl border border-line bg-ink-900 p-4">
         <h2 id="new-heading" className="text-[15px] font-semibold text-fg">
           Start a new report
@@ -66,7 +70,10 @@ export function ReportsApp() {
                 <button
                   type="button"
                   onClick={() => {
+                    const ids = reports.map((x) => x.id);
                     clearReports();
+                    // History events from these reports stay, marked as from deleted reports.
+                    updateAllRegisters((reg) => ids.reduce((acc, id) => markReportDeleted(acc, id), reg));
                     setConfirmClear(false);
                   }}
                   className="h-10 rounded-lg border border-fault/50 px-3 font-medium text-fault hover:bg-fault/10"
@@ -95,6 +102,7 @@ export function ReportsApp() {
               type="button"
               onClick={() => {
                 saveReport(deleted);
+                updateAllRegisters((reg) => markReportRestored(reg, deleted.id));
                 setDeleted(null);
               }}
               className="h-9 px-2 font-semibold text-signal-400 hover:text-signal-300"
@@ -149,6 +157,7 @@ export function ReportsApp() {
                       type="button"
                       onClick={() => {
                         deleteReport(r.id);
+                        updateAllRegisters((reg) => markReportDeleted(reg, r.id));
                         setDeleted(r);
                       }}
                       className="h-10 rounded-lg px-3 text-sm font-medium text-fg-muted hover:text-fault"
@@ -162,6 +171,7 @@ export function ReportsApp() {
           </ul>
         )}
       </section>
+      <BackupPanel />
     </div>
   );
 }

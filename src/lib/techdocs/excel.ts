@@ -87,16 +87,41 @@ function headerRow(ws: Worksheet, headers: string[]) {
 function footer(ws: Worksheet, r: TechRegister) {
   const muted = `&"${FONT},Regular"&8&K64748B`;
   const text = `&L${muted}Fieldwise technical register — confidential site information&C${muted}${headerFooterText(registerTitle(r), 50)}&R${muted}Page &P of &N`;
-  ws.headerFooter = { oddFooter: text, evenFooter: text };
+  ws.headerFooter = { ...ws.headerFooter, oddFooter: text, evenFooter: text };
 }
 
-function print(ws: Worksheet, area: string) {
+/** Printable width of A4 landscape with these margins, in points. */
+const PRINT_WIDTH_PT = (11.69 - 0.8) * 72;
+/** Never shrink a register below this when printing; wider sheets continue on further page widths instead. */
+export const MIN_PRINT_SCALE = 85;
+export const WIDE_PRINT_SCALE = 90;
+
+/** Approximate printed width (pt) of columns at 100 %: Excel widths are in characters (7 px each + 5 px padding). */
+export const columnsWidthPt = (widths: number[]) => widths.reduce((sum, w) => sum + (w * 7 + 5) * 0.75, 0);
+
+/**
+ * A4 landscape. Sheets that fit one page width at ≥ 85 % are fitted to width; wider sheets print at 90 % across
+ * several page widths, repeating the heading row and the identification columns (No., equipment) on every page,
+ * so text stays readable instead of shrinking to fit.
+ */
+function print(ws: Worksheet, area: string, opts: { widths?: number[]; idColumns?: number; header?: { title: string; register: TechRegister } } = {}) {
+  const natural = opts.widths ? columnsWidthPt(opts.widths) : 0;
+  const wide = natural > PRINT_WIDTH_PT / (MIN_PRINT_SCALE / 100);
+  if (wide && opts.header) {
+    // The on-sheet title block would be cut off at the repeated columns on continuation pages, so it's left out of
+    // the print area and every printed page carries a header instead.
+    area = area.replace(/^A1:/, `A${TABLE_ROW}:`);
+    const r = opts.header.register;
+    const right = [r.siteName.trim(), r.customer.trim(), r.siteReference.trim() && `Site ref ${r.siteReference.trim()}`].filter(Boolean).join("  ·  ");
+    const text = `&L&"${FONT},Bold"&10&K1F2D3A${headerFooterText(`${opts.header.title} — ${registerTitle(r)}`, 70)}&R&"${FONT},Regular"&8&K64748B${headerFooterText(right, 70)}`;
+    ws.headerFooter = { ...ws.headerFooter, oddHeader: text, evenHeader: text };
+  }
   ws.pageSetup = {
     paperSize: 9, // A4
     orientation: "landscape",
-    fitToPage: true,
-    fitToWidth: 1,
-    fitToHeight: 0,
+    ...(wide
+      ? { fitToPage: false, scale: WIDE_PRINT_SCALE, pageOrder: "overThenDown" as const, printTitlesColumn: `A:${colLetter(opts.idColumns ?? 2)}` }
+      : { fitToPage: true, fitToWidth: 1, fitToHeight: 0 }),
     margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.6, header: 0.25, footer: 0.3 },
     printArea: area,
     printTitlesRow: `${TABLE_ROW}:${TABLE_ROW}`,
@@ -118,7 +143,7 @@ function fitCell(text: string, width: number): string {
 }
 
 /** Writes a plain table from `items`; returns the last row used. */
-function table(ws: Worksheet, columns: Column[], items: { e: Equipment; n: number }[], freezeCols: number): number {
+function table(ws: Worksheet, columns: Column[], items: { e: Equipment; n: number }[], freezeCols: number, header?: { title: string; register: TechRegister }): number {
   ws.columns = columns.map((c) => ({ width: c.width }));
   headerRow(ws, columns.map((c) => c.header));
   items.forEach(({ e, n }, k) => {
@@ -160,7 +185,7 @@ function table(ws: Worksheet, columns: Column[], items: { e: Equipment; n: numbe
     c.font = font({ italic: true, color: { argb: COLOURS.muted } });
   }
   ws.views = [{ state: "frozen", xSplit: freezeCols, ySplit: TABLE_ROW, showGridLines: true, topLeftCell: `${colLetter(freezeCols + 1)}${TABLE_ROW + 1}` }];
-  print(ws, `A1:${colLetter(columns.length)}${last}`);
+  print(ws, `A1:${colLetter(columns.length)}${last}`, { widths: columns.map((c) => c.width), idColumns: freezeCols, header });
   return last;
 }
 
@@ -203,6 +228,7 @@ export function buildTechWorkbook(register: TechRegister, excel: ExcelModule, ge
     ],
     all,
     3,
+    { title: "Equipment Register", register },
   );
   // Category is a list too, so office staff can re-categorise from the sheet.
   for (let r = TABLE_ROW + 1; r <= TABLE_ROW + all.length; r++) {
@@ -233,6 +259,7 @@ export function buildTechWorkbook(register: TechRegister, excel: ExcelModule, ge
     ],
     networked,
     2,
+    { title: "Network Configuration", register },
   );
 
   /* 3 Access & Maintenance. */
@@ -256,6 +283,7 @@ export function buildTechWorkbook(register: TechRegister, excel: ExcelModule, ge
     ],
     all,
     2,
+    { title: "Access & Maintenance", register },
   );
 
   for (const ws of [reg, net, acc]) footer(ws, register);
@@ -340,7 +368,10 @@ function historySheet(wb: WorkbookType, r: TechRegister) {
   let row = TABLE_ROW + 1;
   for (const h of sortHistory(r.history)) {
     const changes = h.changes.map((c) => `${c.label}: ${c.from || "(blank)"} → ${c.to || "(cleared)"}`).join("\n");
-    const values = [eventDay(h), names.get(h.equipmentId) ?? h.equipmentName, HISTORY_LABEL[h.type], h.description, changes, h.reportLabel, h.technician];
+    // Events outlive deleted reports and removed equipment; say so rather than imply they still exist.
+    const equipment = names.get(h.equipmentId) ?? `${h.equipmentName || "Equipment"} (removed from register)`;
+    const source = h.reportId ? `${h.reportLabel || "Service report"}${h.sourceDeletedAt ? " (report deleted)" : ""}` : "";
+    const values = [eventDay(h), equipment, HISTORY_LABEL[h.type], h.description, changes, source, h.technician];
     // Long text continues on further rows (date and equipment repeated so filters still work); nothing is cut.
     const pieces = values.map((v, i) => splitText(v, columns[i]!.width - 1, SIZE, MAX_ROW_HEIGHT - 10));
     const lines = Math.max(...pieces.map((p) => p.length));

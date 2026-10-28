@@ -125,6 +125,11 @@ export const historyEventSchema = z.object({
   type: z.enum(HISTORY_TYPES.map((t) => t.id) as [HistoryType, ...HistoryType[]]),
   description: text(5000),
   changes: z.array(historyChangeSchema).max(100).default([]),
+  /**
+   * Set (ISO) when the service report this event came from was deleted. The event stays — it records what
+   * happened — but it no longer points to a report.
+   */
+  sourceDeletedAt: z.string().max(40).default(""),
 });
 export type HistoryEvent = z.infer<typeof historyEventSchema>;
 

@@ -1,5 +1,9 @@
 // @vitest-environment node
 import { beforeAll, describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { checkLogoBytes, EMPTY_BRANDING, fitLogo, MAX_LOGO_BYTES } from "@/lib/handover/branding";
 import { availableSections, DEFAULT_OPTIONS, documentText, handoverDocument, type HandoverOptions } from "@/lib/handover/content";
 import { CONTENT_BOTTOM, CONTENT_W, MARGIN, PAGE, wrap, type Measure, type Op, type Page } from "@/lib/handover/layout";
@@ -11,6 +15,15 @@ import { accessFaults, cctvFaults, emptyReport, intruderInspection, largeRegiste
 import { cctvInstall } from "../techdocs/fixtures";
 import { sampleBranding, sampleLogoPng } from "./fixtures";
 import { nodeFonts } from "./fonts";
+
+const hasPdftotext = (() => {
+  try {
+    execFileSync("pdftotext", ["-v"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+})();
 
 let measure: Measure;
 beforeAll(async () => {
@@ -249,11 +262,45 @@ describe("PDF output", () => {
     expect(again.pages).toEqual(h.pages);
   });
 
-  it("lists characters the font can't draw instead of dropping them silently", async () => {
-    const r = { ...shortCctv(), siteName: "Depot ✓ 😀 — 2.2 kΩ ±5 °C" };
+  it("draws symbols with the fallback font and leaves plain reports on the main font only", async () => {
+    const r = { ...shortCctv(), siteName: "Depot ✓ ✗ → ≤ ≥ ± ° ℃ Ω ⌀ ½ — café", description: "Ticks ☑ ☐ and ⚠ warnings; 12 V ≈ 12.0 V" };
     const h = await gen(r);
-    expect(h.unsupported.sort()).toEqual(["✓", "😀"].sort());
-    expect(h.document.siteName).toBe("Depot ? ? — 2.2 kΩ ±5 °C");
+    expect(h.usedSymbols).toBe(true);
+    expect(h.unsupported).toEqual({ chars: [], places: [] });
+    expect(h.document.siteName).toBe(r.siteName); // nothing substituted
+    const op = h.pages[0]!.ops.find((o): o is Extract<Op, { t: "text" }> => o.t === "text" && o.s.startsWith("Depot"))!;
+    expect(op.runs?.filter((x) => x.symbols).map((x) => x.s).join("")).toContain("✓");
+    expect(op.runs?.map((x) => x.s).join("")).toBe(op.s);
+    const pdf = new TextDecoder("latin1").decode(new Uint8Array(h.bytes));
+    expect(pdf).toContain("/FieldwiseSymbols");
+    expect(pdf).toContain("/ToUnicode");
+    const plain = await gen(shortCctv());
+    expect(plain.usedSymbols).toBe(false);
+    expect(new TextDecoder("latin1").decode(new Uint8Array(plain.bytes))).not.toContain("/FieldwiseSymbols");
+    expect(plain.pages.every((p) => p.ops.every((o) => o.t !== "text" || !o.runs))).toBe(true);
+  });
+
+  it("lists characters no font can draw, with where they appear, instead of dropping them silently", async () => {
+    const r = { ...shortCctv(), siteName: "Depot 😀 ✓", summary: { ...shortCctv().summary, notes: "Key safe 日本 location" } };
+    const h = await gen(r);
+    expect(h.unsupported.chars.sort()).toEqual(["日", "本", "😀"].sort());
+    expect(h.unsupported.places).toEqual(
+      expect.arrayContaining([
+        { where: "Site name", excerpt: "Depot 😀 ✓" },
+        { where: "Additional information", excerpt: "Key safe 日本 location" },
+      ]),
+    );
+    expect(h.document.siteName).toBe("Depot ? ✓");
+  });
+
+  it.skipIf(!hasPdftotext)("keeps text extractable, including fallback symbols", async () => {
+    const h = await gen({ ...shortCctv(), siteName: "Depot ✓ 2.2 kΩ → 5 °C" });
+    const dir = mkdtempSync(join(tmpdir(), "fw-"));
+    const file = join(dir, "h.pdf");
+    writeFileSync(file, Buffer.from(h.bytes));
+    const text = execFileSync("pdftotext", [file, "-"]).toString();
+    expect(text).toContain("Depot ✓ 2.2 kΩ → 5 °C");
+    expect(text).toContain("SECURITY SERVICE REPORT");
   });
 
   it("names files from the report", () => {

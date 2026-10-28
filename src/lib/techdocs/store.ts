@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { readRaw as readReportsRaw, REPORTS_KEY, writeAll as writeReports } from "@/lib/reports/store";
 import type { Report } from "@/lib/reports/schema";
+import { BRANDING_KEY, brandingSchema, type Branding } from "@/lib/handover/branding";
 import { registerSchema, type TechRegister } from "./schema";
 
 export const REGISTERS_KEY = "fieldwise:techdocs:v1";
@@ -96,23 +97,36 @@ function restoreRaw(key: string, raw: string | null) {
   }
 }
 
-/**
- * Stores the result of a confirmed import: registers, then reports. If either
- * write fails (e.g. storage full), both are put back exactly as they were.
- */
-export function commitImport(registers: TechRegister[], reports: Report[]): boolean {
-  const prevRegisters = readRegistersRaw();
-  const prevReports = readReportsRaw();
-  if (!writeAll(registers)) {
-    restoreRaw(REGISTERS_KEY, prevRegisters);
-    window.dispatchEvent(new Event(REGISTERS_EVENT));
-    return false;
+function readRaw(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
   }
-  if (!writeReports(reports)) {
-    restoreRaw(REGISTERS_KEY, prevRegisters);
-    restoreRaw(REPORTS_KEY, prevReports);
+}
+
+/**
+ * Stores the result of a confirmed import: registers, reports and (when
+ * given) branding. If any write fails (e.g. storage full), everything is put
+ * back exactly as it was.
+ */
+export function commitImport(registers: TechRegister[], reports: Report[], branding?: Branding): boolean {
+  const before = { registers: readRegistersRaw(), reports: readReportsRaw(), branding: readRaw(BRANDING_KEY) };
+  const rollback = () => {
+    restoreRaw(REGISTERS_KEY, before.registers);
+    restoreRaw(REPORTS_KEY, before.reports);
+    restoreRaw(BRANDING_KEY, before.branding);
     window.dispatchEvent(new Event(REGISTERS_EVENT));
     return false;
+  };
+  if (!writeAll(registers)) return rollback();
+  if (!writeReports(reports)) return rollback();
+  if (branding) {
+    try {
+      window.localStorage.setItem(BRANDING_KEY, JSON.stringify(brandingSchema.parse(branding)));
+    } catch {
+      return rollback();
+    }
   }
   return true;
 }
@@ -124,4 +138,12 @@ export function updateRegister(id: string, fn: (r: TechRegister) => TechRegister
   const next = fn(current);
   if (next !== current) saveRegister(next);
   return next;
+}
+
+/** Applies `fn` to every register and saves the ones that changed, in one write. */
+export function updateAllRegisters(fn: (r: TechRegister) => TechRegister): boolean {
+  const { registers } = loadRegisters();
+  const next = registers.map(fn);
+  if (next.every((r, i) => r === registers[i])) return true;
+  return writeAll(next);
 }

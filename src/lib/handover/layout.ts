@@ -15,7 +15,18 @@ import type { Block, Cell, HandoverDocument, Tone } from "./content";
 export type Font = "regular" | "bold";
 
 export type Op =
-  | { t: "text"; x: number; y: number; s: string; font: Font; size: number; color: string; align?: "left" | "right" | "center" }
+  | {
+      t: "text";
+      x: number;
+      y: number;
+      s: string;
+      font: Font;
+      size: number;
+      color: string;
+      align?: "left" | "right" | "center";
+      /** Set when part of the text uses the symbol fallback font: consecutive runs and their font. */
+      runs?: { s: string; symbols: boolean }[];
+    }
   | { t: "rect"; x: number; y: number; w: number; h: number; fill: string }
   | { t: "line"; x1: number; y1: number; x2: number; y2: number; color: string; w: number }
   | { t: "image"; x: number; y: number; w: number; h: number; data: string; format: "PNG" | "JPEG" };

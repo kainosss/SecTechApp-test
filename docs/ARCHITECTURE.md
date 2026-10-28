@@ -332,6 +332,35 @@ Customer-facing "Security Service Report" PDF made from a service report (`/repo
 - **UI** (`HandoverPanel.tsx`): "Client handover PDF" button beside Generate Excel; section toggles (disabled when
   nothing to show), branding editor, live preview (debounced), Download / Open PDF, loading and error states.
 
+## Reliability, backup & workflow (v0.8.1)
+
+- **Complete backup** (`src/lib/techdocs/backup.ts`, v2 `fieldwise-backup`): all registers (equipment, custom
+  fields, history), all service reports (with `item.source` links) and branding incl. logo. v1
+  (`fieldwise-techdocs-backup`) files still import (registers + linked reports, no branding). Logos are re-checked by
+  file signature on import. `planImport(..., { brandingChoice })`: merge adds/skips/copies; a branding conflict on
+  merge is the technician's choice (default keep); replace with a complete backup replaces registers, reports and
+  branding after an explicit confirmation that counts what is removed; a backup without branding never removes it.
+  `commitImport(registers, reports, branding?)` rolls all three back on any failed write. UI: shared
+  `components/backup/BackupPanel.tsx` on Technical Docs and Reports.
+- **Backup reminder** (`src/lib/backup/meta.ts`): stores only `lastBackupAt` / `snoozedUntil`; reminds when data
+  changed since the last backup and that backup is ≥ 7 days old (or none), unless snoozed for a week.
+- **PDF characters** (`handover/pdf.ts`): Carlito for text plus "Fieldwise Symbols" (renamed DejaVu Sans subset,
+  `public/fonts/FieldwiseSymbols*.ttf`, Bitstream Vera licence) for characters Carlito lacks — ticks/crosses,
+  arrows, maths, technical symbols, Greek, Cyrillic. Fetched only when needed; text ops carry `runs` so PDF and SVG
+  preview use the same fonts; ToUnicode keeps text extractable. Characters neither font has (emoji, CJK) are listed
+  with where they occur and download needs an explicit acknowledgement; they print as "?".
+- **History integrity** (`sites/link.ts`): deleting a report keeps its history events and sets `sourceDeletedAt`
+  (undo clears it; "clear all" marks all); `sourceState` → available / deleted / missing, so links appear only for
+  reports on this device. Duplicating a site-linked report keeps the equipment but blanks service results, so no
+  history is recorded for work that wasn't done. Unlinking still removes that job's service events. Removed
+  equipment keeps its events; the Excel history labels "(removed from register)" and "(report deleted)".
+- **Quick Entry** (`fields.ts` `QUICK_FIELDS`, `EquipmentForm.tsx`): per-category quick field grid using the shared
+  field renderer and validation; remaining fields in collapsible sections (no duplicate inputs); mode toggle keeps
+  values, remembered per device; Ctrl/⌘+Shift+Enter = save & add another.
+- **Technical Excel printing** (`techdocs/excel.ts`): sheets needing < 85 % to fit one width print at 90 % across
+  page widths (over-then-down) with ID columns (`A:C` register, `A:B` others) and the heading row repeated, print area
+  from the table header and a page header naming sheet, register and site; narrower sheets stay fitted to width.
+
 ## Supabase migration path
 
 Tables mirror the schemas: `manufacturers`, `sources`, `devices`, `device_variants`, `claims` (or one
@@ -350,6 +379,7 @@ browser.
 | v0.3 ✅ | EOL Wiring Assistant: circuit model, engine, validation, SVG diagrams, guided assistant, Device Library links |
 | v0.4 ✅ | Circuit Lab: interactive wiring bench, one generic dual EOL exercise |
 | v0.4.1 ✅ | Virtual multimeter, three fault-finding exercises |
+| v0.8.1 ✅ | Complete backup + branding, PDF symbol fallback, history integrity, Quick Entry, readable Excel printing |
 | v0.8.0 ✅ | Client handover PDF: corporate layout engine, exact preview, optional branding |
 | v0.7.1 ✅ | Site-linked service jobs, equipment picker, confirmed master updates, equipment history, JSON backup/restore |
 | v0.7.0 ✅ | Technical Documentation: standalone site equipment registers, fast entry, network checks, 5-sheet Excel |

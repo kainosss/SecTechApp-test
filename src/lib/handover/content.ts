@@ -292,3 +292,24 @@ export function mapDocumentText(d: HandoverDocument, fn: (s: string) => string):
     }),
   };
 }
+
+/** Document text with a readable label for where it appears (to point technicians at text the PDF can't show). */
+export function labelledText(d: HandoverDocument): { where: string; text: string }[] {
+  const out: { where: string; text: string }[] = [
+    { where: "Site name", text: d.siteName },
+    { where: "Job reference", text: d.reference },
+  ];
+  let section = "";
+  for (const b of d.blocks) {
+    if (b.kind === "heading") section = b.text;
+    else if (b.kind === "subheading" || b.kind === "paragraph") out.push({ where: section, text: b.text });
+    else if (b.kind === "pairs") for (const p of [...b.pairs, ...b.wide]) out.push({ where: p.label, text: p.value });
+    else if (b.kind === "table") {
+      for (const r of b.rows) {
+        const item = r.find((x) => x.bold)?.text;
+        for (const c of r) out.push({ where: item ? `${section} (${item})` : section, text: `${c.text}${c.sub ? ` ${c.sub}` : ""}` });
+      }
+    }
+  }
+  return out.filter((x) => x.text);
+}

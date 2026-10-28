@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import type { FontLoader } from "@/lib/handover/pdf";
 
-export const nodeFonts: FontLoader = async () => ({
-  regular: readFileSync("public/fonts/Carlito-Regular.ttf").toString("base64"),
-  bold: readFileSync("public/fonts/Carlito-Bold.ttf").toString("base64"),
-});
+const read = (f: string) => readFileSync(`public/fonts/${f}`).toString("base64");
+
+export const nodeFonts: FontLoader = async (set = "text") =>
+  set === "symbols" ? { regular: read("FieldwiseSymbols.ttf"), bold: read("FieldwiseSymbols-Bold.ttf") } : { regular: read("Carlito-Regular.ttf"), bold: read("Carlito-Bold.ttf") };
