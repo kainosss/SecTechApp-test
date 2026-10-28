@@ -71,7 +71,13 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   automatic data; mailto only with a valid `NEXT_PUBLIC_FEEDBACK_EMAIL`; never invent an address), `verification.ts`
   (display labels: Verified against manufacturer documentation / Generic training example / Requires verification /
   Technician-configured — mapping only ever towards caution). `APP_VERSION` in `config.ts` (from package.json).
-- No analytics, telemetry or external requests. Pilot docs: `docs/PILOT_TESTING.md`, `docs/RELEASE_READINESS.md`.
+- No analytics, telemetry or external requests. Pilot docs: `docs/PILOT_TESTING.md`, `docs/RELEASE_READINESS.md`,
+  `docs/PILOT_TESTER_GUIDE.md`; deployment (Vercel, prepared — never deploy without explicit approval):
+  `docs/WEB_DEPLOYMENT.md`, `docs/DEPLOYMENT_CHECKLIST.md`.
+- Web: `src/lib/security-headers.ts` (CSP self-only; any new origin, inline need or blob use must be added there and
+  tested), `src/lib/pwa-manifest.ts` + `app/manifest.webmanifest/route.ts` (linked with use-credentials), icons from
+  `scripts/generate-icons.mjs`. No service worker (don't add one without cache rules that exclude records/exports).
+  Access protection is a hosting setting; no app login. Form fields ≥ 16 px (iPhone zoom).
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
 - Rules: validate by electrical behaviour, never by visual pattern; equivalent circuits must pass; "correct"
   only when every state is validated; generic/illustrative terminals only; resistance is only measured on the

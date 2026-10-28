@@ -1,4 +1,4 @@
-# Release readiness (v0.9.0)
+# Release readiness (v0.9.1)
 
 Passing tests do not make Fieldwise production-ready. This is an honest assessment for a controlled pilot.
 
@@ -16,7 +16,12 @@ Passing tests do not make Fieldwise production-ready. This is an honest assessme
 - **Feedback:** local form; copy / download; email draft only when a recipient is configured; nothing sent
   automatically; warns about IPs, emails, phone numbers and codes in the text.
 - **Privacy:** no analytics, telemetry or external requests (fonts are self-hosted); no `console.log` in app code.
-- **Mobile:** no horizontal overflow on any route at 390 × 844, 844 × 390 or 1440 × 900; interactive targets ≥ 44 px.
+- **Mobile:** no horizontal overflow on any route at 412 × 915, 390 × 844, 844 × 390 or 1440 × 900; interactive
+  targets ≥ 44 px; form fields ≥ 16 px.
+- **Web deployment prepared (v0.9.1, not deployed):** installable PWA (manifest, 192/512/maskable/Apple icons,
+  standalone, no service worker); security headers and a self-only CSP on every route; noindex; safe error page;
+  pilot notice; Vercel instructions, access-protection options and costs (`docs/WEB_DEPLOYMENT.md`), checklist
+  (`docs/DEPLOYMENT_CHECKLIST.md`), tester guide (`docs/PILOT_TESTER_GUIDE.md`).
 
 ## Requires further verification
 - **All device records** are "Requires verification" — none has a named reviewer against a cited manufacturer
@@ -34,23 +39,23 @@ Passing tests do not make Fieldwise production-ready. This is an honest assessme
 - **Data durability:** records live only in browser storage on one device. No sync, no server backup, and storage
   is tied to the site's address. Backups are manual.
 - **No accounts, access control or multi-user support**; no audit trail beyond local equipment history.
-- **No independent security review**, penetration test or privacy assessment. No content security policy or other
-  hardening headers are configured yet.
+- **No independent security review**, penetration test or privacy assessment. Security headers and a CSP are in
+  place, but the CSP allows inline scripts (Next.js static pages) and nothing has been tested by a third party.
+- **Access control depends on the hosting platform** (Vercel Deployment Protection or similar); Fieldwise has no
+  login of its own.
 - **No error reporting or support channel** beyond manual feedback.
 - **Verification workflow** is manual (edit content JSON with a named reviewer and source); there is no review tool.
 - Browser support beyond current Chromium-based browsers and iOS Safari has not been tested.
 
-## Hosting requirements for the pilot (not deployed)
-- Build with `npm ci && npm run build`; serve with `npm start` (Node 20+) or any Next.js-capable host. All pages
-  are static; there is no backend, database or API.
-- **HTTPS** at **one stable address** for the whole pilot. Browser storage belongs to the exact origin — changing
-  domain, subdomain or port means testers' records appear to vanish (they can restore from a backup file).
-- Environment (build time): leave `FIELDWISE_DEMO_MODE` unset (it adds fictional library content for development).
-  Optional `NEXT_PUBLIC_FEEDBACK_EMAIL` — a real inbox you control; never a placeholder.
-- No third-party scripts, analytics or CDN fonts are required. If the host adds its own analytics or logging,
-  disable it or tell testers.
-- Recommended before any wider release: security headers (CSP, `X-Content-Type-Options`, `Referrer-Policy`),
-  restricted access to the pilot URL, and a documented way to report a security issue.
+## Requires live deployment (not yet verifiable)
+- Access protection in front of every route, HTTPS, headers on the real host.
+- Installing on real Android and iPhone devices (including behind password protection), standalone launch.
+- Downloads, file-picker restore and clipboard on real phones; iPhone storage behaviour over several days.
+- iPhone checks so far were Chromium emulation (WebKit was not available locally).
+
+## Hosting
+See `docs/WEB_DEPLOYMENT.md` (Vercel Pro + Password Protection recommended; Hobby is non-commercial only) and
+`docs/DEPLOYMENT_CHECKLIST.md`. Nothing has been deployed.
 
 ## Validation for this release
 See `docs/DEVELOPMENT_STATUS.md` → Latest validation.

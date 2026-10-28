@@ -4,7 +4,7 @@ import { useState } from "react";
 import { APP_VERSION } from "@/lib/config";
 import { EMPTY_FEEDBACK, FEEDBACK_TYPES, SEVERITIES, feedbackFileName, feedbackRecipient, feedbackText, isEmpty, mailtoUrl, sensitiveHints, type Feedback } from "@/lib/feedback";
 
-const field = "min-h-11 w-full rounded-lg border border-line-strong bg-ink-850 px-3 py-2.5 text-[15px] text-fg placeholder:text-fg-subtle focus:border-signal-400 focus:outline-none";
+const field = "min-h-11 w-full rounded-lg border border-line-strong bg-ink-850 px-3 py-2.5 text-base text-fg placeholder:text-fg-subtle focus:border-signal-400 focus:outline-none";
 const label = "text-sm font-medium text-fg";
 const button = "h-11 rounded-lg border border-line-strong px-3 text-sm font-medium text-fg hover:bg-ink-800 disabled:opacity-50";
 const primary = "h-11 rounded-lg bg-signal-500 px-4 text-sm font-semibold text-ink-950 hover:bg-signal-400 disabled:opacity-50";

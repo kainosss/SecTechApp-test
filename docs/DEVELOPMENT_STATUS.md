@@ -1,8 +1,27 @@
 # Development status
 
-**Milestone:** v0.9.0 — Field testing & product readiness — **complete** (ready for a controlled pilot; not production)
+**Milestone:** v0.9.1 — Web deployment & PWA pilot readiness — **complete, not deployed** (awaiting approval and
+hosting configuration; not production)
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
-Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment and hosting: `docs/RELEASE_READINESS.md`.
+Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment: `docs/RELEASE_READINESS.md`. Deployment:
+`docs/WEB_DEPLOYMENT.md`, `docs/DEPLOYMENT_CHECKLIST.md`. Share with testers: `docs/PILOT_TESTER_GUIDE.md`.
+
+## Completed (v0.9.1)
+- **PWA:** manifest at `/manifest.webmanifest` (static route from `src/lib/pwa-manifest.ts`, linked with
+  `crossorigin="use-credentials"` so it loads behind password protection); icons in `public/icons` rendered from the
+  logo mark by `scripts/generate-icons.mjs` (192, 512, maskable 512, Apple 180, favicon, SVG); Apple web-app meta
+  (opaque status bar); landscape safe-area padding. **No service worker** (no stale caches, nothing cached; no
+  offline claim). Help → Install on your phone.
+- **Security:** `src/lib/security-headers.ts` applied to all routes in `next.config.ts` — CSP (self only;
+  `unsafe-eval` and ws only in dev), nosniff, no-referrer, DENY framing, Permissions-Policy, COOP, HSTS, X-Robots-Tag;
+  `robots.txt` disallow; noindex meta; no browser source maps; safe `error.tsx`. `.env.example` lists only
+  non-secret build variables. `npm audit`: `uuid` via exceljs (moderate, not reachable — v4 only).
+- **Pilot notice:** Help "Pilot notice" section; dashboard/device-list notice now reads "Pilot." and links to it;
+  storage notes (no cross-device sync, iPhone home-screen vs Safari storage, Safari eviction).
+- **Mobile:** feedback fields 16 px (no iPhone zoom on focus).
+- **Deployment prep:** `engines.node >= 20.9.0`; Vercel guide, access options and costs; checklist; tester guide.
+- Tests: `tests/deploy/` (manifest, icons, metadata, robots, headers, config, env, routes, pilot notice, reload
+  persistence).
 
 ## Completed (v0.9.0)
 - **Welcome:** first-run card on the dashboard (six tools in plain language, Get started / Explore the demo site /
@@ -49,11 +68,12 @@ Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment and hosting: `docs/RE
   page header repeated (was ~60–70 % squeezed onto one width); narrower sheets fit to width.
 
 ## Latest validation
-- See the v0.9.0 commit: lint and typecheck clean; full test suite; normal + demo builds.
-- Playwright (iPhone 13 + 1440 px): welcome → demo → register → Excel → equipment history → linked report →
-  report Excel → handover PDF (labelled demo, no IPs) → backup off in demo → reset → exit (real records byte-identical)
-  → help → feedback copy (version included) → welcome again. Route sweep at 3 viewports: no console errors, no
-  external requests, no overflow.
+- See the v0.9.1 commit: lint and typecheck clean; full test suite; normal + demo builds.
+- Local production build (`next start`), Chromium: headers verified with curl; installability via DevTools protocol
+  (no errors, Android + desktop emulation); route sweep at 412 × 915, 390 × 844, 844 × 390, 1440 × 900 (no overflow,
+  no small targets, no console/CSP errors, no external requests); demo workflow with PDF + Excel under the CSP;
+  persistence across reload and browser restart; backup → restore into a fresh profile.
+- Not tested: real phones, WebKit/Safari, the deployed host, access protection.
 
 ## Known limitations
 - Demo workspace and onboarding state are per browser/device. The Quick Entry mode preference is shared between
@@ -65,6 +85,7 @@ Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment and hosting: `docs/RE
 - Backup reminder state is per device/browser.
 
 ## Next (suggested)
+- Owner: approve deployment; follow `docs/WEB_DEPLOYMENT.md`; tick `docs/DEPLOYMENT_CHECKLIST.md` live items.
 - Run the pilot (`docs/PILOT_TESTING.md`); triage feedback; technician review of Fault Finder guides and EOL presets.
 - Security headers / restricted pilot URL before any wider release.
 - Optional sign-off block with technician-entered name; photos per equipment entry.

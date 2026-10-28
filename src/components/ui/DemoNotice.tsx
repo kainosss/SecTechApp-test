@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { isDemoModeEnabled } from "@/lib/config";
 import { Icon } from "./Icon";
 
 /**
  * Site-wide content notice. In demo mode it warns that fictional records are
- * mixed in; otherwise it reminds beta users that records are still being
- * verified against manufacturer documentation.
+ * mixed in; otherwise it is the pilot notice: content may be unverified and
+ * records stay in this browser.
  */
 export function DemoNotice({ compact = false }: { compact?: boolean }) {
   const demo = isDemoModeEnabled();
@@ -24,10 +25,13 @@ export function DemoNotice({ compact = false }: { compact?: boolean }) {
           </>
         ) : (
           <>
-            <span className="font-semibold text-unverified">Beta.</span>{" "}
+            <span className="font-semibold text-unverified">Pilot.</span>{" "}
             {compact
-              ? "Records are still being verified — always confirm with the manufacturer's documentation."
-              : "Device records are still being checked against manufacturer documentation. Anything not marked Verified must be confirmed with the manufacturer's manual before you rely on it."}
+              ? "Technical information may be incomplete or unverified — manufacturer documentation takes precedence. Records stay in this browser only; use fictional data."
+              : "Device records are still being checked against manufacturer documentation. Anything not marked Verified must be confirmed with the manufacturer's manual before you rely on it."}{" "}
+            <Link href="/help#pilot" className="font-medium text-signal-400 underline-offset-2 hover:underline">
+              Pilot notice
+            </Link>
           </>
         )}
       </p>
