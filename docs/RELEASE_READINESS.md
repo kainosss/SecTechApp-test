@@ -1,4 +1,4 @@
-# Release readiness (v0.9.1)
+# Release readiness (v0.9.2)
 
 Passing tests do not make Fieldwise production-ready. This is an honest assessment for a controlled pilot.
 
@@ -22,6 +22,10 @@ Passing tests do not make Fieldwise production-ready. This is an honest assessme
   standalone, no service worker); security headers and a self-only CSP on every route; noindex; safe error page;
   pilot notice; Vercel instructions, access-protection options and costs (`docs/WEB_DEPLOYMENT.md`), checklist
   (`docs/DEPLOYMENT_CHECKLIST.md`), tester guide (`docs/PILOT_TESTER_GUIDE.md`).
+- **Cloudflare static deployment prepared (v0.9.2, not deployed):** `npm run build:cloudflare` produces a complete
+  static export with a generated `_headers` file; verified locally with Cloudflare's `wrangler pages dev` (routing,
+  404, headers, PWA installability, full workflow, persistence, backup/restore). Pages + Access setup, costs
+  (expected US$0 on free plans) and smoke tests in `docs/CLOUDFLARE_DEPLOYMENT.md`.
 
 ## Requires further verification
 - **All device records** are "Requires verification" — none has a named reviewer against a cited manufacturer
@@ -41,21 +45,23 @@ Passing tests do not make Fieldwise production-ready. This is an honest assessme
 - **No accounts, access control or multi-user support**; no audit trail beyond local equipment history.
 - **No independent security review**, penetration test or privacy assessment. Security headers and a CSP are in
   place, but the CSP allows inline scripts (Next.js static pages) and nothing has been tested by a third party.
-- **Access control depends on the hosting platform** (Vercel Deployment Protection or similar); Fieldwise has no
-  login of its own.
+- **Access control depends on the hosting platform** (Cloudflare Access for the pilot); Fieldwise has no login of
+  its own.
 - **No error reporting or support channel** beyond manual feedback.
 - **Verification workflow** is manual (edit content JSON with a named reviewer and source); there is no review tool.
 - Browser support beyond current Chromium-based browsers and iOS Safari has not been tested.
 
 ## Requires live deployment (not yet verifiable)
 - Access protection in front of every route, HTTPS, headers on the real host.
-- Installing on real Android and iPhone devices (including behind password protection), standalone launch.
+- Cloudflare Access (one-time PIN) in front of production and preview hostnames; live `_headers` behaviour.
+- Installing on real Android and iPhone devices behind Access, standalone launch, sign-in inside the installed app.
 - Downloads, file-picker restore and clipboard on real phones; iPhone storage behaviour over several days.
 - iPhone checks so far were Chromium emulation (WebKit was not available locally).
 
 ## Hosting
-See `docs/WEB_DEPLOYMENT.md` (Vercel Pro + Password Protection recommended; Hobby is non-commercial only) and
-`docs/DEPLOYMENT_CHECKLIST.md`. Nothing has been deployed.
+Chosen: Cloudflare Pages + Cloudflare Access (`docs/CLOUDFLARE_DEPLOYMENT.md`). Alternative: Vercel
+(`docs/WEB_DEPLOYMENT.md`). Checklist: `docs/DEPLOYMENT_CHECKLIST.md`. Nothing has been deployed; the `pilot` branch
+still points to v0.9.1 and must be moved to the approved v0.9.2 commit before a Cloudflare build can succeed.
 
 ## Validation for this release
 See `docs/DEVELOPMENT_STATUS.md` → Latest validation.

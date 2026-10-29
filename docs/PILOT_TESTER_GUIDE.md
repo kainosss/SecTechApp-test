@@ -15,8 +15,10 @@ It is a **test version**. Technical information may be incomplete or unverified 
 always comes first. Check anything before you apply it to a live system.
 
 ## Opening the pilot
-Use the web address and access password the pilot coordinator sent you (they arrive separately). Open the address
-in **Chrome** on Android or **Safari** on iPhone, enter the password, and you'll see the Fieldwise dashboard.
+Open the web address the pilot coordinator sent you in **Chrome** on Android or **Safari** on iPhone. A Cloudflare
+sign-in page asks for your email: use the address the coordinator invited. You'll be emailed a one-time code (check
+spam; it expires after about 10 minutes). Enter it and the Fieldwise dashboard opens. There's no Fieldwise account
+or password. You'll be asked again from time to time (about once a week), and once inside the installed app.
 
 ## Install it on your phone (optional)
 - **Android (Chrome):** tap ⋮ → **Install app** (or **Add to Home screen**).

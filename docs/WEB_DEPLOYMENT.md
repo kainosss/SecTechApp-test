@@ -1,4 +1,8 @@
-# Web deployment (pilot) — Vercel
+# Web deployment (pilot) — Vercel (alternative)
+
+> **Chosen platform for the pilot (v0.9.2): Cloudflare Pages + Cloudflare Access — see
+> `docs/CLOUDFLARE_DEPLOYMENT.md`.** This Vercel guide remains valid for the normal (`npm run build`) build if the
+> pilot moves to Vercel later.
 
 Status: **prepared, not deployed.** Nothing in this repository connects to a hosting account or deploys by itself.
 Every step below is done by the project owner in the Vercel dashboard.
@@ -91,7 +95,7 @@ On the production URL (desktop + one Android + one iPhone):
    nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, `Strict-Transport-Security`, `X-Robots-Tag`.
 3. No console errors (especially CSP violations) on: dashboard, Device Library, EOL, Fault Finder, Circuit Lab,
    Technical Docs, Service Reports, Help, Feedback.
-4. Help shows **Fieldwise 0.9.1 · pilot build**.
+4. Help shows the expected version (e.g. **Fieldwise 0.9.2 · pilot build**).
 5. Explore the demo site → open a report → client PDF preview + download → Excel export → Exit demo.
 6. Create a fictional register, reload, close and reopen the browser: still there.
 7. Download a backup and restore it in another browser.

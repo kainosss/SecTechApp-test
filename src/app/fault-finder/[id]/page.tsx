@@ -12,8 +12,12 @@ import { StatusPanel } from "@/components/ui/StatusPanel";
 
 type Props = { params: Promise<{ id: string }> };
 
+/** Rendered as the standard "not found" page when no workflow records exist (static export needs at least one path). */
+const NO_RECORDS_ID = "none";
+
 export async function generateStaticParams() {
-  return (await listWorkflows()).map((r) => ({ id: r.id }));
+  const ids = (await listWorkflows()).map((r) => ({ id: r.id }));
+  return ids.length ? ids : [{ id: NO_RECORDS_ID }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

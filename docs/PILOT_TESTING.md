@@ -51,7 +51,7 @@ Help → "Show the welcome again" brings back the first-run welcome.
 
 ## For the pilot coordinator
 - Host the build at one stable HTTPS address for the whole pilot (browser storage is tied to the address — see
-  `docs/WEB_DEPLOYMENT.md`). Testers get the shorter `docs/PILOT_TESTER_GUIDE.md`. Don't enable `FIELDWISE_DEMO_MODE` for the pilot; the demo site works without it.
+  `docs/CLOUDFLARE_DEPLOYMENT.md`). Testers get the shorter `docs/PILOT_TESTER_GUIDE.md`. Don't enable `FIELDWISE_DEMO_MODE` for the pilot; the demo site works without it.
 - Optional: set `NEXT_PUBLIC_FEEDBACK_EMAIL` at build time to a real inbox you control to show an "Open as email
   draft" option. Without it, testers copy or download feedback.
 - Collect feedback files/messages in one place and tag each with its type and severity. Treat every

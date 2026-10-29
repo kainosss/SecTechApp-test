@@ -1,97 +1,97 @@
-# Pre-deployment checklist (v0.9.1)
+# Pre-deployment checklist (v0.9.2 — Cloudflare Pages + Access)
 
 Legend:
-- ✅ **Done — verified locally** (production build on this machine, Chromium with Android/iPhone/desktop emulation)
-- 🟦 **Hosting configuration** — the owner must do it in Vercel (see `docs/WEB_DEPLOYMENT.md`)
-- 📱 **Live-device check** — needs a real Android phone / iPhone on the deployed site
-- ⛔ **Blocked** — cannot proceed until the noted item is resolved
+- ✅ **Done — verified locally** (static export served by Cloudflare's `wrangler pages dev`, Chromium with
+  Android/iPhone/desktop emulation; or the normal build on `next start`)
+- 🟦 **Hosting configuration** — the owner must do it in Cloudflare (see `docs/CLOUDFLARE_DEPLOYMENT.md`)
+- 📱 **Live check** — needs the deployed site and/or real Android phones and iPhones
+- ⛔ **Blocked** — waiting on the noted item
 
-Nothing below is marked done unless it was actually tested. Real-phone installation has **not** been tested.
+Nothing is marked done unless it was actually tested. Real-phone installation has **not** been tested.
 
 ## Hosting configuration
-- 🟦 Vercel **Pro** team created (Hobby is non-commercial only); spend limit / usage alerts set
-- 🟦 Repository imported; framework Next.js; install `npm ci`; build `npm run build`; Node 22.x
-- 🟦 Production branch chosen (recommended: a dedicated `pilot` branch from the approved commit)
-- 🟦 Preview deployments protected or disabled
-- ✅ Reproducible production build (`npm ci && npm run build`), Node ≥ 20.9 declared in `engines`
-- ✅ No dependence on localhost; no API routes except the static manifest; no middleware or server secrets
+- ⛔ `pilot` branch fast-forwarded to the approved v0.9.2 commit (currently v0.9.1 `c5e6496`, no Cloudflare build) — needs approval
+- 🟦 Pages project connected to GitHub (`kainosss/SecTechApp-test`, this repository only); production branch `pilot`
+- 🟦 Build command `npm run build:cloudflare`, output `out`, root `/`, `NODE_VERSION=22`
+- 🟦 Preview deployments disabled, or covered by the Access application (`*.<project>.pages.dev`)
+- ✅ Static export builds reproducibly; the build fails if any page, icon, font or `_headers` is missing
+- ✅ No server code, API routes with request data, middleware, image optimisation or secrets
+- ✅ Normal (`npm run build`) and demo builds still succeed (Vercel / `next start` path unchanged)
 
 ## Domain and HTTPS
-- 🟦 Production address decided **before** testers start (storage is tied to the address)
-- 🟦 Optional custom domain added and DNS verified
-- 🟦 HTTPS certificate active (automatic on Vercel)
-- ✅ App sends `Strict-Transport-Security` and `upgrade-insecure-requests` (production build)
+- 🟦 Final address chosen before testers start (`<project>.pages.dev` or a custom domain) — storage is per address
+- 📱 HTTPS padlock on the live address (automatic on Pages)
+- ✅ HSTS and `upgrade-insecure-requests` in `_headers`
 
 ## Access restrictions
-- 🟦 Deployment Protection enabled for **all deployments including production** (Password Protection recommended)
-- 🟦 Strong shared password created and sent to testers separately from the URL
-- 📱 Private window: challenge appears before `/`, a deep link (`/tech-docs`) and `/manifest.webmanifest`
-- ✅ Search engines asked not to index (`robots.txt` disallow, robots meta, `X-Robots-Tag`) — advisory only
+- 🟦 Zero Trust organisation (Free) created; One-time PIN login method enabled
+- 🟦 Self-hosted Access application covering `<project>.pages.dev`, `*.<project>.pages.dev` (and any custom domain)
+- 🟦 Allow policy listing only the invited testers' email addresses; session duration chosen (e.g. 1 week)
+- 📱 Private window: Access prompt before `/`, `/tech-docs`, `/manifest.webmanifest` and a preview URL
+- 📱 Non-invited email receives no code
+- ✅ Search engines asked not to index (robots.txt, meta, `X-Robots-Tag`) — advisory only
 
 ## Production build
 - ✅ `npm run lint`, `npm run typecheck`, `npm test` pass
-- ✅ `npm run build` (normal) and `FIELDWISE_DEMO_MODE=true npm run build` (demo) succeed
-- ✅ Browser source maps not published (`productionBrowserSourceMaps: false`); `X-Powered-By` removed
+- ✅ `npm run build:cloudflare`, `npm run build`, `FIELDWISE_DEMO_MODE=true npm run build` succeed
+- ✅ No browser source maps; static export contains all 16 routes (+ every generated dynamic page)
 
 ## Environment variables
 - ✅ No secrets required; `.env.example` documents only `FIELDWISE_DEMO_MODE` and `NEXT_PUBLIC_FEEDBACK_EMAIL`
-- 🟦 `FIELDWISE_DEMO_MODE` **unset** in Production
-- 🟦 Optional `NEXT_PUBLIC_FEEDBACK_EMAIL` set to a real inbox (or left unset)
+- 🟦 `FIELDWISE_DEMO_MODE` unset in the Pages project; optional `NEXT_PUBLIC_FEEDBACK_EMAIL` set to a real inbox
 
 ## Security headers
-- ✅ CSP (self only; no third-party origins; no `unsafe-eval` in production), `nosniff`, `Referrer-Policy:
-  no-referrer`, `X-Frame-Options: DENY`, `Permissions-Policy`, `COOP` — verified with `curl -I` on `next start`
+- ✅ `_headers` generated from `src/lib/security-headers.ts` (same values as `next.config`): CSP (self only, no
+  `unsafe-eval`), nosniff, no-referrer, DENY, Permissions-Policy, COOP, HSTS, X-Robots-Tag — verified on every
+  route incl. the 404 response with `wrangler pages dev`
 - ✅ No CSP violations or console errors across all tools, demo, PDF preview/download and Excel exports
-- 📱 Headers present on the deployed site (dev tools → Network)
-- ✅ Dependency review: one moderate advisory (`uuid` via `exceljs`), not reachable — documented
+- 📱 Same headers on the live Pages responses (dev tools → Network)
+- ✅ Dependency review: one moderate advisory (`uuid` via `exceljs`), not reachable (ExcelJS uses v4 only)
+
+## Routing
+- ✅ Direct URLs and refresh for every route; query-string deep links; `.html` and trailing-slash URLs redirect
+  (308) to the clean URL; unknown paths return 404 with the Fieldwise page — in `wrangler pages dev`
+- 📱 Same on the live site
 
 ## Mobile compatibility
-- ✅ No horizontal overflow and targets ≥ 44 px on every route — emulated Android 412 × 915, iPhone 390 × 844,
-  landscape 844 × 390, desktop 1440 × 900; form fields ≥ 16 px (no iPhone zoom on focus)
-- 📱 Real Android Chrome: navigation, forms/keyboard, dialogs, scrolling
-- 📱 Real iPhone Safari: same (WebKit was not available locally; iPhone checks were Chromium emulation)
+- ✅ No horizontal overflow, targets ≥ 44 px, form fields ≥ 16 px — emulated Android 412 × 915, iPhone 390 × 844,
+  landscape 844 × 390, desktop 1440 × 900 (static export)
+- 📱 Real Android Chrome and iPhone Safari: navigation, keyboard, dialogs, scrolling (WebKit not available locally)
 
 ## PWA installation
-- ✅ Manifest valid; Chromium reports no installability errors (DevTools protocol) — Android and desktop emulation
-- ✅ 192, 512, maskable 512, Apple touch 180 icons served; theme colour; standalone display; Apple metadata
-- ✅ Manifest fetched with credentials (works behind password protection — to be confirmed live)
-- 📱 Android: Install app → launches standalone with icon and name (with access protection enabled)
-- 📱 iPhone: Add to Home Screen → launches standalone; records persist between launches
-- ✅ No service worker (no stale caches; nothing sensitive cached); offline not claimed
+- ✅ Manifest served as `application/manifest+json`; Chromium reports no installability errors (static export)
+- ✅ 192, 512, maskable 512, Apple 180 icons; theme colour; standalone; Apple metadata; manifest fetched with credentials
+- ✅ No service worker (no stale caches, nothing sensitive cached); offline not claimed
+- 📱 Android: Install app → standalone launch **behind Access**
+- 📱 iPhone: Add to Home Screen → standalone launch, sign-in inside the app, records persist between launches
+- 🟦 Only if install fails behind Access: Bypass policy for `/manifest.webmanifest` and `/icons/*` only
 
-## Data isolation
-- ✅ Demo workspace uses separate storage keys; entering, editing, resetting and exiting leave real records
-  byte-identical (unit tests + browser run)
-- ✅ Backup and restore disabled inside the demo
-- ✅ Records persist across reload and browser restart (persistent Chromium profile)
-- 📱 Records persist across days on iPhone (Safari may evict data of unused sites; home-screen app recommended)
+## Data isolation and persistence
+- ✅ Demo workspace separate keys; enter/edit/reset/exit leave real records byte-identical (tests + browser)
+- ✅ Records persist across reload and browser restart (persistent Chromium profile, static export)
+- 📱 iPhone: data over several days (Safari may evict unused sites' data; home-screen app recommended)
 
 ## Backup and restore
-- ✅ Download backup → restore (merge) into a fresh browser profile — emulated Android and iPhone viewports
-- ✅ v1 (v0.7.1) and v2 backups import (unit tests); destructive replace requires confirmation
-- 📱 Backup download and file picker restore on real Android and iPhone (download location differs per phone)
+- ✅ Download backup → restore (merge) into a fresh profile — emulated Android and iPhone, static export
+- ✅ v1 and v2 backups import (unit tests); replace requires confirmation
+- 📱 Download location and file-picker restore on real phones
 
 ## Export functionality
-- ✅ Client handover PDF (preview iframe + download) and Excel exports (register, report) under the production CSP
-- 📱 Opening the PDF/XLSX on a real phone (Files / Downloads app)
+- ✅ Client PDF (preview iframe + download) and Excel (register, report) under the `_headers` CSP
+- 📱 Opening PDF/XLSX on real phones
 
 ## Feedback workflow
-- ✅ Copy feedback (clipboard), download file; no email draft without a configured recipient; nothing sent
-- 🟦 Decide where testers send feedback; optional `NEXT_PUBLIC_FEEDBACK_EMAIL`
-- 📱 Clipboard copy on real phones (requires HTTPS — satisfied once deployed)
+- ✅ Copy (clipboard) and download; no email draft without a configured address; "Nothing has been sent"
+- 📱 Clipboard on real phones (needs HTTPS — satisfied when deployed)
 
 ## Privacy notice
-- ✅ Pilot notice on Help (testing, unverified content, manufacturer docs first, verify before live use, local
-  storage, no sync, data loss on clearing, feedback not transmitted, fictional data); dashboard notice links to it
-- ✅ Demo site labelled fictional throughout (banner, register, reports, PDF)
-- ✅ No analytics, telemetry or external requests (browser runs)
-- 🟦 If the host's own analytics/speed insights are offered, leave them **off**
+- ✅ Pilot notice on Help and dashboard; demo labelled fictional everywhere; no analytics or external requests
+- 🟦 Leave Cloudflare Web Analytics / Zaraz **off** for this project
 
 ## Rollback plan
-- ✅ Documented: Vercel → Deployments → Instant Rollback / Promote previous deployment; no service worker, so
-  testers get the rolled-back version on next load; records unaffected
-- 🟦 Do one practice rollback after the first deployment
+- ✅ Documented (Pages → Deployments → Rollback); no service worker, records unaffected
+- 🟦 One practice rollback after the first deployment
 
 ## Blocked
-- ⛔ Live deployment — awaiting explicit approval from the project owner.
+- ⛔ Moving `pilot` to v0.9.2 and any deployment — awaiting explicit approval.
 - ⛔ All 📱 items — need the deployed site and real devices.

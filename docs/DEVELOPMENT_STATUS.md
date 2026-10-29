@@ -1,10 +1,24 @@
 # Development status
 
-**Milestone:** v0.9.1 — Web deployment & PWA pilot readiness — **complete, not deployed** (awaiting approval and
-hosting configuration; not production)
+**Milestone:** v0.9.2 — Cloudflare deployment readiness — **complete, not deployed** (awaiting approval and
+Cloudflare configuration; not production)
 **Branch:** `claude/fieldwise-architecture-setup-5ak87u` (latest commit: `git log -1`)
 Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment: `docs/RELEASE_READINESS.md`. Deployment:
-`docs/WEB_DEPLOYMENT.md`, `docs/DEPLOYMENT_CHECKLIST.md`. Share with testers: `docs/PILOT_TESTER_GUIDE.md`.
+`docs/CLOUDFLARE_DEPLOYMENT.md` (chosen), `docs/WEB_DEPLOYMENT.md` (Vercel alternative), `docs/DEPLOYMENT_CHECKLIST.md`.
+Share with testers: `docs/PILOT_TESTER_GUIDE.md`. Branch `pilot` = v0.9.1 (`c5e6496`) until moved with approval.
+
+## Completed (v0.9.2)
+- **Static export for Cloudflare Pages:** `npm run build:cloudflare` → `scripts/build-static.mjs` (sets
+  `FIELDWISE_STATIC_EXPORT=true` → `output: "export"`, unoptimised images, no next.config headers), writes
+  `out/_headers` from `src/lib/security-headers.ts` (`cloudflareHeadersFile`, same rules as `headerRules` for
+  next.config), and fails if any `src/app` page, icon, font or `_headers` is missing from `out/`. The normal build is
+  unchanged. `.node-version` = 22.
+- **Export fixes:** `robots.ts` `force-static`; `/fault-finder/[id]` (no production records — all demo-only) renders
+  the not-found page at `/fault-finder/none` so export has at least one path.
+- **Docs:** Cloudflare Pages + Access guide (one-time PIN, production + preview hostnames, PWA install behind Access,
+  costs, rollback), checklist rewritten for Cloudflare, tester guide sign-in, Vercel guide marked alternative.
+- **Tests:** `tests/deploy/cloudflare.test.ts` (`_headers` parity with next.config, cache rules, Pages limits,
+  static-export config, build script, Node pin).
 
 ## Completed (v0.9.1)
 - **PWA:** manifest at `/manifest.webmanifest` (static route from `src/lib/pwa-manifest.ts`, linked with
@@ -68,12 +82,13 @@ Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment: `docs/RELEASE_READIN
   page header repeated (was ~60–70 % squeezed onto one width); narrower sheets fit to width.
 
 ## Latest validation
-- See the v0.9.1 commit: lint and typecheck clean; full test suite; normal + demo builds.
-- Local production build (`next start`), Chromium: headers verified with curl; installability via DevTools protocol
-  (no errors, Android + desktop emulation); route sweep at 412 × 915, 390 × 844, 844 × 390, 1440 × 900 (no overflow,
-  no small targets, no console/CSP errors, no external requests); demo workflow with PDF + Excel under the CSP;
-  persistence across reload and browser restart; backup → restore into a fresh profile.
-- Not tested: real phones, WebKit/Safari, the deployed host, access protection.
+- See the v0.9.2 commit: lint and typecheck clean; full test suite; `build:cloudflare`, normal and demo builds.
+- Static export served by Cloudflare's `wrangler pages dev` (4.x, run from a scratch folder, not a dependency):
+  every route 200 by direct URL, `.html`/trailing-slash → 308 clean URL, unknown → 404 page; `_headers` applied to
+  all responses; manifest `application/manifest+json`; Chromium installability clean; full workflow (demo, PDF,
+  Excel), persistence across reload/restart, backup → restore — no console/CSP errors, no external requests;
+  sweep at 4 viewports with no overflow; form fields ≥ 16 px.
+- Not tested: Cloudflare Access, the live edge, real phones, WebKit/Safari.
 
 ## Known limitations
 - Demo workspace and onboarding state are per browser/device. The Quick Entry mode preference is shared between
@@ -85,7 +100,8 @@ Pilot guide: `docs/PILOT_TESTING.md`. Readiness assessment: `docs/RELEASE_READIN
 - Backup reminder state is per device/browser.
 
 ## Next (suggested)
-- Owner: approve deployment; follow `docs/WEB_DEPLOYMENT.md`; tick `docs/DEPLOYMENT_CHECKLIST.md` live items.
+- Owner: approve moving `pilot` to v0.9.2 and deployment; follow `docs/CLOUDFLARE_DEPLOYMENT.md`; tick the live
+  items in `docs/DEPLOYMENT_CHECKLIST.md`.
 - Run the pilot (`docs/PILOT_TESTING.md`); triage feedback; technician review of Fault Finder guides and EOL presets.
 - Security headers / restricted pilot URL before any wider release.
 - Optional sign-off block with technician-entered name; photos per equipment entry.

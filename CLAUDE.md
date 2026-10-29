@@ -72,10 +72,13 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
   (display labels: Verified against manufacturer documentation / Generic training example / Requires verification /
   Technician-configured — mapping only ever towards caution). `APP_VERSION` in `config.ts` (from package.json).
 - No analytics, telemetry or external requests. Pilot docs: `docs/PILOT_TESTING.md`, `docs/RELEASE_READINESS.md`,
-  `docs/PILOT_TESTER_GUIDE.md`; deployment (Vercel, prepared — never deploy without explicit approval):
-  `docs/WEB_DEPLOYMENT.md`, `docs/DEPLOYMENT_CHECKLIST.md`.
-- Web: `src/lib/security-headers.ts` (CSP self-only; any new origin, inline need or blob use must be added there and
-  tested), `src/lib/pwa-manifest.ts` + `app/manifest.webmanifest/route.ts` (linked with use-credentials), icons from
+  `docs/PILOT_TESTER_GUIDE.md`; deployment (prepared — never deploy without explicit approval): Cloudflare Pages +
+  Access `docs/CLOUDFLARE_DEPLOYMENT.md` (chosen), Vercel `docs/WEB_DEPLOYMENT.md`, `docs/DEPLOYMENT_CHECKLIST.md`.
+- Static export: `npm run build:cloudflare` (`scripts/build-static.mjs`, `FIELDWISE_STATIC_EXPORT=true` → `out/` +
+  generated `_headers`). Every page must be exportable: no request-time APIs, every dynamic route returns ≥ 1 param.
+  Local Pages check: `wrangler pages dev out` (via npx/scratch install; not a project dependency).
+- Web: `src/lib/security-headers.ts` (CSP self-only, `headerRules` for next.config and `cloudflareHeadersFile` for
+  `_headers` — one source; any new origin, inline need or blob use must be added there and tested), `src/lib/pwa-manifest.ts` + `app/manifest.webmanifest/route.ts` (linked with use-credentials), icons from
   `scripts/generate-icons.mjs`. No service worker (don't add one without cache rules that exclude records/exports).
   Access protection is a hosting setting; no app login. Form fields ≥ 16 px (iPhone zoom).
 - `src/lib/lab/layout.ts`: bench drawing layout (routing, label collision avoidance). `progress.ts`: saved progress (zod).
@@ -91,7 +94,7 @@ Zod 4, Vitest + Testing Library (jsdom), ESLint 9 (eslint-config-next). No backe
 
 ## Commands
 - `npm run dev` · `npm run dev:demo`
-- `npm run lint` · `npm run typecheck` · `npm test` · `npx vitest run <path>` · `npm run build`
+- `npm run lint` · `npm run typecheck` · `npm test` · `npx vitest run <path>` · `npm run build` · `npm run build:cloudflare`
 - Browser QA: Playwright is pre-installed (`require('playwright')`); run `npx next start -p 3100` after build.
   Stop the server with `ps aux | grep next-server | grep -v grep | awk '{print $2}' | xargs -r kill` (not `pkill -f`).
 
